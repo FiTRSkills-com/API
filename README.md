@@ -2,7 +2,7 @@
 
 ## Setup
 
-Create a new `.env` file in the root directory of the project.
+Create a copy of `.env.example` and rename it to `.env` in the root directory of the project. Set the `MONGO_URI` environment variable to the URI of the MongoDB database.
 
 ```
 MONGO_URI=mongodb+srv://<username>:<password>@...
