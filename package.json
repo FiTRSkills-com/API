@@ -1,0 +1,23 @@
+{
+  "name": "fitrskills",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "dev": "nodemon --exec \"ts-node\" ./src/index.ts"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.0",
+    "dayjs": "^1.11.1",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.1",
+    "mongoose": "^6.3.2",
+    "pino": "^7.11.0",
+    "pino-pretty": "^7.6.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "typescript": "^4.6.4"
+  }
+}
