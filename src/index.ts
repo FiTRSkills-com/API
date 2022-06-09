@@ -6,6 +6,8 @@ import bodyParser from "body-parser";
 
 // Routes
 import skillRoutes from "./Routes/skillRoutes";
+import authRoutes from "./Routes/authRoutes";
+import userSkillRoutes from "./Routes/userSkillsRoutes";
 
 // Import Logging
 import log from "./utils/log";
@@ -45,6 +47,8 @@ app.use(bodyParser.json());
 
 // Setup Routes
 app.use("/api/v1/skills", skillRoutes);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/userSkills", userSkillRoutes);
 
 // Test Connection
 app.get("/", (_: Request, res: Response) => {
