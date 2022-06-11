@@ -50,7 +50,7 @@ userRoutes.patch("/skills", (req: Request, res: Response): void => {
   const userID = req.userID;
   const { skills } = req.body;
 
-  if (!skills || skills.length === 0) {
+  if (!skills) {
     res.status(400).send("No skills provided");
   }
 
