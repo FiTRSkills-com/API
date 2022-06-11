@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 
 /**
  * @typedef {Object} Skill
@@ -27,4 +27,6 @@ const SkillSchema: Schema = new Schema<Skill>({
   },
 });
 
-export default SkillSchema;
+// Create and export the model.
+const SkillModel = model("Skill", SkillSchema);
+export default SkillModel;

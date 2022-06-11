@@ -1,14 +1,11 @@
-require("dotenv").config();
-
 import { Router, Request, Response } from "express";
-import { model } from "mongoose";
+import jwt from "jsonwebtoken";
 
 // Types
-import { User } from "../Types/User";
+import { User } from "../Models/User";
 
-// Schema
-import UserSchema from "../Models/User";
-const UserModel = model("User", UserSchema);
+// Models
+import UserModel from "../Models/User";
 
 // Instantiate the router
 const authRoutes = Router();
@@ -22,13 +19,13 @@ const authRoutes = Router();
  * @alias module:Routes/authRoutes
  * @property {Request} req - Express Request
  * @property {Response} res - Express Response
- * @returns {JSON || Error} User as JSON or Error
+ * @returns {JSON || String || Error} - Bearer Token as JSON || Error Message || Error
  */
 authRoutes.post("/login", (req: Request, res: Response): void => {
   const { id } = req.body;
 
   if (!id) {
-    res.status(400).send("No id provided");
+    res.status(400).send("Request not formatted correctly");
   }
 
   UserModel.findOne({ userID: id }, (err: Error, user: User): void => {
@@ -37,14 +34,35 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
     }
 
     if (user) {
-      res.status(200).send(user);
+      jwt.sign(
+        { id: user.userID },
+        process.env.JWT_SECRET!,
+        (err: Error | null, token: string | undefined) => {
+          if (err) {
+            res.status(500).send(err);
+          }
+
+          res.status(200).send({ token });
+        }
+      );
     } else {
       const newUser = new UserModel({ userID: id });
       newUser.save((err: Error) => {
         if (err) {
           res.status(500).send(err);
         }
-        res.status(200).send(newUser);
+
+        jwt.sign(
+          { id },
+          process.env.JWT_SECRET!,
+          (err: Error | null, token: string | undefined) => {
+            if (err) {
+              res.status(500).send(err);
+            }
+
+            res.status(200).send({ token });
+          }
+        );
       });
     }
   });

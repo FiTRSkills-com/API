@@ -1,12 +1,10 @@
 import { Router, Request, Response } from "express";
-import { model } from "mongoose";
 
 // Types
 import type Skill from "../Types/Skills";
 
-// Schema
-import SkillSchema from "../Models/Skill";
-const SkillModel = model("Skill", SkillSchema);
+// Models
+import SkillModel from "../Models/Skill";
 
 // Instantiate the router
 const skillRoutes = Router();
@@ -18,7 +16,7 @@ const skillRoutes = Router();
  * @alias module:Routes/skillRoutes
  * @property {Request} _ - Express Request
  * @property {Response} res - Express Response
- * @returns {json || Error} JSON object containing all skills or Error
+ * @returns {JSON || Error} JSON object containing all skills || Error
  */
 skillRoutes.get("/", (_: Request, res: Response): void => {
   SkillModel.find({}, { __v: 0 }, (err: Error, skills: Skill[]) => {
@@ -36,7 +34,7 @@ skillRoutes.get("/", (_: Request, res: Response): void => {
  * @alias module:Routes/skillRoutes
  * @property {Request} req - Express Request
  * @property {Response} res - Express Response
- * @returns {json || Error} JSON object containing the skill or Error
+ * @returns {JSON || Error} JSON object containing the skill || Error
  */
 skillRoutes.get("/:name", (req: Request, res: Response): void => {
   const { name } = req.params;
@@ -60,7 +58,7 @@ skillRoutes.get("/:name", (req: Request, res: Response): void => {
  * @alias module:Routes/skillRoutes
  * @property {Request} req - Express Request
  * @property {Response} res - Express Response
- * @returns {json} JSON object containing the skill or Error with message
+ * @returns {JSON || Error} JSON object containing success or error message || Error
  */
 skillRoutes.post("/", (req: Request, res: Response): void => {
   const skill = new SkillModel(req.body);
