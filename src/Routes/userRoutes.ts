@@ -23,10 +23,7 @@ userRoutes.use(verifyToken);
  * @returns {JSON || Error} - JSON object containing the user || Error
  */
 userRoutes.get("/", (req: Request, res: Response): void => {
-  // @ts-ignore
-  const userID = req.userID;
-
-  UserModel.find({ userID }, { __v: 0 })
+  UserModel.find({ userID: req.userID }, { __v: 0 })
     .populate({ path: "skills", select: "Skill -_id" })
     .exec((err: CallbackError, user: any): void => {
       if (err) {
@@ -47,21 +44,25 @@ userRoutes.get("/", (req: Request, res: Response): void => {
  * @returns {string || Error} - Success message || Error message || Error
  */
 userRoutes.patch("/skills", (req: Request, res: Response): void => {
-  // @ts-ignore
-  const userID = req.userID;
   const { skills } = req.body;
 
   if (!skills) {
     res.status(400).send("No skills provided");
   }
 
-  UserModel.updateOne({ userID }, { $set: { skills } }, (err: Error): void => {
-    if (err) {
-      res.status(500).send(err);
-    }
+  UserModel.updateOne(
+    { userID: req.userID },
+    { $set: { skills } },
+    (err: Error): void => {
+      if (err) {
+        res.status(500).send(err);
+      }
 
-    res.status(200).send(`Added skills ${skills.join(", ")} to user ${userID}`);
-  });
+      res
+        .status(200)
+        .send(`Added skills ${skills.join(", ")} to user ${req.userID}`);
+    }
+  );
 });
 
 export default userRoutes;

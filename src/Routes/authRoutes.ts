@@ -35,7 +35,7 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
 
     if (user) {
       jwt.sign(
-        { id: user.userID },
+        { user },
         process.env.JWT_SECRET!,
         (err: Error | null, token: string | undefined): void => {
           if (err) {
@@ -53,7 +53,7 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
         }
 
         jwt.sign(
-          { id },
+          { user: newUser },
           process.env.JWT_SECRET!,
           (err: Error | null, token: string | undefined): void => {
             if (err) {

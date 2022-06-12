@@ -7,6 +7,7 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import JobModel, { Job } from "../Models/Job";
 import CompanyModel from "../Models/Company";
+import UserModel, { User } from "../Models/User";
 
 // Instantiate the router
 const jobRoutes = Router();
@@ -34,6 +35,47 @@ jobRoutes.get("/", (_: Request, res: Response): void => {
 
       res.status(200).send(jobs);
     });
+});
+
+/**
+ * Route for getting jobs for a user based on their skills.
+ * @name GET /forme
+ * @function
+ * @alias module:Routes/jobRoutes
+ * @property {Request} req - Express Request
+ * @property {Response} res - Express Response
+ * @returns {Job[]} - Array of jobs
+ */
+jobRoutes.get("/forme", async (req: Request, res: Response): Promise<void> => {
+  const user = await UserModel.findById(req.user._id);
+  const jobs = await JobModel.find({});
+
+  // Filter jobs based on user's skills
+  const filteredJobs = jobs.filter((job: Job) => {
+    const skills = job.skills;
+    const userSkills = user.skills;
+    const filteredSkills = skills.filter((skill: any) => {
+      return userSkills.includes(skill._id);
+    });
+    return filteredSkills.length > 0;
+  });
+
+  // Sort jobs based on number of skills matched
+  const sortedJobs = filteredJobs.sort((a: Job, b: Job) => {
+    const aSkills = a.skills;
+    const bSkills = b.skills;
+    const aSkillsLength = aSkills.length;
+    const bSkillsLength = bSkills.length;
+    if (aSkillsLength > bSkillsLength) {
+      return -1;
+    } else if (aSkillsLength < bSkillsLength) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
+  res.status(200).send(sortedJobs);
 });
 
 /**

@@ -33,8 +33,8 @@ export const verifyToken = (
         return;
       }
 
-      // @ts-ignore
-      req.userID = decoded.id;
+      req.userID = decoded.user.userID;
+      req.user = decoded.user;
       next();
     }
   );
