@@ -5,9 +5,13 @@ import mongoose, { ConnectOptions } from "mongoose";
 import bodyParser from "body-parser";
 
 // Routes
-import skillRoutes from "./Routes/skillRoutes";
-import authRoutes from "./Routes/authRoutes";
-import userRoutes from "./Routes/userRoutes";
+import {
+  skillRoutes,
+  authRoutes,
+  userRoutes,
+  jobRoutes,
+  companyRoutes,
+} from "./Routes/Routes";
 
 // Import Logging
 import log from "./utils/log";
@@ -49,6 +53,8 @@ app.use(bodyParser.json());
 app.use("/api/v1/skills", skillRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/job", jobRoutes);
+app.use("/api/v1/company", companyRoutes);
 
 // Test Connection
 app.get("/", (_: Request, res: Response) => {

@@ -19,7 +19,7 @@ const authRoutes = Router();
  * @alias module:Routes/authRoutes
  * @property {Request} req - Express Request
  * @property {Response} res - Express Response
- * @returns {JSON || String || Error} - Bearer Token as JSON || Error Message || Error
+ * @returns {JSON || string || Error} - Bearer Token as JSON || Error Message || Error
  */
 authRoutes.post("/login", (req: Request, res: Response): void => {
   const { id } = req.body;
@@ -37,7 +37,7 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
       jwt.sign(
         { id: user.userID },
         process.env.JWT_SECRET!,
-        (err: Error | null, token: string | undefined) => {
+        (err: Error | null, token: string | undefined): void => {
           if (err) {
             res.status(500).send(err);
           }
@@ -47,7 +47,7 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
       );
     } else {
       const newUser = new UserModel({ userID: id });
-      newUser.save((err: Error) => {
+      newUser.save((err: Error): void => {
         if (err) {
           res.status(500).send(err);
         }
@@ -55,7 +55,7 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
         jwt.sign(
           { id },
           process.env.JWT_SECRET!,
-          (err: Error | null, token: string | undefined) => {
+          (err: Error | null, token: string | undefined): void => {
             if (err) {
               res.status(500).send(err);
             }

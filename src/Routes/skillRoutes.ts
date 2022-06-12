@@ -19,7 +19,7 @@ const skillRoutes = Router();
  * @returns {JSON || Error} JSON object containing all skills || Error
  */
 skillRoutes.get("/", (_: Request, res: Response): void => {
-  SkillModel.find({}, { __v: 0 }, (err: Error, skills: Skill[]) => {
+  SkillModel.find({}, { __v: 0 }, (err: Error, skills: Skill[]): void => {
     if (err) {
       res.status(500).send(err);
     }
@@ -42,7 +42,7 @@ skillRoutes.get("/:name", (req: Request, res: Response): void => {
   SkillModel.findOne(
     { Skill: new RegExp("^" + name + "$", "i") },
     { __v: 0 },
-    (err: Error, skill: Skill) => {
+    (err: Error, skill: Skill): void => {
       if (err) {
         res.status(500).send(err);
       }
@@ -63,25 +63,28 @@ skillRoutes.get("/:name", (req: Request, res: Response): void => {
 skillRoutes.post("/", (req: Request, res: Response): void => {
   const skill = new SkillModel(req.body);
 
-  SkillModel.find({ Skill: skill.Skill }, (err: Error, skills: Skill[]) => {
-    if (err) {
-      res.status(500).send(err);
-    }
-    if (skills.length > 0) {
-      res.status(400).json({
-        message: "Skill already exists",
-      });
-    } else {
-      skill.save((err: Error) => {
-        if (err) {
-          res.status(500).send(err);
-        }
-        res.status(201).json({
-          message: "Skill successfully created",
+  SkillModel.find(
+    { Skill: skill.Skill },
+    (err: Error, skills: Skill[]): void => {
+      if (err) {
+        res.status(500).send(err);
+      }
+      if (skills.length > 0) {
+        res.status(400).json({
+          message: "Skill already exists",
         });
-      });
+      } else {
+        skill.save((err: Error): void => {
+          if (err) {
+            res.status(500).send(err);
+          }
+          res.status(201).json({
+            message: "Skill successfully created",
+          });
+        });
+      }
     }
-  });
+  );
 });
 
 export default skillRoutes;

@@ -1,16 +1,16 @@
-import { Schema, model, ObjectId } from "mongoose";
+import { Schema, model } from "mongoose";
 
 /**
  * @typedef {Object} User
  * @property {string} userID - The unique id for the user.
  * @property {string} bio - The user's bio.
- * @property {any[]} skills - The user's skills.
- * @example { userID: "12345", bio: "I am a user", skills: [{ "Skill": "JavaScript" }, { "Skill": "TypeScript"}] }
+ * @property {string[]} skills - The user's skills.
+ * @example { userID: "12345", bio: "I am a user", skills: [{ ObjectId("123") }] }
  */
 export interface User {
   userID: string;
   bio: string;
-  skills: any[];
+  skills: string[];
 }
 
 /**

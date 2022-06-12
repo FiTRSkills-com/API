@@ -1,10 +1,11 @@
 import { Router, Request, Response } from "express";
+import { CallbackError } from "mongoose";
 
 // Middleware
 import { verifyToken } from "../Middleware/Authorization";
 
 // Models
-import UserModel from "../Models/User";
+import UserModel, { User } from "../Models/User";
 
 // Instantiate the router
 const userRoutes = Router();
@@ -27,7 +28,7 @@ userRoutes.get("/", (req: Request, res: Response): void => {
 
   UserModel.find({ userID }, { __v: 0 })
     .populate({ path: "skills", select: "Skill -_id" })
-    .exec((err, user) => {
+    .exec((err: CallbackError, user: any): void => {
       if (err) {
         res.status(500).send(err);
       }
@@ -43,7 +44,7 @@ userRoutes.get("/", (req: Request, res: Response): void => {
  * @alias module:Routes/userRoutes
  * @property {Request} req - Express Request
  * @property {Response} res - Express Response
- * @returns {String || Error} - Success message || Error message || Error
+ * @returns {string || Error} - Success message || Error message || Error
  */
 userRoutes.patch("/skills", (req: Request, res: Response): void => {
   // @ts-ignore
@@ -54,7 +55,7 @@ userRoutes.patch("/skills", (req: Request, res: Response): void => {
     res.status(400).send("No skills provided");
   }
 
-  UserModel.updateOne({ userID }, { $set: { skills } }, (err: Error) => {
+  UserModel.updateOne({ userID }, { $set: { skills } }, (err: Error): void => {
     if (err) {
       res.status(500).send(err);
     }
