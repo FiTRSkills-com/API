@@ -6,6 +6,7 @@ Create a copy of `.env.example` and rename it to `.env` in the root directory of
 
 ```
 MONGO_URI=mongodb+srv://<username>:<password>@...
+JWT_SECRET=supersecretstring...
 ```
 
 ## Install Dependencies
