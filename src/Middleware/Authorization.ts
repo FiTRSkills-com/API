@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+// Types
+import { UserDocument } from "../Types/UserDocument";
+
+// Models
+import UserModel from "../Models/User";
+
 /**
  * Middleware function for checking if user is authorized
  * @param {Request} req - Express Request
@@ -13,29 +19,61 @@ export const verifyToken = (
   res: Response,
   next: NextFunction
 ): void => {
-  const token = req.headers["authorization"];
+  const header = req.headers["authorization"];
+  const token = header && header.split(" ")[1];
 
-  if (
-    !token ||
-    token.split(" ")[0] !== "Bearer" ||
-    token.split(" ")[1] === undefined
-  ) {
+  if (!token || header.split(" ")[0] !== "Bearer") {
     res.status(401).send("Not authorized");
     return;
   }
 
-  jwt.verify(
-    token.split(" ")[1],
-    process.env.JWT_SECRET!,
-    (err: Error | null, decoded: any): void => {
-      if (err) {
-        res.status(403).send("Invalid token");
-        return;
-      }
-
-      req.userID = decoded.user.userID;
-      req.user = decoded.user;
-      next();
+  // Verify token in the database
+  UserModel.findOne({ accessToken: token }, (err: Error, user: any): void => {
+    if (err) {
+      res.status(500).send(err);
+      return;
     }
-  );
+
+    if (!user) {
+      res.status(401).send("Not authorized");
+      return;
+    }
+
+    // Verify token in the request and check that decoded user is same as user in database
+    jwt.verify(
+      token,
+      process.env.JWT_SECRET!,
+      (err: Error | null, decoded: any): void => {
+        if (err) {
+          res.status(500).send(err);
+          return;
+        }
+
+        if (decoded.user.userID !== user.userID) {
+          res.status(401).send("Not authorized");
+          return;
+        }
+
+        // Set user in request
+        req.userID = user.userID;
+        req.user = user;
+        next();
+      }
+    );
+  });
+
+  // jwt.verify(
+  //   token,
+  //   process.env.JWT_SECRET!,
+  //   (err: Error | null, decoded: any): void => {
+  //     if (err) {
+  //       res.status(403).send("Invalid token");
+  //       return;
+  //     }
+
+  //     req.userID = decoded.user.userID;
+  //     req.user = decoded.user;
+  //     next();
+  //   }
+  // );
 };

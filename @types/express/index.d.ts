@@ -1,6 +1,7 @@
 interface User {
   _id: string;
   userID: string;
+  accessToken: string;
   skills: string[];
   __v: number;
 }

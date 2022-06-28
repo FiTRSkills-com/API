@@ -3,5 +3,13 @@ import authRoutes from "./authRoutes";
 import userRoutes from "./userRoutes";
 import jobRoutes from "./jobRoutes";
 import companyRoutes from "./companyRoutes";
+import interviewRoutes from "./interviewRoutes";
 
-export { skillRoutes, authRoutes, userRoutes, jobRoutes, companyRoutes };
+export {
+  skillRoutes,
+  authRoutes,
+  userRoutes,
+  jobRoutes,
+  companyRoutes,
+  interviewRoutes,
+};

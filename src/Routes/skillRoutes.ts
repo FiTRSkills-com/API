@@ -1,5 +1,8 @@
 import { Router, Request, Response } from "express";
 
+// Middleware
+import { verifyToken } from "../Middleware/Authorization";
+
 // Types
 import type Skill from "../Types/Skills";
 
@@ -8,6 +11,9 @@ import SkillModel from "../Models/Skill";
 
 // Instantiate the router
 const skillRoutes = Router();
+
+// Use Middleware
+skillRoutes.use(verifyToken);
 
 /**
  * Route for getting all skills

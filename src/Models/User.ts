@@ -4,12 +4,14 @@ import { Schema, model } from "mongoose";
  * @typedef {Object} User
  * @property {string} userID - The unique id for the user.
  * @property {string} bio - The user's bio.
+ * @property {string} accessToken - The user's access token.
  * @property {string[]} skills - The user's skills.
- * @example { userID: "12345", bio: "I am a user", skills: [{ ObjectId("123") }] }
+ * @example { userID: "12345", bio: "I am a user", accessToken: "eyJhbGciOiJIUzI1", skills: [{ ObjectId("123") }] }
  */
 export interface User {
   userID: string;
   bio: string;
+  accessToken: string;
   skills: string[];
 }
 
@@ -17,6 +19,7 @@ export interface User {
  * @typedef {Object} UserSchema<User>
  * @property {string} userID - The unique id for the user. (Required)
  * @property {string} bio - The user's bio. (Optional)
+ * @property {string} accessToken - The user's access token. (Optional)
  * @property {ObjectId[]} skills - The user's skills. (Optional)
  */
 const UserSchema: Schema = new Schema<User>({
@@ -25,6 +28,10 @@ const UserSchema: Schema = new Schema<User>({
     required: true,
   },
   bio: {
+    type: String,
+    required: false,
+  },
+  accessToken: {
     type: String,
     required: false,
   },

@@ -7,7 +7,10 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import JobModel, { Job } from "../Models/Job";
 import CompanyModel from "../Models/Company";
-import UserModel, { User } from "../Models/User";
+import UserModel from "../Models/User";
+
+// Types
+import { JobDocument, SkillDocument } from "../Types/JobDocument";
 
 // Instantiate the router
 const jobRoutes = Router();
@@ -48,20 +51,22 @@ jobRoutes.get("/", (_: Request, res: Response): void => {
  */
 jobRoutes.get("/forme", async (req: Request, res: Response): Promise<void> => {
   const user = await UserModel.findById(req.user._id);
-  const jobs = await JobModel.find({});
+  const jobs: JobDocument[] = await JobModel.find({})
+    .populate({ path: "skills", select: "Skill Date" })
+    .populate({ path: "company", select: "-jobs -__v -_id" });
 
   // Filter jobs based on user's skills
-  const filteredJobs = jobs.filter((job: Job) => {
+  const filteredJobs = jobs.filter((job: JobDocument) => {
     const skills = job.skills;
     const userSkills = user.skills;
-    const filteredSkills = skills.filter((skill: any) => {
+    const filteredSkills = skills.filter((skill: SkillDocument) => {
       return userSkills.includes(skill._id);
     });
     return filteredSkills.length > 0;
   });
 
   // Sort jobs based on number of skills matched
-  const sortedJobs = filteredJobs.sort((a: Job, b: Job) => {
+  const sortedJobs = filteredJobs.sort((a: JobDocument, b: JobDocument) => {
     const aSkills = a.skills;
     const bSkills = b.skills;
     const aSkillsLength = aSkills.length;

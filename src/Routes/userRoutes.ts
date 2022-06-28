@@ -23,8 +23,8 @@ userRoutes.use(verifyToken);
  * @returns {JSON || Error} - JSON object containing the user || Error
  */
 userRoutes.get("/", (req: Request, res: Response): void => {
-  UserModel.find({ userID: req.userID }, { __v: 0 })
-    .populate({ path: "skills", select: "Skill -_id" })
+  UserModel.findOne({ userID: req.userID }, { __v: 0 })
+    .populate({ path: "skills", select: "Skill _id" })
     .exec((err: CallbackError, user: any): void => {
       if (err) {
         res.status(500).send(err);

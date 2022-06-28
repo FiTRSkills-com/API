@@ -11,6 +11,7 @@ import {
   userRoutes,
   jobRoutes,
   companyRoutes,
+  interviewRoutes,
 } from "./Routes/Routes";
 
 // Import Logging
@@ -55,6 +56,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/job", jobRoutes);
 app.use("/api/v1/company", companyRoutes);
+app.use("/api/v1/interview", interviewRoutes);
 
 // Test Connection
 app.get("/", (_: Request, res: Response) => {

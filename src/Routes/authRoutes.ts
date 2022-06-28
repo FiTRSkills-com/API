@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 
 // Types
-import { User } from "../Models/User";
+import { UserDocument } from "../Types/UserDocument";
 
 // Models
 import UserModel from "../Models/User";
@@ -28,23 +28,17 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
     res.status(400).send("Request not formatted correctly");
   }
 
-  UserModel.findOne({ userID: id }, (err: Error, user: User): void => {
+  UserModel.findOne({ userID: id }, (err: Error, user: UserDocument): void => {
     if (err) {
       res.status(500).send(err);
     }
 
     if (user) {
-      jwt.sign(
-        { user },
-        process.env.JWT_SECRET!,
-        (err: Error | null, token: string | undefined): void => {
-          if (err) {
-            res.status(500).send(err);
-          }
-
-          res.status(200).send({ token });
-        }
-      );
+      if (user.accessToken) {
+        res.status(200).send(user);
+      } else {
+        updateAccessToken(user, generateAccessToken(user), res);
+      }
     } else {
       const newUser = new UserModel({ userID: id });
       newUser.save((err: Error): void => {
@@ -52,20 +46,53 @@ authRoutes.post("/login", (req: Request, res: Response): void => {
           res.status(500).send(err);
         }
 
-        jwt.sign(
-          { user: newUser },
-          process.env.JWT_SECRET!,
-          (err: Error | null, token: string | undefined): void => {
-            if (err) {
-              res.status(500).send(err);
-            }
-
-            res.status(200).send({ token });
-          }
-        );
+        updateAccessToken(newUser, generateAccessToken(newUser), res);
       });
     }
   });
 });
+
+authRoutes.delete("/logout", (req: Request, res: Response): void => {
+  const { id } = req.body;
+
+  if (!id) {
+    res.status(400).send("Request not formatted correctly");
+  }
+
+  UserModel.updateOne(
+    { userID: id },
+    { $set: { accessToken: "" } },
+    (err: Error): void => {
+      if (err) {
+        res.status(500).send(err);
+      }
+
+      res.status(200).send("Logged out");
+    }
+  );
+});
+
+const generateAccessToken = (user: UserDocument): string => {
+  return jwt.sign({ user }, process.env.JWT_SECRET!);
+};
+
+const updateAccessToken = (
+  user: UserDocument,
+  token: string,
+  res: Response
+): void => {
+  UserModel.findByIdAndUpdate(
+    user._id,
+    { $set: { accessToken: token } },
+    (err: Error, userObject: UserDocument): void => {
+      if (err) {
+        res.status(500).send(err);
+      } else {
+        userObject.accessToken = token;
+        res.status(200).send(userObject);
+      }
+    }
+  );
+};
 
 export default authRoutes;
