@@ -8,8 +8,8 @@
     "dev": "nodemon -q --exec \"ts-node\" ./src/index.ts"
   },
   "engines": {
-    "node": "16.5.1",
-    "yarn": "1.22.19"
+    "node": "16.x.x",
+    "yarn": "1.x.x"
   },
   "dependencies": {
     "axios": "^0.27.2",
