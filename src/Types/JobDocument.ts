@@ -1,3 +1,5 @@
+import { SkillDocument } from "./SkillDocument";
+
 export interface JobDocument {
   _id: string;
   title: string;
@@ -25,10 +27,4 @@ interface Company {
 interface Headquarters {
   city: string;
   state: string;
-}
-
-export interface SkillDocument {
-  _id: string;
-  Skill: string;
-  Date: Date;
 }

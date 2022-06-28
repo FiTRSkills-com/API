@@ -10,7 +10,8 @@ import CompanyModel from "../Models/Company";
 import UserModel from "../Models/User";
 
 // Types
-import { JobDocument, SkillDocument } from "../Types/JobDocument";
+import { JobDocument } from "../Types/JobDocument";
+import { SkillDocument } from "../Types/SkillDocument";
 
 // Instantiate the router
 const jobRoutes = Router();

@@ -1,9 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-// Types
-import { UserDocument } from "../Types/UserDocument";
-
 // Models
 import UserModel from "../Models/User";
 
@@ -61,19 +58,4 @@ export const verifyToken = (
       }
     );
   });
-
-  // jwt.verify(
-  //   token,
-  //   process.env.JWT_SECRET!,
-  //   (err: Error | null, decoded: any): void => {
-  //     if (err) {
-  //       res.status(403).send("Invalid token");
-  //       return;
-  //     }
-
-  //     req.userID = decoded.user.userID;
-  //     req.user = decoded.user;
-  //     next();
-  //   }
-  // );
 };
