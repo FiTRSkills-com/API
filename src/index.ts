@@ -1,5 +1,6 @@
 require("dotenv").config();
-import { createServer } from "http";
+import { createServer } from "https";
+import { readFileSync } from 'fs';
 import express, { NextFunction, Request, Response } from "express";
 import mongoose, { ConnectOptions } from "mongoose";
 import bodyParser from "body-parser";
@@ -58,14 +59,27 @@ app.use("/api/v1/job", jobRoutes);
 app.use("/api/v1/company", companyRoutes);
 app.use("/api/v1/interview", interviewRoutes);
 
-// Test Connection
+// Hello World
 app.get("/", (_: Request, res: Response) => {
-  res.send("Hello World!");
+  res.status(200).send("Hello World!");
 });
 
-// Create Server
-const server = createServer(app);
-const port = process.env.PORT || 3000;
+app.get('/api/v1', (_: Request, res: Response) => {
+  res.status(200).send({
+    'status': 'Connected',
+    'message': 'This is a base url, not an actual API route'
+  })
+})
+
+const server = createServer(
+  {
+	key: readFileSync('/etc/letsencrypt/live/fitrskills.wolfyy.me/privkey.pem'),
+    cert: readFileSync('/etc/letsencrypt/live/fitrskills.wolfyy.me/fullchain.pem')
+  },
+    app
+);
+
+const port = process.env.PORT || 3005;
 
 // Start Server and Log Port
 server.listen(port, () => {
