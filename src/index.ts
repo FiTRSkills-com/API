@@ -4,6 +4,7 @@ import { readFileSync } from 'fs';
 import express, { NextFunction, Request, Response } from "express";
 import mongoose, { ConnectOptions } from "mongoose";
 import bodyParser from "body-parser";
+import cors from 'cors';
 
 // Routes
 import {
@@ -48,8 +49,9 @@ const loggerMiddleware = (req: Request, _: Response, next: NextFunction) => {
   next();
 };
 
-// Use Middleware and parse JSON
+// Use Middleware, cors, and parse JSON
 app.use(loggerMiddleware);
+app.use(cors());
 app.use(bodyParser.json());
 
 // Setup Routes
