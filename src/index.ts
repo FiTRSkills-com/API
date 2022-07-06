@@ -13,6 +13,7 @@ import {
   jobRoutes,
   companyRoutes,
   interviewRoutes,
+  applicationRoutes
 } from "./Routes/Routes";
 
 // Import Logging
@@ -58,6 +59,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/job", jobRoutes);
 app.use("/api/v1/company", companyRoutes);
 app.use("/api/v1/interview", interviewRoutes);
+app.use("/api/v1/application", applicationRoutes);
 
 // Hello World
 app.get("/", (_: Request, res: Response) => {
@@ -73,10 +75,10 @@ app.get('/api/v1', (_: Request, res: Response) => {
 
 const server = createServer(
   {
-	key: readFileSync('/etc/letsencrypt/live/fitrskills.wolfyy.me/privkey.pem'),
+    key: readFileSync('/etc/letsencrypt/live/fitrskills.wolfyy.me/privkey.pem'),
     cert: readFileSync('/etc/letsencrypt/live/fitrskills.wolfyy.me/fullchain.pem')
   },
-    app
+  app
 );
 
 const port = process.env.PORT || 3005;
