@@ -39,7 +39,7 @@ applicationRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
 
 /**
  * Route for getting a user's applictions
- * @name GET /user/:id
+ * @name GET /user
  * @function
  * @alias module:Routes/applicationRoutes
  * @property {Request} req Express Request

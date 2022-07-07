@@ -24,33 +24,26 @@ interface InterviewDetails {
 
 /**
  * @typedef {Object} Interview
- * @property {string} employerID - The employees ID
- * @property {string} userID - The job seekers ID
+ * @property {string} applicationID - The application's unique ID
  * @property {Date} interviewDate - The datetime of the interview
  * @property {InterviewDetails} interviewDetails - The details of the interview
  */
 export interface Interview {
-  employerID: string;
-  userID: string;
+  applicationID: string;
   interviewDate: Date;
   interviewDetails: InterviewDetails;
 }
 
 /**
  * @typedef {Object} InterviewModel
- * @property {string} employerID - The employee's ID (Required)
- * @property {string} userID - The user's ID (Required)
+ * @property {string} applicationID - The application's unique ID (Required)
  * @property {Date} interviewDate - The interview's datetime (Required)
- * @property {Object} interviewDetails - The interview's details (Required except notes)
+ * @property {Object} interviewDetails - The interview's details (Optional)
  */
 const InterviewSchema: Schema = new Schema<Interview>({
-  employerID: {
-    type: String,
-    required: true,
-  },
-  userID: {
+  applicationID: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Application",
     required: true,
   },
   interviewDate: {
@@ -60,16 +53,16 @@ const InterviewSchema: Schema = new Schema<Interview>({
   interviewDetails: {
     companyID: {
       type: String,
-      required: true,
+      required: false,
     },
     interviewer: {
       name: {
         type: String,
-        required: true,
+        required: false,
       },
       position: {
         type: String,
-        required: true,
+        required: false,
       },
     },
     notes: {
