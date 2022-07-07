@@ -33,7 +33,7 @@ export interface Interview {
   employerID: string;
   userID: string;
   interviewDate: Date;
-  interviewDetails: InterviewDetails
+  interviewDetails: InterviewDetails;
 }
 
 /**
@@ -76,8 +76,8 @@ const InterviewSchema: Schema = new Schema<Interview>({
       type: String,
       required: false,
     },
-  }
-})
+  },
+});
 
 // Create and export the model
 const InterviewModel = model("Interview", InterviewSchema);

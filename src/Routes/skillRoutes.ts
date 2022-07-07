@@ -3,9 +3,6 @@ import { Router, Request, Response } from "express";
 // Middleware
 import { verifyToken } from "../Middleware/Authorization";
 
-// Types
-import type Skill from "../Types/Skills";
-
 // Models
 import SkillModel from "../Models/Skill";
 
@@ -20,17 +17,19 @@ skillRoutes.use(verifyToken);
  * @name GET /
  * @function
  * @alias module:Routes/skillRoutes
- * @property {Request} _ - Express Request
- * @property {Response} res - Express Response
- * @returns {JSON || Error} JSON object containing all skills || Error
+ * @property {Request} _ Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
  */
-skillRoutes.get("/", (_: Request, res: Response): void => {
-  SkillModel.find({}, { __v: 0 }, (err: Error, skills: Skill[]): void => {
-    if (err) {
-      res.status(500).send(err);
-    }
-    res.status(200).send(skills);
-  });
+skillRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
+  try {
+    const skills = await SkillModel.find({}, { __v: 0 }).exec();
+
+    if (!skills) return res.status(200).send("No skills exist");
+    return res.status(200).send(skills);
+  } catch (err) {
+    return res.status(500).send(err);
+  }
 });
 
 /**
@@ -38,23 +37,26 @@ skillRoutes.get("/", (_: Request, res: Response): void => {
  * @name GET /:name
  * @function
  * @alias module:Routes/skillRoutes
- * @property {Request} req - Express Request
- * @property {Response} res - Express Response
- * @returns {JSON || Error} JSON object containing the skill || Error
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
  */
-skillRoutes.get("/:name", (req: Request, res: Response): void => {
+skillRoutes.get("/:name", async (req: Request, res: Response): Promise<any> => {
   const { name } = req.params;
 
-  SkillModel.findOne(
-    { Skill: new RegExp("^" + name + "$", "i") },
-    { __v: 0 },
-    (err: Error, skill: Skill): void => {
-      if (err) {
-        res.status(500).send(err);
-      }
-      res.status(200).send(skill);
-    }
-  );
+  try {
+    const skill = await SkillModel.findOne(
+      { Skill: new RegExp("^" + name + "$", "i") },
+      { __v: 0 }
+    ).exec();
+
+    if (!skill)
+      return res.status(200).send("No skill found matching that name");
+
+    return res.status(200).send(skill);
+  } catch (err) {
+    return res.status(500).send(err);
+  }
 });
 
 /**
@@ -62,35 +64,30 @@ skillRoutes.get("/:name", (req: Request, res: Response): void => {
  * @name POST /
  * @function
  * @alias module:Routes/skillRoutes
- * @property {Request} req - Express Request
- * @property {Response} res - Express Response
- * @returns {JSON || Error} JSON object containing success or error message || Error
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
  */
-skillRoutes.post("/", (req: Request, res: Response): void => {
-  const skill = new SkillModel(req.body);
+skillRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
+  const { Skill } = req.body;
 
-  SkillModel.find(
-    { Skill: skill.Skill },
-    (err: Error, skills: Skill[]): void => {
-      if (err) {
-        res.status(500).send(err);
-      }
-      if (skills.length > 0) {
-        res.status(400).json({
-          message: "Skill already exists",
-        });
-      } else {
-        skill.save((err: Error): void => {
-          if (err) {
-            res.status(500).send(err);
-          }
-          res.status(201).json({
-            message: "Skill successfully created",
-          });
-        });
-      }
-    }
-  );
+  if (!Skill) return res.status(400).send("Missing required fields");
+
+  try {
+    const skill = await SkillModel.findOne({ Skill }).exec();
+
+    if (skill) return res.status(409).send("Skill already exists");
+
+    const newSkill = new SkillModel({
+      Skill,
+      Date: new Date(),
+    });
+
+    await newSkill.save();
+    return res.status(201).send("Skill created");
+  } catch (err) {
+    return res.status(500).send(err);
+  }
 });
 
 export default skillRoutes;

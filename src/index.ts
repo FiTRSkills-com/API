@@ -1,10 +1,10 @@
 require("dotenv").config();
 import { createServer } from "https";
-import { readFileSync } from 'fs';
+import { readFileSync } from "fs";
 import express, { NextFunction, Request, Response } from "express";
 import mongoose, { ConnectOptions } from "mongoose";
 import bodyParser from "body-parser";
-import cors from 'cors';
+import cors from "cors";
 
 // Routes
 import {
@@ -14,7 +14,7 @@ import {
   jobRoutes,
   companyRoutes,
   interviewRoutes,
-  applicationRoutes
+  applicationRoutes,
 } from "./Routes/Routes";
 
 // Import Logging
@@ -68,17 +68,19 @@ app.get("/", (_: Request, res: Response) => {
   res.status(200).send("Hello World!");
 });
 
-app.get('/api/v1', (_: Request, res: Response) => {
+app.get("/api/v1", (_: Request, res: Response) => {
   res.status(200).send({
-    'status': 'Connected',
-    'message': 'This is a base url, not an actual API route'
-  })
-})
+    status: "Connected",
+    message: "This is a base url, not an actual API route",
+  });
+});
 
 const server = createServer(
   {
-    key: readFileSync('/etc/letsencrypt/live/fitrskills.wolfyy.me/privkey.pem'),
-    cert: readFileSync('/etc/letsencrypt/live/fitrskills.wolfyy.me/fullchain.pem')
+    key: readFileSync("/etc/letsencrypt/live/fitrskills.wolfyy.me/privkey.pem"),
+    cert: readFileSync(
+      "/etc/letsencrypt/live/fitrskills.wolfyy.me/fullchain.pem"
+    ),
   },
   app
 );

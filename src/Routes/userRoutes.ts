@@ -5,7 +5,7 @@ import { CallbackError } from "mongoose";
 import { verifyToken } from "../Middleware/Authorization";
 
 // Models
-import UserModel, { User } from "../Models/User";
+import UserModel from "../Models/User";
 
 // Instantiate the router
 const userRoutes = Router();
@@ -18,49 +18,48 @@ userRoutes.use(verifyToken);
  * @name GET /
  * @function
  * @alias module:Routes/userRoutes
- * @property {Request} req - Express Request
- * @property {Response} res - Express Response
- * @returns {JSON || Error} - JSON object containing the user || Error
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
  */
-userRoutes.get("/", (req: Request, res: Response): void => {
-  UserModel.findOne({ userID: req.userID }, { __v: 0 })
-    .populate({ path: "skills", select: "Skill _id" })
-    .exec((err: CallbackError, user: any): void => {
-      if (err) {
-        res.status(500).send(err);
-      }
+userRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
+  try {
+    const user = await UserModel.findOne({ userID: req.userID }, { __v: 0 })
+      .populate({ path: "skills", select: "Skill _id" })
+      .exec();
 
-      res.status(200).send(user);
-    });
+    if (!user) return res.status(200).send("No user found with that ID");
+    return res.status(200).send(user);
+  } catch (err) {
+    return res.status(500).send(err);
+  }
 });
 
 /**
  * Route for updating a user's skills.
- * @name PATCH /skills
+ * @name PATCH /
  * @function
  * @alias module:Routes/userRoutes
- * @property {Request} req - Express Request
- * @property {Response} res - Express Response
- * @returns {string || Error} - Success message || Error message || Error
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {any}
  */
-userRoutes.patch("/skills", (req: Request, res: Response): void => {
-  const { skills } = req.body;
+userRoutes.patch("/", (req: Request, res: Response): any => {
+  const { skills, bio } = req.body;
 
-  if (!skills) {
-    res.status(400).send("No skills provided");
+  if (!skills && bio === null) {
+    return res.status(400).send("No skills provided");
   }
 
-  UserModel.updateOne(
+  return UserModel.updateOne(
     { userID: req.userID },
-    { $set: { skills } },
-    (err: Error): void => {
+    { $set: { skills, bio } },
+    (err: CallbackError): any => {
       if (err) {
-        res.status(500).send(err);
+        return res.status(500).send(err);
       }
 
-      res
-        .status(200)
-        .send(`Added skills ${skills.join(", ")} to user ${req.userID}`);
+      return res.status(200).send("User updated successfully");
     }
   );
 });

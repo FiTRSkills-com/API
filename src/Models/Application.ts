@@ -34,12 +34,12 @@ const ApplicationSchema: Schema = new Schema<Application>({
       },
       times: [
         {
-          type: Date
-        }
-      ]
+          type: Date,
+        },
+      ],
     },
-  ]
-})
+  ],
+});
 
 // Create and export the model
 const ApplicationModel = model("Application", ApplicationSchema);
