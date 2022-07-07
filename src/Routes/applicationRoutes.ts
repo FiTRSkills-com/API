@@ -38,6 +38,36 @@ applicationRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
 });
 
 /**
+ * Route for getting an application by ID
+ * @name GET /:id
+ * @function
+ * @alias module:Routes/applicationRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+applicationRoutes.get(
+  "/:id",
+  async (req: Request, res: Response): Promise<any> => {
+    const { id } = req.params;
+
+    try {
+      const application = await ApplicationModel.findById(id, { __v: 0 })
+        .populate({ path: "job", select: "_id title type location" })
+        .populate({ path: "user", select: "-_id userID" })
+        .exec();
+
+      if (!application)
+        return res.status(200).send("Application not found for ID");
+
+      return res.status(200).send(application);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+/**
  * Route for getting a user's applictions
  * @name GET /user
  * @function
