@@ -132,7 +132,7 @@ applicationRoutes.patch("/:id", (req: Request, res: Response): any => {
     return res.status(400).send("Missing required fields");
   }
 
-  ApplicationModel.findOneAndUpdate(
+  return ApplicationModel.findOneAndUpdate(
     { _id: id },
     { $set: { status, interviewTimeSlots: timeslots } },
     (err: Error): any => {

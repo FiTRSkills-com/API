@@ -88,7 +88,7 @@ jobRoutes.get("/forme", async (req: Request, res: Response): Promise<any> => {
       }
     });
 
-    return res.status(500).send(sortedJobs);
+    return res.status(200).send(sortedJobs);
   } catch (err) {
     return res.status(500).send(err);
   }
@@ -285,16 +285,17 @@ jobRoutes.delete("/:id", (req: Request, res: Response): any => {
 
       if (!job) return res.status(200).send("No job posting exists for ID");
 
-      CompanyModel.findOneAndUpdate(
+      return CompanyModel.findOneAndUpdate(
         { _id: job.company },
         { $pull: { jobs: id } },
         (err: CallbackError): any => {
           if (err) {
             return res.status(500).send(err);
           }
+
+          return res.status(200).send("Job deleted");
         }
       );
-      return res.status(200).send("Job deleted");
     }
   );
 });

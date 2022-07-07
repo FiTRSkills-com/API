@@ -29,6 +29,7 @@ companyRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
       .exec();
 
     if (!companies) return res.status(200).send("No companies exist");
+
     return res.status(200).send(companies);
   } catch (err) {
     return res.status(500).send(err);

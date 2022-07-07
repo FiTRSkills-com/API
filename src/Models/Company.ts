@@ -2,8 +2,8 @@ import { Schema, model } from "mongoose";
 
 /**
  * @typedef {Object} Headquarters
- * @property {string} city - The headquarters city.
- * @property {string} state - The headquarters state.
+ * @property {string} city The headquarters city.
+ * @property {string} state The headquarters state.
  */
 interface Headquarters {
   city: string;
@@ -12,11 +12,11 @@ interface Headquarters {
 
 /**
  * @typedef {Object} Company
- * @property {string} name - The company name.
- * @property {Headquarters} headquarters - The company's headquarters.
- * @property {string} website - The company's website.
- * @property {string} logo - The company's logo.
- * @property {string[]} jobs - The company's jobs.
+ * @property {string} name The company name.
+ * @property {Headquarters} headquarters The company's headquarters.
+ * @property {string} website The company's website.
+ * @property {string} logo The company's logo.
+ * @property {string[]} jobs The company's jobs.
  */
 export interface Company {
   name: string;
@@ -27,12 +27,12 @@ export interface Company {
 }
 
 /**
- * @typedef {Object} CompanySchema
- * @property {string} name - The company name. (Required)
- * @property {Headquarters} headquarters - The company's headquarters. (Required)
- * @property {string} website - The company's website. (Required)
- * @property {string} logo - The company's logo. (Required)
- * @property {string[]} jobs - The company's jobs. (Required)
+ * @typedef {Object} CompanySchema<Company>
+ * @property {string} name The company name. (Required)
+ * @property {Headquarters} headquarters The company's headquarters. (Required)
+ * @property {string} website The company's website. (Required)
+ * @property {string} logo The company's logo. (Required)
+ * @property {string[]} jobs The company's jobs. (Required)
  */
 const CompanySchema: Schema = new Schema<Company>({
   name: {

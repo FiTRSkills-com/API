@@ -15,7 +15,7 @@ export const verifyToken = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+): any => {
   const header = req.headers["authorization"];
   const token = header && header.split(" ")[1];
 
@@ -25,30 +25,27 @@ export const verifyToken = (
   }
 
   // Verify token in the database
-  UserModel.findOne({ accessToken: token }, (err: Error, user: any): void => {
+  UserModel.findOne({ accessToken: token }, (err: Error, user: any): any => {
     if (err) {
-      res.status(500).send(err);
-      return;
+      return res.status(500).send(err);
     }
 
     if (!user) {
-      res.status(401).send("Not authorized");
-      return;
+      return res.status(401).send("Not authorized");
     }
 
     // Verify token in the request and check that decoded user is same as user in database
     jwt.verify(
       token,
       process.env.JWT_SECRET!,
-      (err: Error | null, decoded: any): void => {
+      (err: Error | null, decoded: any): any => {
         if (err) {
           res.status(500).send(err);
           return;
         }
 
         if (decoded.user.userID !== user.userID) {
-          res.status(401).send("Not authorized");
-          return;
+          return res.status(401).send("Not authorized");
         }
 
         // Set user in request
