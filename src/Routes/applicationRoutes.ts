@@ -47,7 +47,7 @@ applicationRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
  * @returns {Promise<any>}
  */
 applicationRoutes.get(
-  "/:id",
+  "/id/:id",
   async (req: Request, res: Response): Promise<any> => {
     const { id } = req.params;
 

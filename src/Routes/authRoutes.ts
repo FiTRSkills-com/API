@@ -36,7 +36,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       if (user.accessToken) {
         return res.status(200).send(user);
       } else {
-        return updateAccessToken(user, generateAccessToken(user), res);
+        updateAccessToken(user, generateAccessToken(user), res);
       }
     } else {
       const newUser = await new UserModel({
@@ -44,7 +44,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       });
 
       await newUser.save();
-      return updateAccessToken(newUser, generateAccessToken(newUser), res);
+      updateAccessToken(newUser, generateAccessToken(newUser), res);
     }
   } catch (err) {
     return res.status(500).send(err);
