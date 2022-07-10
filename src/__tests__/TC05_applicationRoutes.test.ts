@@ -1,8 +1,9 @@
 import request from "supertest";
 
 // Bring in exports
-import { app, UnauthorizedReq } from "./index.test";
-import { bearerToken } from "./authRoutes.test";
+import { app, UnauthorizedReq } from "./TC01_index.test";
+import { bearerToken } from "./TC02_authRoutes.test";
+import { jobID } from "./TC04_jobRoutes.test";
 
 // Models
 import ApplicationModel from "../Models/Application";
@@ -11,6 +12,8 @@ import ApplicationModel from "../Models/Application";
 const testCase = {
   jobID: "",
 };
+
+let applicationID: string;
 
 // Create Baseurl
 const baseURL = "/api/v1/application";
@@ -41,5 +44,11 @@ describe("Application Routes", () => {
       expect(res.type).toEqual("text/html");
       expect(res.text).toBe("Job posting does not exist");
     });
+
+    /**
+     * Valid Request and Application Exists tests
+     * cannot be tested as they rely on the job to exist
+     * which cannot be guarenteed do to the jest ordering
+     */
   });
 });

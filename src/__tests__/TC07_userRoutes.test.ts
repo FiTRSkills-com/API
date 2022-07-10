@@ -1,8 +1,8 @@
 import request from "supertest";
 
 // Bring in exports
-import { app, UnauthorizedReq } from "./index.test";
-import { bearerToken } from "./authRoutes.test";
+import { app, UnauthorizedReq } from "./TC01_index.test";
+import { bearerToken } from "./TC02_authRoutes.test";
 
 // Create Test Case
 const testCase = {

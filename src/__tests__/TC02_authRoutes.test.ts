@@ -1,7 +1,7 @@
 import request from "supertest";
 
 // Bring in exports
-import { app } from "./index.test";
+import { app } from "./TC01_index.test";
 
 // Models
 import UserModel from "../Models/User";
@@ -42,25 +42,8 @@ describe("Auth Routes", () => {
     });
   });
 
-  // describe("Logout", () => {
-  //   test("Invalid request format", async () => {
-  //     const res = await request(app).delete(baseURL.concat("/logout"));
-
-  //     expect(res.statusCode).toBe(400);
-  //     expect(res.type).toEqual("text/html");
-  //     expect(res.text).toBe("Request not formatted correctly");
-  //   })
-
-  //   test("Valid request", async () => {
-  //     const res = await request(app).delete(baseURL.concat("/logout")).send(testCase);
-
-  //     // Get User Created
-  //     const user = await UserModel.findOne(testCase);
-
-  //     expect(res.statusCode).toBe(200);
-  //     expect(res.type).toEqual("text/html");
-  //     expect(res.text).toBe("Logged out");
-  //     expect(user.accessToken).toBe('');
-  //   })
-  // })
+  /**
+   * Logout route cannot be automatically without
+   * breaking all other tests (they would be considered unauthorized)
+   */
 });

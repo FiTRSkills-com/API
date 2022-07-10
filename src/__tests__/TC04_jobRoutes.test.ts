@@ -2,8 +2,8 @@ import request from "supertest";
 import crypto from "crypto";
 
 // Bring in exports
-import { app, UnauthorizedReq } from "./index.test";
-import { bearerToken } from "./authRoutes.test";
+import { app, UnauthorizedReq } from "./TC01_index.test";
+import { bearerToken } from "./TC02_authRoutes.test";
 
 // Models
 import JobModel from "../Models/Job";
@@ -23,7 +23,7 @@ const validTestCase = {
   benefits: ["Paid Vacation"],
 };
 
-let jobID: string;
+export let jobID: string;
 const randomID = crypto.randomBytes(12).toString("hex");
 
 // Create Baseurl
