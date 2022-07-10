@@ -14,22 +14,12 @@ import {
   applicationRoutes,
 } from "../Routes/Routes";
 
-import log from "./log";
+// Middleware
+import loggerMiddleware from "../Middleware/Logging";
 
 const makeServer = (): Express => {
   // Create Express App
   const app = express();
-
-  /**
-   * Simple middleware function for logging request routes
-   * @param {Request} req Express Request
-   * @param {Response} _ Expess Response
-   * @param {NextFunction} next Express NextFunction
-   */
-  const loggerMiddleware = (req: Request, _: Response, next: NextFunction) => {
-    log.info(`[${req.method}] ${req.url}`);
-    next();
-  };
 
   // Use Middleware if not testing
   if (process.env.NODE_ENV === "production" || process.env.NODE_ENV === "dev") {
