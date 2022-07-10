@@ -1,8 +1,12 @@
 # FiTR Skills API
 
+For in depth documentation about the entire API, please check out [The Wiki](https://github.com/FiTRSkills-com/API/wiki).
+
 ## Setup
 
-Create a copy of `.env.example` and rename it to `.env` in the root directory of the project.
+Since the current code base is setup for production, be sure to view the index documentation in the wiki [here](https://github.com/FiTRSkills-com/API/wiki/Index) for help converting the code back to local runnable code.
+
+Once the code base is set to run locally, we can start setting up the environment variables. Create a copy of `.env.example` and rename it `.env` in the root directory of the project.
 Set all the required environment variables: `MONGO_URI`, `JWT_SECRET`, `ACCOUNT_SID`, `AUTH_TOKEN`, `API_KEY`, and `API_SECRET`.
 
 You can use anything for the `JWT_SECRET` but I recommend hashing a string or creating a new hash using [nodes built in crypto](https://nodejs.org/api/crypto.html)
@@ -49,4 +53,18 @@ To run the server in production mode, run the following command:
 
 ```bash
 yarn start
+```
+
+## Testing the Server
+
+To run tests you can run one of two commands:
+
+```bash
+yarn test
+```
+
+or for code coverage
+
+```bash
+yarn test:cc
 ```

@@ -63,46 +63,43 @@ companyRoutes.get("/:id", async (req: Request, res: Response): Promise<any> => {
 
 /**
  * Route for creating a company.
- * @name POST /add
+ * @name POST /
  * @function
  * @alias module:Routes/companyRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-companyRoutes.post(
-  "/add",
-  async (req: Request, res: Response): Promise<any> => {
-    const { name, headquarters, website, logo } = req.body;
+companyRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
+  const { name, headquarters, website, logo } = req.body;
 
-    if (!name || !headquarters || !website || !logo) {
-      return res.status(400).send("Missing required fields");
-    }
-
-    try {
-      const company = await CompanyModel.findOne({
-        name,
-        headquarters,
-        website,
-        logo,
-      }).exec();
-
-      if (company) return res.status(409).send("Company already exists");
-
-      const newCompany = new CompanyModel({
-        name,
-        headquarters,
-        website,
-        logo,
-      });
-
-      await newCompany.save();
-      return res.status(201).send("Company created");
-    } catch (err) {
-      return res.status(500).send(err);
-    }
+  if (!name || !headquarters || !website || !logo) {
+    return res.status(400).send("Missing required fields");
   }
-);
+
+  try {
+    const company = await CompanyModel.findOne({
+      name,
+      headquarters,
+      website,
+      logo,
+    }).exec();
+
+    if (company) return res.status(409).send("Company already exists");
+
+    const newCompany = new CompanyModel({
+      name,
+      headquarters,
+      website,
+      logo,
+    });
+
+    await newCompany.save();
+    return res.status(201).send("Company created");
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+});
 
 /**
  * Route for updating a company by id.

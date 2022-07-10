@@ -186,7 +186,7 @@ interviewRoutes.get(
 
 /**
  * Route for joining an interview room
- * @name GET /:id
+ * @name GET /join/:sid/:username
  * @function
  * @alias module:Routes/interviewRoutes
  * @property {Request} req Express Request

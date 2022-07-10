@@ -82,10 +82,7 @@ applicationRoutes.get(
     const { _id: userID } = req.user;
 
     try {
-      const applications = await ApplicationModel.find(
-        { user: userID },
-        { __v: 0 }
-      )
+      const applications = await ApplicationModel.find({ userID }, { __v: 0 })
         .populate({ path: "job", select: "_id title type location" })
         .populate({ path: "user", select: "-_id userID" })
         .exec();
@@ -147,7 +144,7 @@ applicationRoutes.post(
 
 /**
  * Route for updating an application by id
- * @name PATCH :/id
+ * @name PATCH /:id
  * @function
  * @alias module:Routes/applicationRoutes
  * @property {Request} req Express Request
