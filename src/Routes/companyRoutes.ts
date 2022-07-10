@@ -119,7 +119,7 @@ companyRoutes.patch("/:id", (req: Request, res: Response): any => {
   const { name, headquarters, website, logo } = req.body;
 
   if (!name && !headquarters && !website && !logo) {
-    return res.status(204).send("Missing required fields");
+    return res.status(400).send("Missing required fields");
   }
 
   return CompanyModel.findOneAndUpdate(

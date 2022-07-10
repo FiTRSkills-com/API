@@ -47,7 +47,7 @@ userRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
 userRoutes.patch("/", (req: Request, res: Response): any => {
   const { skills, bio } = req.body;
 
-  if (!skills && bio === null) {
+  if (!skills && bio === undefined) {
     return res.status(400).send("No skills provided");
   }
 

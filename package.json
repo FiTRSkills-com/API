@@ -4,11 +4,12 @@
   "main": "index.ts",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node ./src/index.ts",
-    "dev": "nodemon -q --exec \"ts-node\" ./src/index.ts",
+    "start": "cross-env NODE_ENV=production ts-node ./src/index.ts",
+    "dev": "cross-env NODE_ENV=dev nodemon -q --exec \"ts-node\" ./src/index.ts",
     "prepare": "husky install",
     "format": "prettier --write .",
-    "lint": "prettier --check ."
+    "lint": "prettier --check .",
+    "test": "cross-env NODE_ENV=testing jest"
   },
   "dependencies": {
     "axios": "^0.27.2",
@@ -27,12 +28,19 @@
   "devDependencies": {
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
+    "@types/jest": "^28.1.4",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/node": "^18.0.0",
+    "@types/supertest": "^2.0.12",
     "@types/twilio": "^3.19.3",
+    "cross-env": "^7.0.3",
     "husky": "^8.0.1",
+    "jest": "^28.1.2",
+    "mongodb-memory-server": "^8.7.2",
     "nodemon": "^2.0.16",
     "prettier": "^2.7.1",
+    "supertest": "^6.2.4",
+    "ts-jest": "^28.0.5",
     "typescript": "^4.6.4"
   }
 }
