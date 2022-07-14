@@ -41,37 +41,25 @@ interviewRoutes.get(
 
     try {
       // Get Interview
-      const interview = await InterviewModel.findOne({ applicationID: id })
-        .populate({ path: "applicationID" })
+      const interview = await InterviewModel.findOne(
+        { application: id },
+        { __v: 0 }
+      )
+        .populate({
+          path: "application",
+          select: "job -_id",
+          populate: { path: "job", select: "title description -_id" },
+        })
+        .populate({
+          path: "interviewDetails",
+          populate: { path: "company", select: "name logo -_id" },
+        })
         .exec();
 
       if (!interview)
         return res.status(200).send("No interview found with that ID");
 
-      // Get Application
-      const application = await ApplicationModel.findById(
-        interview.applicationID
-      )
-        .populate({ path: "job" })
-        .exec();
-
-      // Get Company
-      const company = await CompanyModel.findById(
-        application.job.company
-      ).exec();
-
-      // Format Response
-      return res.status(200).send({
-        Interview: interview.interviewDate,
-        Job: {
-          title: application.job.title,
-          description: application.job.description,
-        },
-        Company: {
-          name: company.name,
-          logo: company.logo,
-        },
-      });
+      return res.status(200).send(interview);
     } catch (err) {
       return res.status(500).send(err);
     }
@@ -109,7 +97,7 @@ interviewRoutes.post(
         { _id: id },
         { __v: 0 }
       )
-        .populate({ path: "job" })
+        .populate({ path: "job", populate: { path: "company" } })
         .exec();
 
       if (!application)
@@ -120,7 +108,10 @@ interviewRoutes.post(
           .send("Cannot create interview for this job posting");
 
       const newInterview = new InterviewModel({
-        applicationID: id,
+        application: id,
+        interviewDetails: {
+          company: application.job.company._id,
+        },
         interviewDate,
       });
 
@@ -133,6 +124,7 @@ interviewRoutes.post(
 
       return res.status(201).send("Interview Created");
     } catch (err) {
+      console.log(err);
       return res.status(500).send(err);
     }
   }
@@ -154,18 +146,17 @@ interviewRoutes.get(
 
     try {
       // Verify Interview ID exists
-      const interview = await InterviewModel.findOne({
-        applicationID: id,
-      }).exec();
+      const interview = await InterviewModel.findById(id)
+        .populate({
+          path: "application",
+          select: "user -_id",
+          populate: { path: "user", select: "userID -_id" },
+        })
+        .exec();
+
       if (!interview) return res.status(200).send("Interview not found for ID");
 
-      // Verify user is allowed to access interview
-      const application = await ApplicationModel.findById(
-        interview.applicationID
-      )
-        .populate({ path: "user" })
-        .exec();
-      if (!application || application.user.userID !== req.userID)
+      if (interview.application.user.userID !== req.userID)
         return res
           .status(403)
           .send("User not authorized to access this interview");
@@ -173,10 +164,26 @@ interviewRoutes.get(
       // Create Interview Room
       return client.video.rooms
         .create({
+          emptyRoomTimeout: 5,
+          maxParticipantDuration: 600,
+          maxParticipants: 2,
           type: "go",
-          uniqueName: interview._id,
+          uniqueName: Math.random().toString(36).substr(2, 11),
+          unusedRoomTimeout: 5,
         })
-        .then((room: any) => res.status(200).send({ id: room.sid }))
+        .then((room: any) => {
+          InterviewModel.findOneAndUpdate(
+            { _id: id },
+            { $set: { "interviewDetails.sid": room.sid } },
+            (err: Error): any => {
+              if (err) {
+                return res.status(500).send(err);
+              }
+
+              return res.status(200).send({ id: room.sid });
+            }
+          );
+        })
         .catch((err: any) => res.status(500).send(err));
     } catch (err) {
       return res.status(500).send(err);
@@ -194,7 +201,7 @@ interviewRoutes.get(
  * @returns {Promise<any>}
  */
 interviewRoutes.get(
-  "join/:sid/:username",
+  "/join/:sid/:username",
   async (req: Request, res: Response): Promise<any> => {
     const { sid, username } = req.params;
 

@@ -17,8 +17,9 @@ interface Interviewer {
  * @property {string} notes Any notes from the interviewer
  */
 interface InterviewDetails {
-  companyID: string;
-  interviewer: Interviewer;
+  company: string;
+  interviewer: string;
+  sid: string;
   notes: string;
 }
 
@@ -29,7 +30,7 @@ interface InterviewDetails {
  * @property {InterviewDetails} interviewDetails The details of the interview
  */
 export interface Interview {
-  applicationID: string;
+  application: string;
   interviewDate: Date;
   interviewDetails: InterviewDetails;
 }
@@ -41,7 +42,7 @@ export interface Interview {
  * @property {Object} interviewDetails The interview's details (Optional)
  */
 const InterviewSchema: Schema = new Schema<Interview>({
-  applicationID: {
+  application: {
     type: Schema.Types.ObjectId,
     ref: "Application",
     required: true,
@@ -51,19 +52,19 @@ const InterviewSchema: Schema = new Schema<Interview>({
     required: true,
   },
   interviewDetails: {
-    companyID: {
-      type: String,
-      required: false,
+    company: {
+      type: Schema.Types.ObjectId,
+      ref: "Company",
+      required: true,
     },
     interviewer: {
-      name: {
-        type: String,
-        required: false,
-      },
-      position: {
-        type: String,
-        required: false,
-      },
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+    },
+    sid: {
+      type: String,
+      required: false,
     },
     notes: {
       type: String,
