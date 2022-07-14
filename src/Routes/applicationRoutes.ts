@@ -83,7 +83,11 @@ applicationRoutes.get(
 
     try {
       const applications = await ApplicationModel.find({ userID }, { __v: 0 })
-        .populate({ path: "job", select: "_id title type location" })
+        .populate({
+          path: "job",
+          select: "_id title location company",
+          populate: { path: "company", select: "-jobs -__v" },
+        })
         .populate({ path: "user", select: "-_id userID" })
         .exec();
 
