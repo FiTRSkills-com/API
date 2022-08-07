@@ -87,7 +87,7 @@ interviewRoutes.post(
 
     try {
       const interview = await InterviewModel.findOne({
-        applicationID: id,
+        application: id,
       }).exec();
 
       if (interview)
