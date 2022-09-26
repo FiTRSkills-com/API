@@ -40,11 +40,11 @@ describe("Company Routes", () => {
   });
 
   describe("POST / - Create a Company", () => {
-    UnauthorizedReq({ applicationUrl: baseURL.concat("/add"), method: "post" });
+    UnauthorizedReq({ applicationUrl: baseURL.concat("/"), method: "post" });
 
     test("Invalid request format", async () => {
       const res = await request(app)
-        .post(baseURL.concat("/add"))
+        .post(baseURL.concat("/"))
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(400);
@@ -54,7 +54,7 @@ describe("Company Routes", () => {
 
     test("Valid request", async () => {
       const res = await request(app)
-        .post(baseURL.concat("/add"))
+        .post(baseURL.concat("/"))
         .set("Authorization", bearerToken)
         .send(validTestCase);
 
@@ -69,7 +69,7 @@ describe("Company Routes", () => {
 
     test("Company exists", async () => {
       const res = await request(app)
-        .post(baseURL.concat("/add"))
+        .post(baseURL.concat("/"))
         .set("Authorization", bearerToken)
         .send(validTestCase);
 
