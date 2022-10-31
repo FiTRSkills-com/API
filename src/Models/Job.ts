@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { Location, LocationSchema } from "./Location";
 
 /**
  * @typedef {Object} JobLength
@@ -8,6 +9,16 @@ import { Schema, model } from "mongoose";
 interface JobLength {
   length: number;
   unit: string;
+}
+
+/**
+ * @typedef {Object} TimeSlot
+ * @property {Date} date Date of timeslot
+ * @property {Date[]} times Date array of times
+ */
+interface TimeSlot {
+  date: Date;
+  times: Date[];
 }
 
 /**
@@ -25,12 +36,14 @@ interface JobLength {
  * @property {Date} updatedAt The date the job was last updated.
  */
 export interface Job {
+  jobID: string;
   title: string;
   description: string;
-  company: string;
-  location: string;
+  isCompanyListing: boolean;
+  employer: string;
   type: string;
   length: JobLength;
+  location: Location;
   isRemote: boolean;
   willSponsor: boolean;
   salary: number;
@@ -38,6 +51,9 @@ export interface Job {
   benefits: string[];
   createdAt: Date;
   updatedAt: Date;
+  matchThreshold: number;
+  matches: String[];
+  interviewAvailability: TimeSlot[];
 }
 
 /**
@@ -57,6 +73,10 @@ export interface Job {
  * @property {Date} updatedAt The date the job was last updated. (Required)
  */
 const JobSchema: Schema = new Schema<Job>({
+  jobID: {
+    type: String,
+    required: true,
+  },
   title: {
     type: String,
     required: true,
@@ -65,9 +85,13 @@ const JobSchema: Schema = new Schema<Job>({
     type: String,
     required: true,
   },
-  company: {
+  isCompanyListing: {
+    type: Boolean,
+    required: true,
+  },
+  employer: {
     type: Schema.Types.ObjectId,
-    ref: "Company",
+    ref: "Employer",
     required: true,
   },
   type: {
@@ -85,7 +109,7 @@ const JobSchema: Schema = new Schema<Job>({
     },
   },
   location: {
-    type: String,
+    type: LocationSchema,
     required: true,
   },
   isRemote: {
@@ -123,6 +147,29 @@ const JobSchema: Schema = new Schema<Job>({
     required: true,
     default: Date.now,
   },
+  matchThreshold: {
+    type: Number,
+    required: true,
+  },
+  matches: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Match",
+      required: true,
+    },
+  ],
+  interviewAvailability: [
+    {
+      date: {
+        type: Date,
+      },
+      times: [
+        {
+          type: Date,
+        },
+      ],
+    },
+  ],
 });
 
 // Create and export the model.
