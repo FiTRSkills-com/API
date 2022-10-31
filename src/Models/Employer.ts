@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { Profile, ProfileSchema } from "./Profile";
 
 /**
  * @typedef {Object} Skill
@@ -6,13 +7,14 @@ import { Schema, model } from "mongoose";
  * @property {Date} Date The date the skill was added.
  * @example { Skill: "JavaScript", Date: "2020-01-01T00:00:00.000Z" }
  */
-interface Skill {
-  skillID: string;
-  skill: string;
-  category: string;
-  similarSkills: string[];
-  dateAdded: Date;
-  addedBy: string;
+interface Employer {
+  employerID: string;
+  dateCreated: Date;
+  companyListing: string;
+  jobs: string[];
+  accessToken: string;
+  company: string;
+  profile: Profile;
 }
 
 /**
@@ -20,37 +22,40 @@ interface Skill {
  * @property {string} Skill The name of the skill. (Required)
  * @property {Date} Date The date the skill was added. (Required)
  */
-const SkillSchema: Schema = new Schema<Skill>({
-  skillID: {
+const EmployerSchema: Schema = new Schema<Employer>({
+  employerID: {
     type: String,
     required: true,
   },
-  skill: {
-    type: String,
-    required: true,
-  },
-  category: {
-    type: String,
-    required: false,
-  },
-  similarSkills: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Skill",
-      required: true,
-    },
-  ],
-  dateAdded: {
+  dateCreated: {
     type: Date,
     required: true,
   },
-  addedBy: {
+  companyListing: {
     type: Schema.Types.ObjectId,
-    ref: "Employer",
     required: false,
+  },
+  jobs: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Job",
+      required: true,
+    },
+  ],
+  accessToken: {
+    type: String,
+    required: true,
+  },
+  company: {
+    type: Schema.Types.ObjectId,
+    ref: "Company",
+    required: true,
+  },
+  profile: {
+    type: ProfileSchema,
+    required: true,
   },
 });
 
-// Create and export the model.
-const SkillModel = model("Skill", SkillSchema);
-export default SkillModel;
+const EmployerModel = model("Employer", EmployerSchema);
+export default EmployerModel;
