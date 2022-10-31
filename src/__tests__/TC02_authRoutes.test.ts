@@ -4,7 +4,7 @@ import request from "supertest";
 import { app } from "./TC01_index.test";
 
 // Models
-import UserModel from "../Models/User";
+import CandidateModel from "../Models/Candidate";
 
 // Create Test Case
 const testCase = {
@@ -33,7 +33,7 @@ describe("Auth Routes", () => {
         .send(testCase);
 
       // Get User Created
-      const user = await UserModel.findOne(testCase);
+      const user = await CandidateModel.findOne(testCase);
       bearerToken = `Bearer ${user.accessToken}`;
 
       expect(res.statusCode).toBe(200);

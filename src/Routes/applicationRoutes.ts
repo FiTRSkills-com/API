@@ -4,7 +4,7 @@ import { Router, Request, Response } from "express";
 import { verifyToken } from "../Middleware/Authorization";
 
 // Models
-import ApplicationModel from "../Models/Application";
+import MatchModel from "../Models/Match";
 import JobModel from "../Models/Job";
 
 // Instantiate the router
@@ -24,7 +24,7 @@ applicationRoutes.use(verifyToken);
  */
 applicationRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
-    const applications = await ApplicationModel.find({}, { __v: 0 })
+    const applications = await MatchModel.find({}, { __v: 0 })
       .populate({ path: "job", select: "_id title type location" })
       .populate({ path: "user", select: "-_id userID" })
       .exec();
@@ -52,7 +52,7 @@ applicationRoutes.get(
     const { id } = req.params;
 
     try {
-      const application = await ApplicationModel.findById(id, { __v: 0 })
+      const application = await MatchModel.findById(id, { __v: 0 })
         .populate({ path: "job", select: "_id title type location" })
         .populate({ path: "user", select: "-_id userID" })
         .exec();
@@ -82,10 +82,7 @@ applicationRoutes.get(
     const { _id: userID } = req.user;
 
     try {
-      const applications = await ApplicationModel.find(
-        { user: userID },
-        { __v: 0 }
-      )
+      const applications = await MatchModel.find({ user: userID }, { __v: 0 })
         .populate({
           path: "job",
           select: "_id title location company",
@@ -120,7 +117,7 @@ applicationRoutes.post(
     const { _id: userID } = req.user;
 
     try {
-      const application = await ApplicationModel.findOne({
+      const application = await MatchModel.findOne({
         job: jobID,
         user: userID,
       });
@@ -135,7 +132,7 @@ applicationRoutes.post(
       if (!job) return res.status(400).send("Job posting does not exist");
 
       // Create application
-      const newApplication = new ApplicationModel({
+      const newApplication = new MatchModel({
         job: jobID,
         user: userID,
         status: "Applied",
@@ -166,7 +163,7 @@ applicationRoutes.patch("/:id", (req: Request, res: Response): any => {
     return res.status(400).send("Missing required fields");
   }
 
-  return ApplicationModel.findOneAndUpdate(
+  return MatchModel.findOneAndUpdate(
     { _id: id },
     { $set: { status, interviewTimeSlots: timeslots } },
     (err: Error): any => {

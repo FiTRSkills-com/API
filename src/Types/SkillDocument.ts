@@ -1,5 +1,10 @@
+import { EmployerDocument } from "./EmployerDocument";
+
 export interface SkillDocument {
   _id: string;
-  Skill: string;
-  Date: Date;
+  skill: string;
+  category: string;
+  similarSkills: SkillDocument[];
+  dateAdded: Date;
+  addedBy: EmployerDocument;
 }

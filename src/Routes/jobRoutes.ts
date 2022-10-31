@@ -7,7 +7,7 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import JobModel, { Job } from "../Models/Job";
 import EmployerModel from "../Models/Employer";
-import UserModel from "../Models/User";
+import CandidateModel from "../Models/Candidate";
 
 // Types
 import { JobDocument } from "../Types/JobDocument";
@@ -43,7 +43,7 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
 });
 
 /**
- * Route for getting jobs for a user based on their skills.
+ * Route for getting jobs for a candidate based on their skills.
  * @name GET /forme
  * @function
  * @alias module:Routes/jobRoutes
@@ -53,22 +53,22 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
  */
 jobRoutes.get("/forme", async (req: Request, res: Response): Promise<any> => {
   try {
-    const user = await UserModel.findById(req.user._id).exec();
+    const candidate = await CandidateModel.findById(req.user._id).exec();
     const jobs: JobDocument[] = (await JobModel.find({})
       .populate({ path: "skills", select: "Skill Date" })
       .populate({ path: "company", select: "-jobs -__v -_id" })
       .exec()) as JobDocument[];
 
-    if (!user || !jobs) {
+    if (!candidate || !jobs) {
       throw Error("An error occured");
     }
 
-    // Filter jobs based on user's skills
+    // Filter jobs based on candidate's skills
     const filteredJobs = jobs.filter((job: JobDocument) => {
       const skills = job.skills;
-      const userSkills = user.skills;
+      const candidateSkills = candidate.skills;
       const filteredSkills = skills.filter((skill: SkillDocument) => {
-        return userSkills.includes(skill._id);
+        return candidateSkills.includes(skill._id);
       });
       return filteredSkills.length > 0;
     });

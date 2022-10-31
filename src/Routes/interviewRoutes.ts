@@ -12,7 +12,7 @@ import type { VideoInterview } from "../Types/VideoInterview";
 
 // Models
 import InterviewModel from "../Models/Interview";
-import ApplicationModel from "../Models/Application";
+import MatchModel from "../Models/Match";
 import CompanyModel from "../Models/Company";
 
 // Instantiate the Router
@@ -93,10 +93,7 @@ interviewRoutes.post(
       if (interview)
         return res.status(200).send("Interview already exists with that ID");
 
-      const application = await ApplicationModel.findOne(
-        { _id: id },
-        { __v: 0 }
-      )
+      const application = await MatchModel.findOne({ _id: id }, { __v: 0 })
         .populate({ path: "job", populate: { path: "company" } })
         .exec();
 
