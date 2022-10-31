@@ -12,6 +12,7 @@ import {
   companyRoutes,
   interviewRoutes,
   applicationRoutes,
+  candidateRoutes,
 } from "../Routes/Routes";
 
 // Middleware
@@ -31,6 +32,9 @@ const makeServer = (): Express => {
   app.use(bodyParser.json());
 
   // Setup Routes
+
+  app.use("/api/v1/candidate", candidateRoutes);
+
   app.use("/api/v1/skills", skillRoutes);
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/user", userRoutes);

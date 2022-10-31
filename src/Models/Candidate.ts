@@ -79,5 +79,5 @@ const CandidateSchema: Schema = new Schema<Candidate>({
 });
 
 // Create and export the model.
-const UserModel = model("User", CandidateSchema);
-export default UserModel;
+const CandidateModel = model("Candidate", CandidateSchema);
+export default CandidateModel;

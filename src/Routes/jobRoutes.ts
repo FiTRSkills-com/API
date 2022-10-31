@@ -6,7 +6,7 @@ import { verifyToken } from "../Middleware/Authorization";
 
 // Models
 import JobModel, { Job } from "../Models/Job";
-import CompanyModel from "../Models/Company";
+import EmployerModel from "../Models/Employer";
 import UserModel from "../Models/User";
 
 // Types
@@ -283,8 +283,8 @@ jobRoutes.delete("/:id", (req: Request, res: Response): any => {
         return res.status(500).send(err);
       }
 
-      return CompanyModel.findOneAndUpdate(
-        { _id: job.company },
+      return EmployerModel.findOneAndUpdate(
+        { _id: job.employer },
         { $pull: { jobs: id } },
         (err: CallbackError): any => {
           if (err) {
