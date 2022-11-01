@@ -24,10 +24,7 @@ candidateRoutes.use(verifyToken);
  */
 candidateRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
   try {
-    const user = await CandidateModel.findOne(
-      { userID: req.userID },
-      { __v: 0 }
-    )
+    const user = await CandidateModel.findOne({ _id: req.userID }, { __v: 0 })
       .populate({ path: "skills", select: "Skill _id" })
       .exec();
 
@@ -55,7 +52,7 @@ candidateRoutes.patch("/", (req: Request, res: Response): any => {
   }
 
   return CandidateModel.updateOne(
-    { candidateID: req.user._id },
+    { _id: req.user._id },
     { $set: { skills, bio } },
     (err: CallbackError): any => {
       if (err) {

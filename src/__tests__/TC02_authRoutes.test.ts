@@ -5,11 +5,12 @@ import { app } from "./TC01_index.test";
 
 // Models
 import CandidateModel from "../Models/Candidate";
-import { log } from "console";
+import mongoose from "mongoose";
 
 // Create Test Case
 const testCase = {
-  id: "1",
+  _id: "000000000000000000000000",
+  oid: new mongoose.Types.ObjectId("000000000000000000000000"),
 };
 
 // Create Baseurl
@@ -34,12 +35,12 @@ describe("Auth Routes", () => {
         .send(testCase);
 
       // Get Candidate Created
-      // const candidate = await CandidateModel.findOne(testCase);
-      // bearerToken = `Bearer ${candidate.accessToken}`;
+      const candidate = await CandidateModel.findOne(testCase);
+      bearerToken = `Bearer ${candidate.accessToken}`;
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");
-      //expect(candidate.candidateID).toBe("1");
+      expect(candidate._id).toEqual(testCase.oid);
     });
   });
 

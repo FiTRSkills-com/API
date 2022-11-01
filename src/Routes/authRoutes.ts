@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { CallbackError } from "mongoose";
+import mongoose, { CallbackError } from "mongoose";
 
 // Types
 import { CandidateDocument } from "../Types/CandidateDocument";
@@ -23,14 +23,14 @@ const authRoutes = Router();
  * @returns {Promise<any>}
  */
 authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
-  const { id } = req.body;
+  const { _id } = req.body;
 
   try {
-    if (!id) {
+    if (!_id) {
       return res.status(400).send("Request not formatted correctly");
     }
 
-    const candidate = await CandidateModel.findOne({ candidateID: id }).exec();
+    const candidate = await CandidateModel.findOne({ _id: _id }).exec();
 
     if (candidate) {
       if (candidate.accessToken) {
@@ -40,7 +40,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       }
     } else {
       const newCandidate = await new CandidateModel({
-        candidateID: id,
+        _id: _id,
         dateCreated: Date.now(),
       });
 
@@ -48,6 +48,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       updateAccessToken(newCandidate, generateAccessToken(newCandidate), res);
     }
   } catch (err) {
+    console.log(err);
     return res.status(500).send(err);
   }
 });
@@ -69,7 +70,7 @@ authRoutes.delete("/logout", (req: Request, res: Response): any => {
   }
 
   return CandidateModel.updateOne(
-    { candidateID: id },
+    { _id: id },
     { $set: { accessToken: "" } },
     (err: CallbackError): any => {
       if (err) {
