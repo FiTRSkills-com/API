@@ -55,7 +55,7 @@ candidateRoutes.patch("/", (req: Request, res: Response): any => {
   }
 
   return CandidateModel.updateOne(
-    { userID: req.userID },
+    { candidateID: req.user._id },
     { $set: { skills, bio } },
     (err: CallbackError): any => {
       if (err) {

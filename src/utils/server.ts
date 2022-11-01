@@ -7,7 +7,6 @@ import cors from "cors";
 import {
   skillRoutes,
   authRoutes,
-  userRoutes,
   jobRoutes,
   companyRoutes,
   interviewRoutes,
@@ -37,7 +36,6 @@ const makeServer = (): Express => {
 
   app.use("/api/v1/skills", skillRoutes);
   app.use("/api/v1/auth", authRoutes);
-  app.use("/api/v1/user", userRoutes);
   app.use("/api/v1/job", jobRoutes);
   app.use("/api/v1/company", companyRoutes);
   app.use("/api/v1/interview", interviewRoutes);

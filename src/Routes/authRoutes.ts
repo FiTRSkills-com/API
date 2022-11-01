@@ -41,6 +41,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
     } else {
       const newCandidate = await new CandidateModel({
         candidateID: id,
+        dateCreated: Date.now(),
       });
 
       await newCandidate.save();

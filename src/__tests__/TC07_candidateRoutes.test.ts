@@ -9,10 +9,10 @@ const testCase = {
   bio: "",
 };
 // Create Baseurl
-const baseURL = "/api/v1/user";
+const baseURL = "/api/v1/candidate";
 
 describe("User Routes", () => {
-  describe("GET / - Get User", () => {
+  describe("GET / - Get Candidate", () => {
     UnauthorizedReq({ applicationUrl: baseURL });
 
     test("Valid request", async () => {
@@ -25,7 +25,7 @@ describe("User Routes", () => {
     });
   });
 
-  describe("PATCH / - Update User", () => {
+  describe("PATCH / - Update Candidate", () => {
     UnauthorizedReq({ applicationUrl: baseURL, method: "patch" });
 
     test("Invalid request format", async () => {
