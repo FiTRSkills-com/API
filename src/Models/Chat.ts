@@ -22,7 +22,6 @@ const MessageSchema: Schema = new Schema<Message>({
 });
 
 interface Chat {
-  chatID: String;
   match: String;
   messages: Message[];
   employerSilence: boolean;
@@ -30,10 +29,6 @@ interface Chat {
 }
 
 const ChatSchema: Schema = new Schema<Chat>({
-  chatID: {
-    type: String,
-    required: true,
-  },
   match: {
     type: Schema.Types.ObjectId,
     ref: "Match",

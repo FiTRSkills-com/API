@@ -8,7 +8,6 @@ import { Schema, model } from "mongoose";
  * @property {Timeslot[]} interviewTimeSlots Array of potential timeslots
  */
 export interface Match {
-  matchID: string;
   job: string;
   candidate: string;
   generalStatus: string;
@@ -25,10 +24,6 @@ export interface Match {
  * @property {Object[]} interviewTimeSlots Array of interview time slots
  */
 const MatchSchema: Schema = new Schema<Match>({
-  matchID: {
-    type: String,
-    required: true,
-  },
   job: {
     type: Schema.Types.ObjectId,
     ref: "Job",

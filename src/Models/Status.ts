@@ -21,17 +21,12 @@ export enum employerStatus {
 }
 
 interface Status {
-  statusID: String;
   currentStatus: String;
   dateModified: Date;
   previousStatus: String;
 }
 
 const StatusSchema: Schema = new Schema<Status>({
-  statusID: {
-    type: String,
-    required: true,
-  },
   currentStatus: {
     type: String,
     required: true,

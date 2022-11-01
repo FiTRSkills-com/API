@@ -7,7 +7,6 @@ import { Schema, model } from "mongoose";
  * @property {InterviewDetails} interviewDetails The details of the interview
  */
 export interface Interview {
-  interviewID: string;
   match: string;
   interviewDate: Date;
   twilloMeetingID: string;
@@ -20,10 +19,6 @@ export interface Interview {
  * @property {Object} interviewDetails The interview's details (Optional)
  */
 const InterviewSchema: Schema = new Schema<Interview>({
-  interviewID: {
-    type: String,
-    required: true,
-  },
   match: {
     type: Schema.Types.ObjectId,
     required: true,

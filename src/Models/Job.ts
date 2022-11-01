@@ -6,7 +6,7 @@ import { Location, LocationSchema } from "./Location";
  * @property {number} length Length of job
  * @property {string} unit Unit of measurement for length
  */
-interface JobLength {
+export interface JobLength {
   length: number;
   unit: string;
 }
@@ -16,7 +16,7 @@ interface JobLength {
  * @property {Date} date Date of timeslot
  * @property {Date[]} times Date array of times
  */
-interface TimeSlot {
+export interface TimeSlot {
   date: Date;
   times: Date[];
 }
@@ -36,7 +36,6 @@ interface TimeSlot {
  * @property {Date} updatedAt The date the job was last updated.
  */
 export interface Job {
-  jobID: string;
   title: string;
   description: string;
   isCompanyListing: boolean;
@@ -73,10 +72,6 @@ export interface Job {
  * @property {Date} updatedAt The date the job was last updated. (Required)
  */
 const JobSchema: Schema = new Schema<Job>({
-  jobID: {
-    type: String,
-    required: true,
-  },
   title: {
     type: String,
     required: true,
