@@ -24,12 +24,15 @@ candidateRoutes.use(verifyToken);
  */
 candidateRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
   try {
-    const user = await CandidateModel.findOne({ _id: req.userID }, { __v: 0 })
+    const candidate = await CandidateModel.findOne(
+      { _id: req.candidateID },
+      { __v: 0 }
+    )
       .populate({ path: "skills", select: "Skill _id" })
       .exec();
 
-    if (!user) return res.status(200).send("No user found with that ID");
-    return res.status(200).send(user);
+    if (!candidate) return res.status(200).send("No user found with that ID");
+    return res.status(200).send(candidate);
   } catch (err) {
     return res.status(500).send(err);
   }
@@ -52,7 +55,7 @@ candidateRoutes.patch("/", (req: Request, res: Response): any => {
   }
 
   return CandidateModel.updateOne(
-    { _id: req.user._id },
+    { _id: req.candidate._id },
     { $set: { skills, bio } },
     (err: CallbackError): any => {
       if (err) {

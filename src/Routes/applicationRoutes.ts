@@ -26,7 +26,7 @@ applicationRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
     const applications = await MatchModel.find({}, { __v: 0 })
       .populate({ path: "job", select: "_id title type location" })
-      .populate({ path: "user", select: "-_id userID" })
+      .populate({ path: "candidate", select: "-_id candidateID" })
       .exec();
 
     if (!applications) return res.status(400).send("Failed to fetch data");
@@ -79,10 +79,13 @@ applicationRoutes.get(
 applicationRoutes.get(
   "/user",
   async (req: Request, res: Response): Promise<any> => {
-    const { _id: userID } = req.user;
+    const { _id: candidateID } = req.candidate;
 
     try {
-      const applications = await MatchModel.find({ user: userID }, { __v: 0 })
+      const applications = await MatchModel.find(
+        { candidate: candidateID },
+        { __v: 0 }
+      )
         .populate({
           path: "job",
           select: "_id title location company",
@@ -114,12 +117,12 @@ applicationRoutes.post(
   "/",
   async (req: Request, res: Response): Promise<any> => {
     const { jobID } = req.body;
-    const { _id: userID } = req.user;
+    const { _id: candidateID } = req.candidate;
 
     try {
       const application = await MatchModel.findOne({
         job: jobID,
-        user: userID,
+        candidate: candidateID,
       });
 
       if (application)
@@ -134,7 +137,7 @@ applicationRoutes.post(
       // Create application
       const newApplication = new MatchModel({
         job: jobID,
-        user: userID,
+        candidate: candidateID,
         status: "Applied",
       });
 

@@ -53,7 +53,7 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
  */
 jobRoutes.get("/forme", async (req: Request, res: Response): Promise<any> => {
   try {
-    const candidate = await CandidateModel.findById(req.user._id).exec();
+    const candidate = await CandidateModel.findById(req.candidate._id).exec();
     const jobs: JobDocument[] = (await JobModel.find({})
       .populate({ path: "skills", select: "Skill Date" })
       .populate({ path: "company", select: "-jobs -__v -_id" })

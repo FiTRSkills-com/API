@@ -27,12 +27,12 @@ export const verifyToken = (
   // Verify token in the database
   CandidateModel.findOne(
     { accessToken: token },
-    (err: Error, user: any): any => {
+    (err: Error, candidate: any): any => {
       if (err) {
         return res.status(500).send(err);
       }
 
-      if (!user) {
+      if (!candidate) {
         return res.status(401).send("Not authorized");
       }
 
@@ -46,13 +46,13 @@ export const verifyToken = (
             return;
           }
 
-          if (decoded.user.userID !== user.userID) {
+          if (!candidate._id.equals(decoded.candidate._id)) {
             return res.status(401).send("Not authorized");
           }
 
           // Set user in request
-          req.userID = user.userID;
-          req.user = user;
+          req.candidateID = candidate._id;
+          req.candidate = candidate;
           next();
         }
       );

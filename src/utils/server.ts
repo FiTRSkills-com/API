@@ -12,6 +12,7 @@ import {
   interviewRoutes,
   applicationRoutes,
   candidateRoutes,
+  employerRoutes,
 } from "../Routes/Routes";
 
 // Middleware
@@ -40,6 +41,7 @@ const makeServer = (): Express => {
   app.use("/api/v1/company", companyRoutes);
   app.use("/api/v1/interview", interviewRoutes);
   app.use("/api/v1/application", applicationRoutes);
+  app.use("/api/v1/employer", employerRoutes);
 
   // Hello World
   app.get("/", (_: Request, res: Response) => {

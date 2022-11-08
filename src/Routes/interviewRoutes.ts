@@ -146,17 +146,17 @@ interviewRoutes.get(
       const interview = await InterviewModel.findById(id)
         .populate({
           path: "application",
-          select: "user -_id",
-          populate: { path: "user", select: "userID -_id" },
+          select: "candidate -_id",
+          populate: { path: "candidate", select: "candidateID -_id" },
         })
         .exec();
 
       if (!interview) return res.status(200).send("Interview not found for ID");
 
-      if (interview.application.user.userID !== req.userID)
+      if (interview.application.candidate._id !== req.candidateID)
         return res
           .status(403)
-          .send("User not authorized to access this interview");
+          .send("Candidate not authorized to access this interview");
 
       // Create Interview Room
       return client.video.rooms

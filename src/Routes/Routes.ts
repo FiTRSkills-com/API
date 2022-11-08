@@ -5,6 +5,7 @@ import companyRoutes from "./companyRoutes";
 import interviewRoutes from "./interviewRoutes";
 import applicationRoutes from "./applicationRoutes";
 import candidateRoutes from "./candidateRoutes";
+import employerRoutes from "./employerRoutes";
 
 export {
   skillRoutes,
@@ -14,4 +15,5 @@ export {
   interviewRoutes,
   applicationRoutes,
   candidateRoutes,
+  employerRoutes,
 };
