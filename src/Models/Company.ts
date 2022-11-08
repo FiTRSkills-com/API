@@ -25,7 +25,7 @@ export interface Company {
  * @property {string} logo The company's logo. (Required)
  * @property {string[]} jobs The company's jobs. (Required)
  */
-const CompanySchema: Schema = new Schema<Company>({
+export const CompanySchema: Schema = new Schema<Company>({
   name: {
     type: String,
     required: true,
@@ -33,6 +33,7 @@ const CompanySchema: Schema = new Schema<Company>({
   headquarters: {
     type: LocationSchema,
     required: true,
+    _id: false,
   },
   website: {
     type: String,

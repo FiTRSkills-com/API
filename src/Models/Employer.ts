@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { Company, CompanySchema } from "./Company";
 import { Profile, ProfileSchema } from "./Profile";
 
 /**
@@ -12,7 +13,7 @@ interface Employer {
   companyListing: string;
   jobs: string[];
   accessToken: string;
-  company: string;
+  company: Company;
   profile: Profile;
 }
 
@@ -39,16 +40,17 @@ const EmployerSchema: Schema = new Schema<Employer>({
   ],
   accessToken: {
     type: String,
-    required: true,
+    required: false,
   },
   company: {
-    type: Schema.Types.ObjectId,
-    ref: "Company",
+    type: CompanySchema,
     required: true,
+    _id: false,
   },
   profile: {
     type: ProfileSchema,
     required: true,
+    _id: false,
   },
 });
 

@@ -1,11 +1,11 @@
 import { Router, Request, Response } from "express";
-import { CallbackError } from "mongoose";
+import mongoose, { CallbackError } from "mongoose";
 
-// Middleware
+// Middlewarex
 import { verifyToken } from "../Middleware/Authorization";
 
 // Models
-import EmployerModel from "../Models/Company";
+import EmployerModel from "../Models/Employer";
 
 // Instantiate the router
 const employerRoutes = Router();
@@ -23,13 +23,10 @@ employerRoutes.use(verifyToken);
  * @returns {Promise<any>}
  */
 employerRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
-  console.log("TEST");
   try {
     const companies = await EmployerModel.find({}, { __v: 0 })
       .populate({ path: "jobs", select: "title type location" })
       .exec();
-    console.log(companies);
-
     if (!companies) return res.status(200).send("No employers exist");
 
     return res.status(200).send(companies);
@@ -68,7 +65,46 @@ employerRoutes.get(
 );
 
 /**
- * Route for updating a company by id.
+ * Route for creating a company.
+ * @name POST /
+ * @function
+ * @alias module:Routes/companyRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+employerRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
+  const { profile, company } = req.body;
+
+  if (!profile || !company) {
+    return res.status(400).send("Missing required fields");
+  }
+
+  try {
+    const employer = await EmployerModel.findOne({
+      profile,
+      company,
+    }).exec();
+
+    if (employer) return res.status(409).send("Employer already exists");
+
+    const newEmployer = await new EmployerModel({
+      dateCreated: Date.now(),
+      profile: profile,
+      company: company,
+    });
+
+    await newEmployer.save();
+
+    return res.status(201).send("Employer created");
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send(err);
+  }
+});
+
+/**
+ * Route for updating a employer by id.
  * @name PATCH /:id
  * @function
  * @alias module:Routes/companyRoutes
@@ -99,7 +135,7 @@ employerRoutes.patch("/:id", (req: Request, res: Response): any => {
 });
 
 /**
- * Route for deleting a company by id.
+ * Route for deleting an employer by id.
  * @name DELETE /:id
  * @function
  * @alias module:Routes/companyRoutes
@@ -117,7 +153,7 @@ employerRoutes.delete("/:id", (req: Request, res: Response): any => {
         return res.status(500).send(err);
       }
 
-      return res.status(200).send("Company deleted");
+      return res.status(200).send("Employer deleted");
     }
   );
 });

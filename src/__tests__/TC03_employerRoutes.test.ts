@@ -5,16 +5,25 @@ import crypto from "crypto";
 import { app, UnauthorizedReq } from "./TC01_index.test";
 import { bearerToken } from "./TC02_authRoutes.test";
 
+import mongoose, { Decimal128 } from "mongoose";
+
 // Models
 import EmployerModel from "../Models/Employer";
+import { profile } from "console";
 
 // Create Test Cases
 const validTestCase = {
   company: {
     name: "Test",
     headquarters: {
-      longitude: 0.0,
-      latitude: 0.0,
+      city: "nowhere",
+      address: "000 nowhere ave",
+      zipCode: "00000",
+      state: "Alaska",
+      geoCoordinates: {
+        longitude: new mongoose.Types.Decimal128("0"),
+        latitude: new mongoose.Types.Decimal128("0"),
+      },
     },
     website: "www.com",
     logo: "blank.png",
@@ -25,6 +34,22 @@ const validTestCase = {
     email: "something@mail.com",
     phoneNumber: "000",
   },
+};
+
+const updateCompany = {
+  name: "Volcano",
+  headquarters: {
+    city: "nowhere",
+    address: "000 nowhere ave",
+    zipCode: "00000",
+    state: "Alaska",
+    geoCoordinates: {
+      longitude: new mongoose.Types.Decimal128("0"),
+      latitude: new mongoose.Types.Decimal128("0"),
+    },
+  },
+  website: "www.com",
+  logo: "blank.png",
 };
 
 let employerID: string;
@@ -68,7 +93,7 @@ describe("Employer Routes", () => {
 
       // Get Object Created
       const employer = await EmployerModel.findOne(validTestCase);
-      employerID = employer._id.toString();
+      employerID = employer._id;
 
       expect(res.statusCode).toBe(201);
       expect(res.type).toEqual("text/html");
@@ -87,7 +112,7 @@ describe("Employer Routes", () => {
     });
   });
 
-  describe("PATCH /:id - Update a Job posting", () => {
+  describe("PATCH /:id - Update an employer", () => {
     UnauthorizedReq({
       applicationUrl: baseURL.concat(`/${employerID}`),
       method: "patch",
@@ -108,13 +133,13 @@ describe("Employer Routes", () => {
         .patch(baseURL.concat(`/${employerID}`))
         .set("Authorization", bearerToken)
         .send({
-          name: "Actalent Test",
+          company: updateCompany,
         });
 
       // Get Object Updated
       const employer = await EmployerModel.findById(employerID);
 
-      expect(employer.name).toBe("Actalent Test");
+      expect(employer.company.name).toBe("Volcano");
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("text/html");
       expect(res.text).toBe("Employer updated");
@@ -144,13 +169,13 @@ describe("Employer Routes", () => {
     });
   });
 
-  describe("DELETE /:id - Delete a Job posting", () => {
+  describe("DELETE /:id - Delete an Employer", () => {
     UnauthorizedReq({
       applicationUrl: baseURL.concat(`/${employerID}`),
       method: "delete",
     });
 
-    test("Invalid request - Job ID doesn't exist", async () => {
+    test("Invalid request - Employer ID doesn't exist", async () => {
       const res = await request(app)
         .delete(baseURL.concat(`/randomID`))
         .set("Authorization", bearerToken);

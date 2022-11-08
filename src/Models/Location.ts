@@ -50,5 +50,6 @@ export const LocationSchema: Schema = new Schema<Location>({
   geoCoordinates: {
     type: CoordinateSchema,
     required: true,
+    _id: false,
   },
 });
