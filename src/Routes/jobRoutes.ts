@@ -32,7 +32,7 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
     const jobs = await JobModel.find({}, { __v: 0 })
       .populate({ path: "skills", select: "Skill -_id" })
-      .populate({ path: "company", select: "-jobs -__v -_id" })
+      .populate({ path: "employer", select: "-jobs -__v -_id" })
       .exec();
 
     if (!jobs) return res.status(200).send("No jobs exists");
@@ -109,13 +109,14 @@ jobRoutes.get("/:id", async (req: Request, res: Response): Promise<any> => {
   try {
     const job = await JobModel.findOne({ _id: id }, { __v: 0 })
       .populate({ path: "skills", select: "Skill -_id" })
-      .populate({ path: "company", select: "-jobs -__v -_id" })
+      .populate({ path: "employer", select: "-jobs -__v -_id" })
       .exec();
 
     if (!job) return res.status(200).send("No job found with that ID");
 
     return res.status(200).send(job);
   } catch (err) {
+    console.log(err);
     return res.status(500).send(err);
   }
 });
@@ -133,28 +134,34 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
   const {
     title,
     description,
-    company,
+    isCompanyListing,
+    employer,
     type,
     length,
     location,
     isRemote,
     willSponsor,
     salary,
+    matchThreshold,
     skills,
     benefits,
+    matches,
   } = req.body;
 
   if (
     !title ||
     !description ||
-    !company ||
+    isCompanyListing === undefined ||
+    !employer ||
     !type ||
     !location ||
     isRemote === undefined ||
     willSponsor === undefined ||
     !salary ||
+    !matchThreshold ||
     !skills ||
-    !benefits
+    !benefits ||
+    !matches
   ) {
     return res.status(400).send("Missing required fields");
   }
@@ -162,14 +169,17 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
   try {
     const job = await JobModel.findOne({
       title,
-      company,
+      isCompanyListing,
+      employer,
       type,
       location,
       isRemote,
       willSponsor,
       salary,
+      matchThreshold,
       skills,
       benefits,
+      matches,
     }).exec();
 
     if (job) return res.status(409).send("Job posting already exists");
@@ -177,20 +187,25 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
     const newJob = new JobModel({
       title,
       description,
-      company,
+      isCompanyListing,
+      employer,
       type,
       length,
       location,
       isRemote,
       willSponsor,
       salary,
+      matchThreshold,
       skills,
       benefits,
+      matches,
     });
 
     await newJob.save();
+
     return res.status(201).send("Job posting created");
   } catch (err) {
+    console.log(err);
     return res.status(500).send(err);
   }
 });

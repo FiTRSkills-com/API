@@ -102,10 +102,12 @@ const JobSchema: Schema = new Schema<Job>({
       type: String,
       required: false,
     },
+    _id: false,
   },
   location: {
     type: LocationSchema,
     required: true,
+    _id: false,
   },
   isRemote: {
     type: Boolean,
@@ -124,12 +126,14 @@ const JobSchema: Schema = new Schema<Job>({
       type: Schema.Types.ObjectId,
       ref: "Skill",
       required: true,
+      _id: false,
     },
   ],
   benefits: [
     {
       type: String,
       required: true,
+      _id: false,
     },
   ],
   createdAt: {
@@ -151,16 +155,19 @@ const JobSchema: Schema = new Schema<Job>({
       type: Schema.Types.ObjectId,
       ref: "Match",
       required: true,
+      _id: false,
     },
   ],
   interviewAvailability: [
     {
       date: {
         type: Date,
+        _id: false,
       },
       times: [
         {
           type: Date,
+          _id: false,
         },
       ],
     },

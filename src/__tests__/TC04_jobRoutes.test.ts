@@ -7,20 +7,32 @@ import { bearerToken } from "./TC02_authRoutes.test";
 
 // Models
 import JobModel from "../Models/Job";
+import mongoose from "mongoose";
 
 // Create Test Cases
 const validTestCase = {
-  title: "Software Engineer",
-  description:
-    "Seeking Software Engineers to design, code, and test real-time embedded software for a variety of products in the Rochester, NY area! Active Security Clearance is required for this role.",
-  company: "62c65b0c3b3173edccf656b8",
-  type: "Full Time",
-  location: "Rochester, NY",
+  title: "Swen",
+  description: "Looking for swen",
+  isCompanyListing: false,
+  employer: new mongoose.Types.ObjectId("636aac34e42f246e2b9527b2"),
+  type: "Swen Job",
+  location: {
+    city: "nowhere",
+    address: "000 nowhere ave",
+    zipCode: "00000",
+    state: "Alaska",
+    geoCoordinates: {
+      longitude: new mongoose.Types.Decimal128("0"),
+      latitude: new mongoose.Types.Decimal128("0"),
+    },
+  },
   isRemote: false,
-  willSponsor: false,
-  salary: 210000,
-  skills: ["627092699d087d0e7db4f49a", "627092699d087d0e7db4f44d"],
-  benefits: ["Paid Vacation"],
+  willSponsor: true,
+  salary: 10,
+  matchThreshold: 50,
+  skills: [],
+  benefits: ["Yoga Insurance"],
+  matches: [],
 };
 
 export let jobID: string;
@@ -76,7 +88,7 @@ describe("Job Routes", () => {
         .send(validTestCase);
 
       // Get Object Created
-      const job = await JobModel.findOne(validTestCase);
+      const job = await JobModel.findOne();
       jobID = job._id.toString();
 
       expect(res.statusCode).toBe(201);
