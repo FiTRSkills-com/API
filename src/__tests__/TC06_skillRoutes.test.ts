@@ -5,8 +5,10 @@ import { app, UnauthorizedReq } from "./TC01_index.test";
 import { bearerToken } from "./TC02_authRoutes.test";
 
 // Create Test Case
-const testCase = {
-  Skill: "Express Testing",
+const validTestCase = {
+  skill: "Express Testing",
+  category: "Testing",
+  similarSkills: [],
 };
 // Create Baseurl
 const baseURL = "/api/v1/skills";
@@ -42,7 +44,7 @@ describe("Skills Routes", () => {
       const res = await request(app)
         .post(baseURL)
         .set("Authorization", bearerToken)
-        .send(testCase);
+        .send(validTestCase);
 
       expect(res.statusCode).toBe(201);
       expect(res.type).toEqual("text/html");
@@ -53,7 +55,7 @@ describe("Skills Routes", () => {
       const res = await request(app)
         .post(baseURL)
         .set("Authorization", bearerToken)
-        .send(testCase);
+        .send(validTestCase);
 
       expect(res.statusCode).toBe(409);
       expect(res.type).toEqual("text/html");
@@ -62,7 +64,9 @@ describe("Skills Routes", () => {
   });
 
   describe("GET /:name - Get a Skill by name", () => {
-    UnauthorizedReq({ applicationUrl: baseURL.concat(`/${testCase.Skill}`) });
+    UnauthorizedReq({
+      applicationUrl: baseURL.concat(`/${validTestCase.skill}`),
+    });
 
     test("Invalid request - Skill doesn't exist", async () => {
       const res = await request(app)
@@ -76,7 +80,7 @@ describe("Skills Routes", () => {
 
     test("Valid request", async () => {
       const res = await request(app)
-        .get(baseURL.concat(`/${testCase.Skill}`))
+        .get(baseURL.concat(`/${validTestCase.skill}`))
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(200);

@@ -33,11 +33,13 @@ const SkillSchema: Schema = new Schema<Skill>({
       type: Schema.Types.ObjectId,
       ref: "Skill",
       required: true,
+      _id: false,
     },
   ],
   dateAdded: {
     type: Date,
     required: true,
+    defaul: Date.now,
   },
   addedBy: {
     type: Schema.Types.ObjectId,
