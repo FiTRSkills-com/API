@@ -126,14 +126,12 @@ const JobSchema: Schema = new Schema<Job>({
       type: Schema.Types.ObjectId,
       ref: "Skill",
       required: true,
-      _id: false,
     },
   ],
   benefits: [
     {
       type: String,
       required: true,
-      _id: false,
     },
   ],
   createdAt: {
@@ -155,7 +153,6 @@ const JobSchema: Schema = new Schema<Job>({
       type: Schema.Types.ObjectId,
       ref: "Match",
       required: true,
-      _id: false,
     },
   ],
   interviewAvailability: [

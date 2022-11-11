@@ -38,6 +38,7 @@ const ChatSchema: Schema = new Schema<Chat>({
     {
       type: MessageSchema,
       required: true,
+      _id: false,
     },
   ],
   employerSilence: {
