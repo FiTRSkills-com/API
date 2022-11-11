@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-export enum generalStatus {
+export enum matchStatus {
   PRE_MATCH = "Pre Match",
   MATCH = "Match",
   RETRACTED = "Retracted",
@@ -8,16 +8,10 @@ export enum generalStatus {
   POST_INTERVIEW = "Post Interview",
 }
 
-export enum candidateStatus {
-  CANDIDATE_INTERESTED = "Candidate Interested",
-  CANDIDATE_UNINTERESTED = "Candidate Uninterested",
-  CANDIDATE_RETRACTED = "Candidate Retracted",
-}
-
-export enum employerStatus {
-  EMPLOYER_INTERESTED = "Employer Interested",
-  EMPLOYER_UNINTERESTED = "Employer Uninterested",
-  EMPLOYER_RETRACTED = "Employer Retracted",
+export enum generalStatus {
+  INTERESTED = "Interested",
+  UNINTERESTED = "Uninterested",
+  RETRACTED = "Retracted",
 }
 
 interface Status {
