@@ -1,6 +1,6 @@
 interface Candidate {
   _id: string;
-  candidateID: string;
+  authID: string;
   accessToken: string;
   skills: string[];
   __v: number;
@@ -9,6 +9,6 @@ interface Candidate {
 declare namespace Express {
   export interface Request {
     candidate: Candidate;
-    candidateID: string;
+    authID: string;
   }
 }

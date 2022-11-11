@@ -153,7 +153,7 @@ interviewRoutes.get(
 
       if (!interview) return res.status(200).send("Interview not found for ID");
 
-      if (interview.application.candidate._id !== req.candidateID)
+      if (interview.application.candidate._id !== req.candidate._id)
         return res
           .status(403)
           .send("Candidate not authorized to access this interview");

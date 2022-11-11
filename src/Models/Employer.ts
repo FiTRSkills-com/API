@@ -9,6 +9,7 @@ import { Profile, ProfileSchema } from "./Profile";
  * @example { Skill: "JavaScript", Date: "2020-01-01T00:00:00.000Z" }
  */
 interface Employer {
+  authID: string;
   dateCreated: Date;
   companyListing: string;
   jobs: string[];
@@ -23,6 +24,10 @@ interface Employer {
  * @property {Date} Date The date the skill was added. (Required)
  */
 const EmployerSchema: Schema = new Schema<Employer>({
+  authID: {
+    type: String,
+    required: true,
+  },
   dateCreated: {
     type: Date,
     required: true,

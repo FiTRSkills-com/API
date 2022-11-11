@@ -74,9 +74,9 @@ employerRoutes.get(
  * @returns {Promise<any>}
  */
 employerRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
-  const { profile, company } = req.body;
+  const { profile, company, authID } = req.body;
 
-  if (!profile || !company) {
+  if (!profile || !company || !authID) {
     return res.status(400).send("Missing required fields");
   }
 
@@ -92,6 +92,7 @@ employerRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
       dateCreated: Date.now(),
       profile: profile,
       company: company,
+      authID: authID,
     });
 
     await newEmployer.save();

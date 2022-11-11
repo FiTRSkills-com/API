@@ -9,8 +9,7 @@ import mongoose from "mongoose";
 
 // Create Test Case
 const testCase = {
-  _id: "000000000000000000000000",
-  oid: new mongoose.Types.ObjectId("000000000000000000000000"),
+  authID: "000000000000000000000000",
 };
 
 // Create Baseurl
@@ -40,7 +39,7 @@ describe("Auth Routes", () => {
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");
-      expect(candidate._id).toEqual(testCase.oid);
+      expect(candidate.authID).toEqual(testCase.authID);
     });
   });
 

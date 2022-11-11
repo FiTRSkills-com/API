@@ -23,14 +23,14 @@ const authRoutes = Router();
  * @returns {Promise<any>}
  */
 authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
-  const { _id } = req.body;
+  const { authID } = req.body;
 
   try {
-    if (!_id) {
+    if (!authID) {
       return res.status(400).send("Request not formatted correctly");
     }
 
-    const candidate = await CandidateModel.findOne({ _id: _id }).exec();
+    const candidate = await CandidateModel.findOne({ authID: authID }).exec();
 
     if (candidate) {
       if (candidate.accessToken) {
@@ -40,7 +40,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       }
     } else {
       const newCandidate = await new CandidateModel({
-        _id: _id,
+        authID: authID,
         dateCreated: Date.now(),
       });
 
@@ -63,14 +63,14 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
  * @returns {any}
  */
 authRoutes.delete("/logout", (req: Request, res: Response): any => {
-  const { id } = req.body;
+  const { authID } = req.body;
 
-  if (!id) {
+  if (!authID) {
     return res.status(400).send("Request not formatted correctly");
   }
 
   return CandidateModel.updateOne(
-    { _id: id },
+    { authID: authID },
     { $set: { accessToken: "" } },
     (err: CallbackError): any => {
       if (err) {

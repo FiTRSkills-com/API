@@ -25,7 +25,7 @@ candidateRoutes.use(verifyToken);
 candidateRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
   try {
     const candidate = await CandidateModel.findOne(
-      { _id: req.candidateID },
+      { _id: req.candidate._id },
       { __v: 0 }
     )
       .populate({ path: "skills", select: "Skill _id" })

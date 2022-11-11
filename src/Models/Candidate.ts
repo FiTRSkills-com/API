@@ -11,6 +11,7 @@ import { Profile, ProfileSchema } from "./Profile";
  * @example { userID: "12345", bio: "I am a user", accessToken: "eyJhbGciOiJIUzI1", skills: [{ ObjectId("123") }] }
  */
 export interface Candidate {
+  authID: string;
   bio: string;
   location: Location;
   dateCreated: Date;
@@ -31,6 +32,10 @@ export interface Candidate {
  * @property {ObjectId[]} skills The user's skills. (Optional)
  */
 const CandidateSchema: Schema = new Schema<Candidate>({
+  authID: {
+    type: String,
+    required: true,
+  },
   bio: {
     type: String,
     required: false,

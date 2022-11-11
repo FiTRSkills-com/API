@@ -46,12 +46,12 @@ export const verifyToken = (
             return;
           }
 
-          if (!candidate._id.equals(decoded.candidate._id)) {
+          if (candidate.authID != decoded.candidate.authID) {
             return res.status(401).send("Not authorized");
           }
 
           // Set user in request
-          req.candidateID = candidate._id;
+          req.authID = candidate.authID;
           req.candidate = candidate;
           next();
         }

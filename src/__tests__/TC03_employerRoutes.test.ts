@@ -34,6 +34,7 @@ const validTestCase = {
     email: "something@mail.com",
     phoneNumber: "000",
   },
+  authID: "111111111111111111111111",
 };
 
 const updateCompany = {
