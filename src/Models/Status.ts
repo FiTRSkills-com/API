@@ -15,15 +15,20 @@ export enum generalStatus {
 }
 
 interface Status {
-  currentStatus: String;
+  matchStatus: String;
+  generalStatus: String;
   dateModified: Date;
   previousStatus: String;
 }
 
 const StatusSchema: Schema = new Schema<Status>({
-  currentStatus: {
+  matchStatus: {
     type: String,
-    required: true,
+    required: false,
+  },
+  generalStatus: {
+    type: String,
+    required: false,
   },
   dateModified: {
     type: Date,

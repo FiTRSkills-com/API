@@ -10,7 +10,7 @@ import { Schema, model } from "mongoose";
 export interface Match {
   job: string;
   candidate: string;
-  generalStatus: string;
+  matchStatus: string;
   candidateStatus: string;
   employerStatus: string;
   interview: string;
@@ -34,7 +34,7 @@ const MatchSchema: Schema = new Schema<Match>({
     ref: "Candidate",
     required: true,
   },
-  generalStatus: {
+  matchStatus: {
     type: Schema.Types.ObjectId,
     ref: "Status",
     required: true,
