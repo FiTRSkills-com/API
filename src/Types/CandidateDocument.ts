@@ -4,6 +4,7 @@ import Skill from "./Skills";
 
 export interface CandidateDocument {
   _id: string;
+  authID: string;
   bio: string;
   location: Location;
   dateCreated: Date;

@@ -25,6 +25,8 @@ const authRoutes = Router();
 authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
   const { authID } = req.body;
 
+  console.log(authID);
+
   try {
     if (!authID) {
       return res.status(400).send("Request not formatted correctly");
