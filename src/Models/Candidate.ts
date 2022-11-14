@@ -68,6 +68,12 @@ const CandidateSchema: Schema = new Schema<Candidate>({
       ref: "Interview",
     },
   ],
+  matches: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Match",
+    },
+  ],
   matchTreshold: {
     type: Number,
     required: false,

@@ -26,6 +26,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
   const { authID } = req.body;
 
   console.log(authID);
+  console.log("Test");
 
   try {
     if (!authID) {
@@ -50,6 +51,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       updateAccessToken(newCandidate, generateAccessToken(newCandidate), res);
     }
   } catch (err) {
+    console.log("Test");
     console.log(err);
     return res.status(500).send(err);
   }
