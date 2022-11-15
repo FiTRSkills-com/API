@@ -17,7 +17,7 @@ employerRoutes.use(verifyToken);
  * Route for getting all companies.
  * @name GET /
  * @function
- * @alias module:Routes/companyRoutes
+ * @alias module:Routes/employerRoutes
  * @property {Request} _ Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
@@ -39,7 +39,7 @@ employerRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
  * Route for getting a company by id.
  * @name GET /:id
  * @function
- * @alias module:Routes/companyRoutes
+ * @alias module:Routes/employerRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
@@ -68,7 +68,7 @@ employerRoutes.get(
  * Route for creating a company.
  * @name POST /
  * @function
- * @alias module:Routes/companyRoutes
+ * @alias module:Routes/employerRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
@@ -108,7 +108,7 @@ employerRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
  * Route for updating a employer by id.
  * @name PATCH /:id
  * @function
- * @alias module:Routes/companyRoutes
+ * @alias module:Routes/employerRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {any}
@@ -139,7 +139,7 @@ employerRoutes.patch("/:id", (req: Request, res: Response): any => {
  * Route for deleting an employer by id.
  * @name DELETE /:id
  * @function
- * @alias module:Routes/companyRoutes
+ * @alias module:Routes/employerRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {any}

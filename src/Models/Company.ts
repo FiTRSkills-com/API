@@ -14,7 +14,6 @@ export interface Company {
   headquarters: Location;
   website: string;
   logo: string;
-  jobs: string[];
 }
 
 /**
