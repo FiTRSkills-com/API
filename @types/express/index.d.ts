@@ -1,6 +1,6 @@
-interface User {
+interface Candidate {
   _id: string;
-  userID: string;
+  authID: string;
   accessToken: string;
   skills: string[];
   __v: number;
@@ -8,7 +8,7 @@ interface User {
 
 declare namespace Express {
   export interface Request {
-    user: User;
-    userID: string;
+    candidate: Candidate;
+    authID: string;
   }
 }

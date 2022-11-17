@@ -6,8 +6,8 @@ import { verifyToken } from "../Middleware/Authorization";
 
 // Models
 import JobModel, { Job } from "../Models/Job";
-import CompanyModel from "../Models/Company";
-import UserModel from "../Models/User";
+import EmployerModel from "../Models/Employer";
+import CandidateModel from "../Models/Candidate";
 
 // Types
 import { JobDocument } from "../Types/JobDocument";
@@ -32,7 +32,7 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
     const jobs = await JobModel.find({}, { __v: 0 })
       .populate({ path: "skills", select: "Skill -_id" })
-      .populate({ path: "company", select: "-jobs -__v -_id" })
+      .populate({ path: "employer", select: "-jobs -__v -_id" })
       .exec();
 
     if (!jobs) return res.status(200).send("No jobs exists");
@@ -43,7 +43,7 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
 });
 
 /**
- * Route for getting jobs for a user based on their skills.
+ * Route for getting jobs for a candidate based on their skills.
  * @name GET /forme
  * @function
  * @alias module:Routes/jobRoutes
@@ -53,22 +53,22 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
  */
 jobRoutes.get("/forme", async (req: Request, res: Response): Promise<any> => {
   try {
-    const user = await UserModel.findById(req.user._id).exec();
+    const candidate = await CandidateModel.findById(req.candidate._id).exec();
     const jobs: JobDocument[] = (await JobModel.find({})
       .populate({ path: "skills", select: "Skill Date" })
       .populate({ path: "company", select: "-jobs -__v -_id" })
       .exec()) as JobDocument[];
 
-    if (!user || !jobs) {
+    if (!candidate || !jobs) {
       throw Error("An error occured");
     }
 
-    // Filter jobs based on user's skills
+    // Filter jobs based on candidate's skills
     const filteredJobs = jobs.filter((job: JobDocument) => {
       const skills = job.skills;
-      const userSkills = user.skills;
+      const candidateSkills = candidate.skills;
       const filteredSkills = skills.filter((skill: SkillDocument) => {
-        return userSkills.includes(skill._id);
+        return candidateSkills.includes(skill._id);
       });
       return filteredSkills.length > 0;
     });
@@ -109,13 +109,14 @@ jobRoutes.get("/:id", async (req: Request, res: Response): Promise<any> => {
   try {
     const job = await JobModel.findOne({ _id: id }, { __v: 0 })
       .populate({ path: "skills", select: "Skill -_id" })
-      .populate({ path: "company", select: "-jobs -__v -_id" })
+      .populate({ path: "employer", select: "-jobs -__v -_id" })
       .exec();
 
     if (!job) return res.status(200).send("No job found with that ID");
 
     return res.status(200).send(job);
   } catch (err) {
+    console.log(err);
     return res.status(500).send(err);
   }
 });
@@ -133,28 +134,34 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
   const {
     title,
     description,
-    company,
+    isCompanyListing,
+    employer,
     type,
     length,
     location,
     isRemote,
     willSponsor,
     salary,
+    matchThreshold,
     skills,
     benefits,
+    matches,
   } = req.body;
 
   if (
     !title ||
     !description ||
-    !company ||
+    isCompanyListing === undefined ||
+    !employer ||
     !type ||
     !location ||
     isRemote === undefined ||
     willSponsor === undefined ||
     !salary ||
+    !matchThreshold ||
     !skills ||
-    !benefits
+    !benefits ||
+    !matches
   ) {
     return res.status(400).send("Missing required fields");
   }
@@ -162,14 +169,17 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
   try {
     const job = await JobModel.findOne({
       title,
-      company,
+      isCompanyListing,
+      employer,
       type,
       location,
       isRemote,
       willSponsor,
       salary,
+      matchThreshold,
       skills,
       benefits,
+      matches,
     }).exec();
 
     if (job) return res.status(409).send("Job posting already exists");
@@ -177,20 +187,25 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
     const newJob = new JobModel({
       title,
       description,
-      company,
+      isCompanyListing,
+      employer,
       type,
       length,
       location,
       isRemote,
       willSponsor,
       salary,
+      matchThreshold,
       skills,
       benefits,
+      matches,
     });
 
     await newJob.save();
+
     return res.status(201).send("Job posting created");
   } catch (err) {
+    console.log(err);
     return res.status(500).send(err);
   }
 });
@@ -283,8 +298,8 @@ jobRoutes.delete("/:id", (req: Request, res: Response): any => {
         return res.status(500).send(err);
       }
 
-      return CompanyModel.findOneAndUpdate(
-        { _id: job.company },
+      return EmployerModel.findOneAndUpdate(
+        { _id: job.employer },
         { $pull: { jobs: id } },
         (err: CallbackError): any => {
           if (err) {

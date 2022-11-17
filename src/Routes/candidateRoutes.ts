@@ -5,13 +5,13 @@ import { CallbackError } from "mongoose";
 import { verifyToken } from "../Middleware/Authorization";
 
 // Models
-import UserModel from "../Models/User";
+import CandidateModel from "../Models/Candidate";
 
 // Instantiate the router
-const userRoutes = Router();
+const candidateRoutes = Router();
 
 // Use Middleware
-userRoutes.use(verifyToken);
+candidateRoutes.use(verifyToken);
 
 /**
  * Route for getting a user.
@@ -22,14 +22,17 @@ userRoutes.use(verifyToken);
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-userRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
+candidateRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
   try {
-    const user = await UserModel.findOne({ userID: req.userID }, { __v: 0 })
+    const candidate = await CandidateModel.findOne(
+      { _id: req.candidate._id },
+      { __v: 0 }
+    )
       .populate({ path: "skills", select: "Skill _id" })
       .exec();
 
-    if (!user) return res.status(200).send("No user found with that ID");
-    return res.status(200).send(user);
+    if (!candidate) return res.status(200).send("No user found with that ID");
+    return res.status(200).send(candidate);
   } catch (err) {
     return res.status(500).send(err);
   }
@@ -44,15 +47,15 @@ userRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
  * @property {Response} res Express Response
  * @returns {any}
  */
-userRoutes.patch("/", (req: Request, res: Response): any => {
+candidateRoutes.patch("/", (req: Request, res: Response): any => {
   const { skills, bio } = req.body;
 
   if (!skills && bio === undefined) {
     return res.status(400).send("No skills provided");
   }
 
-  return UserModel.updateOne(
-    { userID: req.userID },
+  return CandidateModel.updateOne(
+    { _id: req.candidate._id },
     { $set: { skills, bio } },
     (err: CallbackError): any => {
       if (err) {
@@ -64,4 +67,4 @@ userRoutes.patch("/", (req: Request, res: Response): any => {
   );
 });
 
-export default userRoutes;
+export default candidateRoutes;

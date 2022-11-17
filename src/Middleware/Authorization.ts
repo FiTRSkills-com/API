@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 // Models
-import UserModel from "../Models/User";
+import CandidateModel from "../Models/Candidate";
 
 /**
  * Middleware function for checking if user is authorized
@@ -25,34 +25,37 @@ export const verifyToken = (
   }
 
   // Verify token in the database
-  UserModel.findOne({ accessToken: token }, (err: Error, user: any): any => {
-    if (err) {
-      return res.status(500).send(err);
-    }
-
-    if (!user) {
-      return res.status(401).send("Not authorized");
-    }
-
-    // Verify token in the request and check that decoded user is same as user in database
-    jwt.verify(
-      token,
-      process.env.JWT_SECRET!,
-      (err: Error | null, decoded: any): any => {
-        if (err) {
-          res.status(500).send(err);
-          return;
-        }
-
-        if (decoded.user.userID !== user.userID) {
-          return res.status(401).send("Not authorized");
-        }
-
-        // Set user in request
-        req.userID = user.userID;
-        req.user = user;
-        next();
+  CandidateModel.findOne(
+    { accessToken: token },
+    (err: Error, candidate: any): any => {
+      if (err) {
+        return res.status(500).send(err);
       }
-    );
-  });
+
+      if (!candidate) {
+        return res.status(401).send("Not authorized");
+      }
+
+      // Verify token in the request and check that decoded user is same as user in database
+      jwt.verify(
+        token,
+        process.env.JWT_SECRET!,
+        (err: Error | null, decoded: any): any => {
+          if (err) {
+            res.status(500).send(err);
+            return;
+          }
+
+          if (candidate.authID != decoded.candidate.authID) {
+            return res.status(401).send("Not authorized");
+          }
+
+          // Set user in request
+          req.authID = candidate.authID;
+          req.candidate = candidate;
+          next();
+        }
+      );
+    }
+  );
 };

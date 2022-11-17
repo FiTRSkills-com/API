@@ -7,8 +7,11 @@ import { Schema, model } from "mongoose";
  * @example { Skill: "JavaScript", Date: "2020-01-01T00:00:00.000Z" }
  */
 interface Skill {
-  Skill: string;
-  Date: Date;
+  skill: string;
+  category: string;
+  similarSkills: string[];
+  dateAdded: Date;
+  addedBy: string;
 }
 
 /**
@@ -17,13 +20,31 @@ interface Skill {
  * @property {Date} Date The date the skill was added. (Required)
  */
 const SkillSchema: Schema = new Schema<Skill>({
-  Skill: {
+  skill: {
     type: String,
     required: true,
   },
-  Date: {
+  category: {
+    type: String,
+    required: false,
+  },
+  similarSkills: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Skill",
+      required: true,
+      _id: false,
+    },
+  ],
+  dateAdded: {
     type: Date,
     required: true,
+    defaul: Date.now,
+  },
+  addedBy: {
+    type: Schema.Types.ObjectId,
+    ref: "Employer",
+    required: false,
   },
 });
 

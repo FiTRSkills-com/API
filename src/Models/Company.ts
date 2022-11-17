@@ -1,14 +1,5 @@
 import { Schema, model } from "mongoose";
-
-/**
- * @typedef {Object} Headquarters
- * @property {string} city The headquarters city.
- * @property {string} state The headquarters state.
- */
-interface Headquarters {
-  city: string;
-  state: string;
-}
+import { Location, LocationSchema } from "./Location";
 
 /**
  * @typedef {Object} Company
@@ -20,10 +11,9 @@ interface Headquarters {
  */
 export interface Company {
   name: string;
-  headquarters: Headquarters;
+  headquarters: Location;
   website: string;
   logo: string;
-  jobs: string[];
 }
 
 /**
@@ -34,20 +24,15 @@ export interface Company {
  * @property {string} logo The company's logo. (Required)
  * @property {string[]} jobs The company's jobs. (Required)
  */
-const CompanySchema: Schema = new Schema<Company>({
+export const CompanySchema: Schema = new Schema<Company>({
   name: {
     type: String,
     required: true,
   },
   headquarters: {
-    city: {
-      type: String,
-      required: true,
-    },
-    state: {
-      type: String,
-      required: true,
-    },
+    type: LocationSchema,
+    required: true,
+    _id: false,
   },
   website: {
     type: String,
@@ -57,13 +42,6 @@ const CompanySchema: Schema = new Schema<Company>({
     type: String,
     required: true,
   },
-  jobs: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Job",
-      required: true,
-    },
-  ],
 });
 
 // Create and export the model

@@ -1,27 +1,19 @@
 import { Schema, model } from "mongoose";
 
 /**
- * @typedef {Object} Timeslot
- * @property {Date} date Date of timeslot
- * @property {Date[]} times Date array of times
- */
-interface Timeslot {
-  date: Date;
-  times: Date[];
-}
-
-/**
  * @typedef {Object} Application
  * @property {string} job Job posting's unique ID
  * @property {string} user User's unique ID
  * @property {string} status Status of Application
  * @property {Timeslot[]} interviewTimeSlots Array of potential timeslots
  */
-export interface Application {
+export interface Match {
   job: string;
-  user: string;
-  status: string;
-  interviewTimeSlots: Timeslot[];
+  candidate: string;
+  matchStatus: string;
+  candidateStatus: string;
+  employerStatus: string;
+  interview: string;
 }
 
 /**
@@ -31,35 +23,39 @@ export interface Application {
  * @property {string} status Status of application
  * @property {Object[]} interviewTimeSlots Array of interview time slots
  */
-const ApplicationSchema: Schema = new Schema<Application>({
+const MatchSchema: Schema = new Schema<Match>({
   job: {
     type: Schema.Types.ObjectId,
     ref: "Job",
     required: true,
   },
-  user: {
+  candidate: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Candidate",
     required: true,
   },
-  status: {
-    type: String,
+  matchStatus: {
+    type: Schema.Types.ObjectId,
+    ref: "Status",
     required: true,
   },
-  interviewTimeSlots: [
-    {
-      date: {
-        type: Date,
-      },
-      times: [
-        {
-          type: Date,
-        },
-      ],
-    },
-  ],
+  candidateStatus: {
+    type: Schema.Types.ObjectId,
+    ref: "Status",
+    required: true,
+  },
+  employerStatus: {
+    type: Schema.Types.ObjectId,
+    ref: "Status",
+    required: true,
+  },
+  interview: {
+    type: Schema.Types.ObjectId,
+    ref: "Interview",
+    required: false,
+  },
 });
 
 // Create and export the model
-const ApplicationModel = model("Application", ApplicationSchema);
-export default ApplicationModel;
+const MatchModel = model("Match", MatchSchema);
+export default MatchModel;

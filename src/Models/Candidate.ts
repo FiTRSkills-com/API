@@ -1,4 +1,6 @@
 import { Schema, model } from "mongoose";
+import { Location, LocationSchema } from "./Location";
+import { Profile, ProfileSchema } from "./Profile";
 
 /**
  * @typedef {Object} User
@@ -8,11 +10,18 @@ import { Schema, model } from "mongoose";
  * @property {string[]} skills The user's skills.
  * @example { userID: "12345", bio: "I am a user", accessToken: "eyJhbGciOiJIUzI1", skills: [{ ObjectId("123") }] }
  */
-export interface User {
-  userID: string;
+export interface Candidate {
+  authID: string;
   bio: string;
+  location: Location;
+  dateCreated: Date;
   accessToken: string;
   skills: string[];
+  settings: string;
+  matches: string[];
+  interviews: string[];
+  matchTreshold: number;
+  profile: Profile;
 }
 
 /**
@@ -22,14 +31,22 @@ export interface User {
  * @property {string} accessToken The user's access token. (Optional)
  * @property {ObjectId[]} skills The user's skills. (Optional)
  */
-const UserSchema: Schema = new Schema<User>({
-  userID: {
+const CandidateSchema: Schema = new Schema<Candidate>({
+  authID: {
     type: String,
     required: true,
   },
   bio: {
     type: String,
     required: false,
+  },
+  location: {
+    type: LocationSchema,
+    required: false,
+  },
+  dateCreated: {
+    type: Date,
+    required: true,
   },
   accessToken: {
     type: String,
@@ -41,8 +58,32 @@ const UserSchema: Schema = new Schema<User>({
       ref: "Skill",
     },
   ],
+  settings: {
+    type: String,
+    required: false,
+  },
+  interviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Interview",
+    },
+  ],
+  matches: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Match",
+    },
+  ],
+  matchTreshold: {
+    type: Number,
+    required: false,
+  },
+  profile: {
+    type: ProfileSchema,
+    required: false,
+  },
 });
 
 // Create and export the model.
-const UserModel = model("User", UserSchema);
-export default UserModel;
+const CandidateModel = model("Candidate", CandidateSchema);
+export default CandidateModel;

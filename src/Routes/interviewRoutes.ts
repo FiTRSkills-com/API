@@ -12,7 +12,7 @@ import type { VideoInterview } from "../Types/VideoInterview";
 
 // Models
 import InterviewModel from "../Models/Interview";
-import ApplicationModel from "../Models/Application";
+import MatchModel from "../Models/Match";
 import CompanyModel from "../Models/Company";
 
 // Instantiate the Router
@@ -41,12 +41,9 @@ interviewRoutes.get(
 
     try {
       // Get Interview
-      const interview = await InterviewModel.findOne(
-        { application: id },
-        { __v: 0 }
-      )
+      const interview = await InterviewModel.findOne({ match: id }, { __v: 0 })
         .populate({
-          path: "application",
+          path: "match",
           select: "job -_id",
           populate: { path: "job", select: "title description -_id" },
         })
@@ -87,40 +84,37 @@ interviewRoutes.post(
 
     try {
       const interview = await InterviewModel.findOne({
-        application: id,
+        match: id,
       }).exec();
 
       if (interview)
         return res.status(200).send("Interview already exists with that ID");
 
-      const application = await ApplicationModel.findOne(
-        { _id: id },
-        { __v: 0 }
-      )
+      const match = await MatchModel.findOne({ _id: id }, { __v: 0 })
         .populate({ path: "job", populate: { path: "company" } })
         .exec();
 
-      if (!application)
+      if (!match)
         return res.status(200).send("No job applicaiton exists for ID");
-      if (application.status !== "Accepted")
+      if (match.status !== "Accepted")
         return res
           .status(200)
           .send("Cannot create interview for this job posting");
 
       const newInterview = new InterviewModel({
-        application: id,
+        match: id,
         interviewDetails: {
-          company: application.job.company._id,
+          company: match.job.company._id,
         },
         interviewDate,
       });
 
       await newInterview.save();
 
-      // Update Application
-      application.interviewTimeSlots = [];
-      application.status = "Interview Scheduled";
-      await application.save();
+      // Update Match
+      match.interviewTimeSlots = [];
+      match.status = "Interview Scheduled";
+      await match.save();
 
       return res.status(201).send("Interview Created");
     } catch (err) {
@@ -148,18 +142,18 @@ interviewRoutes.get(
       // Verify Interview ID exists
       const interview = await InterviewModel.findById(id)
         .populate({
-          path: "application",
-          select: "user -_id",
-          populate: { path: "user", select: "userID -_id" },
+          path: "match",
+          select: "candidate -_id",
+          populate: { path: "candidate", select: "candidateID -_id" },
         })
         .exec();
 
       if (!interview) return res.status(200).send("Interview not found for ID");
 
-      if (interview.application.user.userID !== req.userID)
+      if (interview.match.candidate._id !== req.candidate._id)
         return res
           .status(403)
-          .send("User not authorized to access this interview");
+          .send("Candidate not authorized to access this interview");
 
       // Create Interview Room
       return client.video.rooms

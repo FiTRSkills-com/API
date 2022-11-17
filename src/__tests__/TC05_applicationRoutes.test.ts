@@ -6,7 +6,7 @@ import { bearerToken } from "./TC02_authRoutes.test";
 import { jobID } from "./TC04_jobRoutes.test";
 
 // Models
-import ApplicationModel from "../Models/Application";
+import MatchModel from "../Models/Match";
 
 // Create Test Case
 const testCase = {

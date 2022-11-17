@@ -4,11 +4,12 @@ import request from "supertest";
 import { app } from "./TC01_index.test";
 
 // Models
-import UserModel from "../Models/User";
+import CandidateModel from "../Models/Candidate";
+import mongoose from "mongoose";
 
 // Create Test Case
 const testCase = {
-  id: "1",
+  authID: "000000000000000000000000",
 };
 
 // Create Baseurl
@@ -32,13 +33,13 @@ describe("Auth Routes", () => {
         .post(baseURL.concat("/login"))
         .send(testCase);
 
-      // Get User Created
-      const user = await UserModel.findOne(testCase);
-      bearerToken = `Bearer ${user.accessToken}`;
+      // Get Candidate Created
+      const candidate = await CandidateModel.findOne(testCase);
+      bearerToken = `Bearer ${candidate.accessToken}`;
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");
-      expect(user.userID).toBe("1");
+      expect(candidate.authID).toEqual(testCase.authID);
     });
   });
 

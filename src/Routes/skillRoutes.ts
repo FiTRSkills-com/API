@@ -26,6 +26,7 @@ skillRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
     const skills = await SkillModel.find({}, { __v: 0 }).exec();
 
     if (!skills) return res.status(200).send("No skills exist");
+    console.log(skills);
     return res.status(200).send(skills);
   } catch (err) {
     return res.status(500).send(err);
@@ -46,7 +47,7 @@ skillRoutes.get("/:name", async (req: Request, res: Response): Promise<any> => {
 
   try {
     const skill = await SkillModel.findOne(
-      { Skill: new RegExp("^" + name + "$", "i") },
+      { skill: new RegExp("^" + name + "$", "i") },
       { __v: 0 }
     ).exec();
 
@@ -69,18 +70,20 @@ skillRoutes.get("/:name", async (req: Request, res: Response): Promise<any> => {
  * @returns {Promise<any>}
  */
 skillRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
-  const { Skill } = req.body;
+  const { skill, similarSkills } = req.body;
 
-  if (!Skill) return res.status(400).send("Missing required fields");
+  if (!skill || !similarSkills)
+    return res.status(400).send("Missing required fields");
 
   try {
-    const skill = await SkillModel.findOne({ Skill }).exec();
+    const Skill = await SkillModel.findOne({ skill, similarSkills }).exec();
 
-    if (skill) return res.status(409).send("Skill already exists");
+    if (Skill) return res.status(409).send("Skill already exists");
 
     const newSkill = new SkillModel({
-      Skill,
-      Date: new Date(),
+      skill,
+      similarSkills,
+      dateAdded: Date.now(),
     });
 
     await newSkill.save();

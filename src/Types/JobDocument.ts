@@ -1,12 +1,17 @@
+import { JobLength, TimeSlot } from "../Models/Job";
+import { Location } from "../Models/Location";
+import { EmployerDocument } from "./EmployerDocument";
 import { SkillDocument } from "./SkillDocument";
 
 export interface JobDocument {
   _id: string;
   title: string;
   description: string;
-  company: Company;
+  isCompanyListing: boolean;
+  employer: EmployerDocument;
   type: string;
-  location: string;
+  length: JobLength;
+  location: Location;
   isRemote: boolean;
   willSponsor: boolean;
   salary: number;
@@ -14,17 +19,8 @@ export interface JobDocument {
   benefits: string[];
   createdAt: Date;
   updatedAt: Date;
+  matchThreshold: number;
+  matches: String[];
+  interviewAvailability: TimeSlot[];
   __v: number;
-}
-
-interface Company {
-  headquarters: Headquarters;
-  name: string;
-  website: string;
-  logo: string;
-}
-
-interface Headquarters {
-  city: string;
-  state: string;
 }

@@ -1,13 +1,24 @@
 import { Schema, model } from "mongoose";
+import { Location, LocationSchema } from "./Location";
 
 /**
  * @typedef {Object} JobLength
  * @property {number} length Length of job
  * @property {string} unit Unit of measurement for length
  */
-interface JobLength {
+export interface JobLength {
   length: number;
   unit: string;
+}
+
+/**
+ * @typedef {Object} TimeSlot
+ * @property {Date} date Date of timeslot
+ * @property {Date[]} times Date array of times
+ */
+export interface TimeSlot {
+  date: Date;
+  times: Date[];
 }
 
 /**
@@ -27,10 +38,11 @@ interface JobLength {
 export interface Job {
   title: string;
   description: string;
-  company: string;
-  location: string;
+  isCompanyListing: boolean;
+  employer: string;
   type: string;
   length: JobLength;
+  location: Location;
   isRemote: boolean;
   willSponsor: boolean;
   salary: number;
@@ -38,6 +50,9 @@ export interface Job {
   benefits: string[];
   createdAt: Date;
   updatedAt: Date;
+  matchThreshold: number;
+  matches: String[];
+  interviewAvailability: TimeSlot[];
 }
 
 /**
@@ -65,9 +80,13 @@ const JobSchema: Schema = new Schema<Job>({
     type: String,
     required: true,
   },
-  company: {
+  isCompanyListing: {
+    type: Boolean,
+    required: true,
+  },
+  employer: {
     type: Schema.Types.ObjectId,
-    ref: "Company",
+    ref: "Employer",
     required: true,
   },
   type: {
@@ -83,10 +102,12 @@ const JobSchema: Schema = new Schema<Job>({
       type: String,
       required: false,
     },
+    _id: false,
   },
   location: {
-    type: String,
+    type: LocationSchema,
     required: true,
+    _id: false,
   },
   isRemote: {
     type: Boolean,
@@ -123,6 +144,31 @@ const JobSchema: Schema = new Schema<Job>({
     required: true,
     default: Date.now,
   },
+  matchThreshold: {
+    type: Number,
+    required: true,
+  },
+  matches: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Match",
+      required: true,
+    },
+  ],
+  interviewAvailability: [
+    {
+      date: {
+        type: Date,
+        _id: false,
+      },
+      times: [
+        {
+          type: Date,
+          _id: false,
+        },
+      ],
+    },
+  ],
 });
 
 // Create and export the model.

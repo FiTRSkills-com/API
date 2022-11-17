@@ -1,20 +1,20 @@
 import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { CallbackError } from "mongoose";
+import mongoose, { CallbackError } from "mongoose";
 
 // Types
-import { UserDocument } from "../Types/UserDocument";
+import { CandidateDocument } from "../Types/CandidateDocument";
 
 // Models
-import UserModel from "../Models/User";
+import CandidateModel from "../Models/Candidate";
 
 // Instantiate the router
 const authRoutes = Router();
 
 /**
- * Route for logging in a user.
- * Will create a new user if they don't exist.
- * Will return the user object if they do.
+ * Route for logging in a candidate.
+ * Will create a new candidate if they don't exist.
+ * Will return the candidate object if they do.
  * @name POST /login
  * @function
  * @alias module:Routes/authRoutes
@@ -23,36 +23,38 @@ const authRoutes = Router();
  * @returns {Promise<any>}
  */
 authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
-  const { id } = req.body;
+  const { authID } = req.body;
 
   try {
-    if (!id) {
+    if (!authID) {
       return res.status(400).send("Request not formatted correctly");
     }
 
-    const user = await UserModel.findOne({ userID: id }).exec();
+    const candidate = await CandidateModel.findOne({ authID: authID }).exec();
 
-    if (user) {
-      if (user.accessToken) {
-        return res.status(200).send(user);
+    if (candidate) {
+      if (candidate.accessToken) {
+        return res.status(200).send(candidate);
       } else {
-        updateAccessToken(user, generateAccessToken(user), res);
+        updateAccessToken(candidate, generateAccessToken(candidate), res);
       }
     } else {
-      const newUser = await new UserModel({
-        userID: id,
+      const newCandidate = await new CandidateModel({
+        authID: authID,
+        dateCreated: Date.now(),
       });
 
-      await newUser.save();
-      updateAccessToken(newUser, generateAccessToken(newUser), res);
+      await newCandidate.save();
+      updateAccessToken(newCandidate, generateAccessToken(newCandidate), res);
     }
   } catch (err) {
+    console.log(err);
     return res.status(500).send(err);
   }
 });
 
 /**
- * Route for logging out a user.
+ * Route for logging out a candidate.
  * @name DELETE /logout
  * @function
  * @alias module:Routes/authRoutes
@@ -61,14 +63,14 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
  * @returns {any}
  */
 authRoutes.delete("/logout", (req: Request, res: Response): any => {
-  const { id } = req.body;
+  const { authID } = req.body;
 
-  if (!id) {
+  if (!authID) {
     return res.status(400).send("Request not formatted correctly");
   }
 
-  return UserModel.updateOne(
-    { userID: id },
+  return CandidateModel.updateOne(
+    { authID: authID },
     { $set: { accessToken: "" } },
     (err: CallbackError): any => {
       if (err) {
@@ -82,35 +84,35 @@ authRoutes.delete("/logout", (req: Request, res: Response): any => {
 
 /**
  * Helper function for generating access tokens
- * @param {UserDocument} user The user to generate a token for
+ * @param {CandidateDocument} candidate The candidate to generate a token for
  * @return {string} Access token
  */
-const generateAccessToken = (user: UserDocument): string => {
-  return jwt.sign({ user }, process.env.JWT_SECRET!);
+const generateAccessToken = (candidate: CandidateDocument): string => {
+  return jwt.sign({ candidate }, process.env.JWT_SECRET!);
 };
 
 /**
- * Helper function for updating a user's access token
+ * Helper function for updating a candidate's access token
  *
- * @param {UserDocument} user The user that needs the token updated
+ * @param {CandidateDocument} candidate The candidate that needs the token updated
  * @param {string} token The current token that is replacing the old token
  * @param {Response} res The express Response
  * @return {any} An express response type
  */
 const updateAccessToken = (
-  user: UserDocument,
+  candidate: CandidateDocument,
   token: string,
   res: Response
 ): any => {
-  return UserModel.findByIdAndUpdate(
-    user._id,
+  return CandidateModel.findByIdAndUpdate(
+    candidate._id,
     { $set: { accessToken: token } },
-    (err: CallbackError, userObject: UserDocument): any => {
+    (err: CallbackError, candidateObject: CandidateDocument): any => {
       if (err) {
         return res.status(500).send(err);
       } else {
-        userObject.accessToken = token;
-        return res.status(200).send(userObject);
+        candidateObject.accessToken = token;
+        return res.status(200).send(candidateObject);
       }
     }
   );
