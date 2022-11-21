@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
-import { Location, LocationSchema } from "./Location";
-import { Profile, ProfileSchema } from "./Profile";
+import { Location, LocationSchema, defaultLocation } from "./Location";
+import { Profile, ProfileSchema, defaultProfile } from "./Profile";
 
 /**
  * @typedef {Object} User
@@ -43,6 +43,8 @@ const CandidateSchema: Schema = new Schema<Candidate>({
   location: {
     type: LocationSchema,
     required: false,
+    default: defaultLocation,
+    _id: false,
   },
   dateCreated: {
     type: Date,
@@ -51,6 +53,7 @@ const CandidateSchema: Schema = new Schema<Candidate>({
   accessToken: {
     type: String,
     required: false,
+    default: "",
   },
   skills: [
     {
@@ -61,6 +64,7 @@ const CandidateSchema: Schema = new Schema<Candidate>({
   settings: {
     type: String,
     required: false,
+    default: "",
   },
   interviews: [
     {
@@ -77,10 +81,13 @@ const CandidateSchema: Schema = new Schema<Candidate>({
   matchTreshold: {
     type: Number,
     required: false,
+    default: -1,
   },
   profile: {
     type: ProfileSchema,
     required: false,
+    default: defaultProfile,
+    _id: false,
   },
 });
 

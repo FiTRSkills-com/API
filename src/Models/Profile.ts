@@ -16,18 +16,25 @@ export interface Profile {
 export const ProfileSchema: Schema = new Schema<Profile>({
   firstName: {
     type: String,
-    required: true,
+    required: false,
   },
   lastName: {
     type: String,
-    required: true,
+    required: false,
   },
   email: {
     type: String,
-    required: true,
+    required: false,
   },
   phoneNumber: {
     type: String,
-    required: true,
+    required: false,
   },
 });
+
+export const defaultProfile: Profile = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phoneNumber: "",
+};

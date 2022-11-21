@@ -7,6 +7,7 @@ import { CandidateDocument } from "../../Types/CandidateDocument";
 
 // Models
 import CandidateModel from "../../Models/Candidate";
+import { defaultProfile } from "../../Models/Profile";
 
 // Instantiate the router
 const authRoutes = Router();
@@ -23,7 +24,7 @@ const authRoutes = Router();
  * @returns {Promise<any>}
  */
 authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
-  const { authID } = req.body;
+  const { authID, firstName, lastName, email } = req.body;
 
   try {
     if (!authID) {
@@ -39,9 +40,20 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
         updateAccessToken(candidate, generateAccessToken(candidate), res);
       }
     } else {
+      const profile = defaultProfile;
+      if (firstName) {
+        profile.firstName = firstName;
+      }
+      if (lastName) {
+        profile.lastName = lastName;
+      }
+      if (email) {
+        profile.email = email;
+      }
       const newCandidate = await new CandidateModel({
         authID: authID,
         dateCreated: Date.now(),
+        profile: profile,
       });
 
       await newCandidate.save();

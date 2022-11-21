@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 // Create Test Case
 const testCase = {
   authID: "000000000000000000000000",
+  firstName: "Jeff",
 };
 
 // Create Baseurl
