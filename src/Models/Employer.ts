@@ -49,12 +49,12 @@ const EmployerSchema: Schema = new Schema<Employer>({
   },
   company: {
     type: CompanySchema,
-    required: true,
+    required: false,
     _id: false,
   },
   profile: {
     type: ProfileSchema,
-    required: true,
+    required: false,
     _id: false,
   },
 });

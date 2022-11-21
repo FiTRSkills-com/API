@@ -3,12 +3,18 @@ interface Candidate {
   authID: string;
   accessToken: string;
   skills: string[];
-  __v: number;
+}
+
+interface Employer {
+  _id: string;
+  authID: string;
+  accessToken: string;
 }
 
 declare namespace Express {
   export interface Request {
     candidate: Candidate;
+    employer: Employer;
     authID: string;
   }
 }

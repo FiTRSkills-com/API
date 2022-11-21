@@ -13,7 +13,7 @@ const testCase = {
 };
 
 // Create Baseurl
-const baseURL = "/api/v1/auth";
+const baseURL = "/api/v1/c/auth";
 
 // Export BearerToken
 export let bearerToken: string;
@@ -35,7 +35,7 @@ describe("Auth Routes", () => {
 
       // Get Candidate Created
       const candidate = await CandidateModel.findOne(testCase);
-      bearerToken = `Bearer ${candidate.accessToken}`;
+      bearerToken = `Bearer c ${candidate.accessToken} ${candidate._id}`;
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");
