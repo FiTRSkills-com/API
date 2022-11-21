@@ -28,9 +28,10 @@ candidateRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
       { _id: req.candidate._id },
       { __v: 0 }
     )
-      .populate({ path: "skills", select: "Skill _id" })
+      .populate({ path: "skills" })
       .exec();
 
+    console.log(candidate);
     if (!candidate) return res.status(200).send("No user found with that ID");
     return res.status(200).send(candidate);
   } catch (err) {

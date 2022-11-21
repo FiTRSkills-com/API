@@ -30,7 +30,9 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       return res.status(400).send("Request not formatted correctly");
     }
 
-    const candidate = await CandidateModel.findOne({ authID: authID }).exec();
+    const candidate = await CandidateModel.findOne({ authID: authID })
+      .populate({ path: "skills" })
+      .exec();
 
     if (candidate) {
       if (candidate.accessToken) {
