@@ -30,6 +30,7 @@ export const verifyToken = (
   const header = req.headers["authorization"];
   const bearer = header?.split(" ");
   const token = header && header.split(" ")[1];
+  let id;
   let model;
 
   if (!bearer || bearer.length !== 4 || bearer[0] !== "Bearer") {
@@ -37,7 +38,7 @@ export const verifyToken = (
   } else if (bearer[1] == "c") {
     model = CandidateModel; // Looks in Candidate for candidate bearer token
   } else if (bearer[1] == "e") {
-    model = EmployerModel; // Loks in Employer for employer bearer token
+    model = EmployerModel; // Looks in Employer for employer bearer token
   } else {
     return unauthorized(res);
   }
