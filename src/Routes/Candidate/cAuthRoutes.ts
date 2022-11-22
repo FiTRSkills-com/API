@@ -35,7 +35,8 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
 
     if (candidate) {
       if (candidate.accessToken) {
-        return res.status(200).send(candidate);
+        console.log("Valid Login");
+        return res.status(200).send({ accesToken: candidate.accessToken });
       } else {
         updateAccessToken(candidate, generateAccessToken(candidate), res);
       }
@@ -124,7 +125,7 @@ const updateAccessToken = (
         return res.status(500).send(err);
       } else {
         candidateObject.accessToken = token;
-        return res.status(200).send(candidateObject);
+        return res.status(200).send({ accessToken: token });
       }
     }
   );
