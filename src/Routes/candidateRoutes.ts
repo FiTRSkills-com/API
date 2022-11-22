@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import { CallbackError } from "mongoose";
 
+import log from "../utils/log";
+
 // Middleware
 import { verifyToken } from "../Middleware/Authorization";
 
