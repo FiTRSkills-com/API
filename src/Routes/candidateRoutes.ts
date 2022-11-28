@@ -7,8 +7,7 @@ import log from "../utils/log";
 import { verifyToken } from "../Middleware/Authorization";
 
 // Models
-import CandidateModel from "../Models/Candidate";
-import { profile } from "console";
+import CandidateModel, { Candidate } from "../Models/Candidate";
 
 // Instantiate the router
 const candidateRoutes = Router();
@@ -42,10 +41,10 @@ candidateRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
 });
 
 candidateRoutes.patch("/patchProfile", (req: Request, res: Response): any => {
-  const { candidate } = req.body;
-  console.log(candidate);
+  let { candidate } = req.body;
+  let candidateObj: Candidate = JSON.parse(candidate);
 
-  if (candidate === undefined) {
+  if (candidateObj === undefined) {
     return res.status(400).send("No candidate provided");
   }
 
@@ -53,10 +52,10 @@ candidateRoutes.patch("/patchProfile", (req: Request, res: Response): any => {
     { _id: req.candidate._id },
     {
       $set: {
-        location: candidate.location,
-        matchThreshold: candidate.matchThreshold,
-        profile: candidate.profile,
-        bio: candidate.bio,
+        location: candidateObj.location,
+        matchThreshold: candidateObj.matchThreshold,
+        profile: candidateObj.profile,
+        bio: candidateObj.bio,
       },
     },
     (err: CallbackError): any => {

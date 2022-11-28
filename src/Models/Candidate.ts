@@ -20,7 +20,7 @@ export interface Candidate {
   settings: string;
   matches: string[];
   interviews: string[];
-  matchTreshold: number;
+  matchThreshold: number;
   profile: Profile;
 }
 
@@ -39,6 +39,7 @@ const CandidateSchema: Schema = new Schema<Candidate>({
   bio: {
     type: String,
     required: false,
+    default: "",
   },
   location: {
     type: LocationSchema,
@@ -78,7 +79,7 @@ const CandidateSchema: Schema = new Schema<Candidate>({
       ref: "Match",
     },
   ],
-  matchTreshold: {
+  matchThreshold: {
     type: Number,
     required: false,
     default: -1,
