@@ -36,7 +36,7 @@ describe("Auth Routes", () => {
 
       // Get Candidate Created
       const candidate = await CandidateModel.findOne(testCase);
-      bearerToken = `Bearer c ${candidate.accessToken} ${candidate._id}`;
+      bearerToken = `Bearer c ${candidate.accessToken}`;
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");

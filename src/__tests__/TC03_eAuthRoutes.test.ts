@@ -35,7 +35,7 @@ describe("eAuth Routes", () => {
 
       // Get Candidate Created
       const employer = await EmployerModel.findOne(testCase);
-      bearerToken = `Bearer e ${employer.accessToken} ${employer._id}`;
+      bearerToken = `Bearer e ${employer.accessToken}`;
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");
