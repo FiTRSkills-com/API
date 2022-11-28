@@ -7,7 +7,7 @@ import log from "../utils/log";
 import { verifyToken } from "../Middleware/Authorization";
 
 // Models
-import CandidateModel from "../Models/Candidate";
+import CandidateModel, { Candidate } from "../Models/Candidate";
 
 // Instantiate the router
 const candidateRoutes = Router();
@@ -33,12 +33,39 @@ candidateRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
       .populate({ path: "skills" })
       .exec();
 
-    console.log(candidate);
     if (!candidate) return res.status(200).send("No user found with that ID");
     return res.status(200).send(candidate);
   } catch (err) {
     return res.status(500).send(err);
   }
+});
+
+candidateRoutes.patch("/patchProfile", (req: Request, res: Response): any => {
+  let { candidate } = req.body;
+  let candidateObj: Candidate = JSON.parse(candidate);
+
+  if (candidateObj === undefined) {
+    return res.status(400).send("No candidate provided");
+  }
+
+  return CandidateModel.updateOne(
+    { _id: req.candidate._id },
+    {
+      $set: {
+        location: candidateObj.location,
+        matchThreshold: candidateObj.matchThreshold,
+        profile: candidateObj.profile,
+        bio: candidateObj.bio,
+      },
+    },
+    (err: CallbackError): any => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      return res.status(200).send("Candidate updated successfully");
+    }
+  );
 });
 
 /**
