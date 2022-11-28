@@ -26,7 +26,6 @@ skillRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
     const skills = await SkillModel.find({}, { __v: 0 }).exec();
 
     if (!skills) return res.status(200).send("No skills exist");
-    console.log(skills);
     return res.status(200).send(skills);
   } catch (err) {
     return res.status(500).send(err);
