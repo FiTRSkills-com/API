@@ -1,4 +1,4 @@
-import { Schema, Decimal128 } from "mongoose";
+import { Schema } from "mongoose";
 
 /**
  * @typedef {Object} Skill
@@ -15,8 +15,8 @@ export interface Location {
 }
 
 interface Coordinate {
-  latitude: Decimal128;
-  longitude: Decimal128;
+  latitude: Number;
+  longitude: Number;
 }
 
 const CoordinateSchema: Schema = new Schema<Coordinate>({
@@ -33,23 +33,36 @@ const CoordinateSchema: Schema = new Schema<Coordinate>({
 export const LocationSchema: Schema = new Schema<Location>({
   city: {
     type: String,
-    required: true,
+    required: false,
   },
   state: {
     type: String,
-    required: true,
+    required: false,
   },
   address: {
     type: String,
-    required: true,
+    required: false,
   },
   zipCode: {
     type: String,
-    required: true,
+    required: false,
   },
   geoCoordinates: {
     type: CoordinateSchema,
-    required: true,
+    required: false,
     _id: false,
   },
 });
+
+const defaultCoordinates: Coordinate = {
+  longitude: 0.0,
+  latitude: 0.0,
+};
+
+export const defaultLocation: Location = {
+  city: "",
+  state: "",
+  address: "",
+  zipCode: "",
+  geoCoordinates: defaultCoordinates,
+};
