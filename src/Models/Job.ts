@@ -22,6 +22,33 @@ export interface TimeSlot {
 }
 
 /**
+ * @typedef {Object} JobSkill
+ * @property {string} skill a skill for the job
+ * @property {number} priority the priority for the skill (int 1-5)
+ */
+export interface JobSkill {
+  skill: string;
+  priority: number;
+}
+
+/**
+ * @typedef {Object} JobSkillsSchema<Job>
+ * @property {ObjectId} skill The skill. (Required)
+ * @property {number} priority The skills priority. (Required)
+ */
+const JobSkillsSchema: Schema = new Schema<JobSkill>({
+  skill: {
+    type: Schema.Types.ObjectId,
+    ref: "Skill",
+    required: true,
+  },
+  priority: {
+    type: Number,
+    required: false,
+  },
+});
+
+/**
  * @typedef {Object} Job
  * @property {string} title The job title.
  * @property {string} description The job description.
@@ -30,7 +57,7 @@ export interface TimeSlot {
  * @property {boolean} isRemote Whether the job is remote or not.
  * @property {boolean} willSponsor Whether the job will sponsor or not.
  * @property {number} salary The job's salary.
- * @property {string[]} skills The job's skills.
+ * @property {JobSkill[]} jobSkills The job's skills, and their priorities
  * @property {string[]} benefits The job's benefits.
  * @property {Date} createdAt The date the job was created.
  * @property {Date} updatedAt The date the job was last updated.
@@ -46,7 +73,7 @@ export interface Job {
   isRemote: boolean;
   willSponsor: boolean;
   salary: number;
-  skills: string[];
+  jobSkills: JobSkill[];
   benefits: string[];
   createdAt: Date;
   updatedAt: Date;
@@ -66,12 +93,12 @@ export interface Job {
  * @property {boolean} isRemote Whether the job is remote or not. (Required)
  * @property {boolean} willSponsor Whether the job will sponsor or not. (Required)
  * @property {number} salary The job's salary. (Required)
- * @property {ObjectId[]} skills The job's skills. (Required)
+ * @property {JobSkill[]} jobSkills The job's skills. (Required)
  * @property {string[]} benefits The job's benefits. (Required)
  * @property {Date} createdAt The date the job was created. (Required)
  * @property {Date} updatedAt The date the job was last updated. (Required)
  */
-const JobSchema: Schema = new Schema<Job>({
+export const JobSchema: Schema = new Schema<Job>({
   title: {
     type: String,
     required: true,
@@ -121,11 +148,11 @@ const JobSchema: Schema = new Schema<Job>({
     type: Number,
     required: true,
   },
-  skills: [
+  jobSkills: [
     {
-      type: Schema.Types.ObjectId,
-      ref: "Skill",
+      type: JobSkillsSchema,
       required: true,
+      _id: false,
     },
   ],
   benefits: [

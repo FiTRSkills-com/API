@@ -30,7 +30,7 @@ const validTestCase = {
   willSponsor: true,
   salary: 10,
   matchThreshold: 50,
-  skills: [],
+  jobSkills: [],
   benefits: ["Yoga Insurance"],
   matches: [],
 };
@@ -55,18 +55,18 @@ describe("Job Routes", () => {
     });
   });
 
-  describe("GET /forme - Jobs recommended for the user", () => {
-    UnauthorizedReq({ applicationUrl: baseURL.concat("/forme") });
+  // describe("GET /forme - Jobs recommended for the user", () => {
+  //   UnauthorizedReq({ applicationUrl: baseURL.concat("/forme") });
 
-    test("Valid request", async () => {
-      const res = await request(app)
-        .get(baseURL.concat("/forme"))
-        .set("Authorization", bearerToken);
+  //   test("Valid request", async () => {
+  //     const res = await request(app)
+  //       .get(baseURL.concat("/forme"))
+  //       .set("Authorization", bearerToken);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.type).toEqual("application/json");
-    });
-  });
+  //     expect(res.statusCode).toBe(200);
+  //     expect(res.type).toEqual("application/json");
+  //   });
+  // });
 
   describe("POST / - Create a Job posting", () => {
     UnauthorizedReq({ applicationUrl: baseURL, method: "post" });

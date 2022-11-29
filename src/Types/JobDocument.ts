@@ -1,4 +1,4 @@
-import { JobLength, TimeSlot } from "../Models/Job";
+import { JobLength, TimeSlot, JobSkill } from "../Models/Job";
 import { Location } from "../Models/Location";
 import { EmployerDocument } from "./EmployerDocument";
 import { SkillDocument } from "./SkillDocument";
@@ -15,7 +15,7 @@ export interface JobDocument {
   isRemote: boolean;
   willSponsor: boolean;
   salary: number;
-  skills: SkillDocument[];
+  jobSkills: JobSkill[];
   benefits: string[];
   createdAt: Date;
   updatedAt: Date;
