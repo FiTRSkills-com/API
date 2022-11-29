@@ -2,8 +2,8 @@ import request from "supertest";
 
 // Bring in exports
 import { app, UnauthorizedReq } from "./TC01_index.test";
-import { bearerToken } from "./TC02_authRoutes.test";
-import { jobID } from "./TC04_jobRoutes.test";
+import { bearerToken } from "./TC02_cAuthRoutes.test";
+import { jobID } from "./TC05_jobRoutes.test";
 
 // Models
 import MatchModel from "../Models/Match";

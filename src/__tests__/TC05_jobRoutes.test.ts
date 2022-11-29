@@ -3,43 +3,20 @@ import crypto from "crypto";
 
 // Bring in exports
 import { app, UnauthorizedReq } from "./TC01_index.test";
-import { bearerToken } from "./TC02_authRoutes.test";
-
-import mongoose, { Decimal128 } from "mongoose";
+import { bearerToken } from "./TC02_cAuthRoutes.test";
 
 // Models
-import EmployerModel from "../Models/Employer";
-import { profile } from "console";
+import JobModel from "../Models/Job";
+import mongoose from "mongoose";
 
 // Create Test Cases
 const validTestCase = {
-  company: {
-    name: "Test",
-    headquarters: {
-      city: "nowhere",
-      address: "000 nowhere ave",
-      zipCode: "00000",
-      state: "Alaska",
-      geoCoordinates: {
-        longitude: new mongoose.Types.Decimal128("0"),
-        latitude: new mongoose.Types.Decimal128("0"),
-      },
-    },
-    website: "www.com",
-    logo: "blank.png",
-  },
-  profile: {
-    firstName: "John",
-    lastName: "Wick",
-    email: "something@mail.com",
-    phoneNumber: "000",
-  },
-  authID: "111111111111111111111111",
-};
-
-const updateCompany = {
-  name: "Volcano",
-  headquarters: {
+  title: "Swen",
+  description: "Looking for swen",
+  isCompanyListing: false,
+  employer: new mongoose.Types.ObjectId("636aac34e42f246e2b9527b2"),
+  type: "Swen Job",
+  location: {
     city: "nowhere",
     address: "000 nowhere ave",
     zipCode: "00000",
@@ -49,18 +26,23 @@ const updateCompany = {
       latitude: new mongoose.Types.Decimal128("0"),
     },
   },
-  website: "www.com",
-  logo: "blank.png",
+  isRemote: false,
+  willSponsor: true,
+  salary: 10,
+  matchThreshold: 50,
+  jobSkills: [],
+  benefits: ["Yoga Insurance"],
+  matches: [],
 };
 
-let employerID: string;
+export let jobID: string;
 const randomID = crypto.randomBytes(12).toString("hex");
 
 // Create Baseurl
-const baseURL = "/api/v1/employer";
+const baseURL = "/api/v1/job";
 
-describe("Employer Routes", () => {
-  describe("GET / - Get all employers", () => {
+describe("Job Routes", () => {
+  describe("GET / - Get all jobs", () => {
     UnauthorizedReq({ applicationUrl: baseURL });
 
     test("Valid request", async () => {
@@ -73,12 +55,25 @@ describe("Employer Routes", () => {
     });
   });
 
-  describe("POST / - Create an Employer", () => {
-    UnauthorizedReq({ applicationUrl: baseURL.concat("/"), method: "post" });
+  // describe("GET /forme - Jobs recommended for the user", () => {
+  //   UnauthorizedReq({ applicationUrl: baseURL.concat("/forme") });
+
+  //   test("Valid request", async () => {
+  //     const res = await request(app)
+  //       .get(baseURL.concat("/forme"))
+  //       .set("Authorization", bearerToken);
+
+  //     expect(res.statusCode).toBe(200);
+  //     expect(res.type).toEqual("application/json");
+  //   });
+  // });
+
+  describe("POST / - Create a Job posting", () => {
+    UnauthorizedReq({ applicationUrl: baseURL, method: "post" });
 
     test("Invalid request format", async () => {
       const res = await request(app)
-        .post(baseURL.concat("/"))
+        .post(baseURL)
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(400);
@@ -88,40 +83,40 @@ describe("Employer Routes", () => {
 
     test("Valid request", async () => {
       const res = await request(app)
-        .post(baseURL.concat("/"))
+        .post(baseURL)
         .set("Authorization", bearerToken)
         .send(validTestCase);
 
       // Get Object Created
-      const employer = await EmployerModel.findOne(validTestCase);
-      employerID = employer._id;
+      const job = await JobModel.findOne();
+      jobID = job._id.toString();
 
       expect(res.statusCode).toBe(201);
       expect(res.type).toEqual("text/html");
-      expect(res.text).toBe("Employer created");
+      expect(res.text).toBe("Job posting created");
     });
 
-    test("Employer exists", async () => {
+    test("Job posting exists", async () => {
       const res = await request(app)
-        .post(baseURL.concat("/"))
+        .post(baseURL)
         .set("Authorization", bearerToken)
         .send(validTestCase);
 
       expect(res.statusCode).toBe(409);
       expect(res.type).toEqual("text/html");
-      expect(res.text).toBe("Employer already exists");
+      expect(res.text).toBe("Job posting already exists");
     });
   });
 
-  describe("PATCH /:id - Update an employer", () => {
+  describe("PATCH /:id - Update a Job posting", () => {
     UnauthorizedReq({
-      applicationUrl: baseURL.concat(`/${employerID}`),
+      applicationUrl: baseURL.concat(`/${jobID}`),
       method: "patch",
     });
 
     test("Invalid request format", async () => {
       const res = await request(app)
-        .patch(baseURL.concat(`/${employerID}`))
+        .patch(baseURL.concat(`/${jobID}`))
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(400);
@@ -131,38 +126,38 @@ describe("Employer Routes", () => {
 
     test("Valid request", async () => {
       const res = await request(app)
-        .patch(baseURL.concat(`/${employerID}`))
+        .patch(baseURL.concat(`/${jobID}`))
         .set("Authorization", bearerToken)
         .send({
-          company: updateCompany,
+          title: "Senior Software Engineer",
         });
 
       // Get Object Updated
-      const employer = await EmployerModel.findById(employerID);
+      const job = await JobModel.findById(jobID);
 
-      expect(employer.company.name).toBe("Volcano");
+      expect(job.title).toBe("Senior Software Engineer");
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("text/html");
-      expect(res.text).toBe("Employer updated");
+      expect(res.text).toBe("Job posting updated");
     });
   });
 
-  describe("GET /:id - Get Employer by ID", () => {
-    UnauthorizedReq({ applicationUrl: baseURL.concat(`/${employerID}`) });
+  describe("GET /:id - Get Job by ID", () => {
+    UnauthorizedReq({ applicationUrl: baseURL.concat(`/${jobID}`) });
 
-    test("Invalid request - Employer ID doesn't exist", async () => {
+    test("Invalid request - Job ID doesn't exist", async () => {
       const res = await request(app)
         .get(baseURL.concat(`/${randomID}`))
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("text/html");
-      expect(res.text).toBe("No employer exists with that ID");
+      expect(res.text).toBe("No job found with that ID");
     });
 
     test("Valid request", async () => {
       const res = await request(app)
-        .get(baseURL.concat(`/${employerID}`))
+        .get(baseURL.concat(`/${jobID}`))
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(200);
@@ -170,13 +165,13 @@ describe("Employer Routes", () => {
     });
   });
 
-  describe("DELETE /:id - Delete an Employer", () => {
+  describe("DELETE /:id - Delete a Job posting", () => {
     UnauthorizedReq({
-      applicationUrl: baseURL.concat(`/${employerID}`),
+      applicationUrl: baseURL.concat(`/${jobID}`),
       method: "delete",
     });
 
-    test("Invalid request - Employer ID doesn't exist", async () => {
+    test("Invalid request - Job ID doesn't exist", async () => {
       const res = await request(app)
         .delete(baseURL.concat(`/randomID`))
         .set("Authorization", bearerToken);
@@ -186,12 +181,12 @@ describe("Employer Routes", () => {
 
     test("Valid request", async () => {
       const res = await request(app)
-        .delete(baseURL.concat(`/${employerID}`))
+        .delete(baseURL.concat(`/${jobID}`))
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("text/html");
-      expect(res.text).toBe("Employer deleted");
+      expect(res.text).toBe("Job deleted");
     });
   });
 });

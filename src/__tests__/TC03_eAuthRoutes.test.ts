@@ -4,7 +4,7 @@ import request from "supertest";
 import { app } from "./TC01_index.test";
 
 // Models
-import CandidateModel from "../Models/Candidate";
+import EmployerModel from "../Models/Employer";
 import mongoose from "mongoose";
 
 // Create Test Case
@@ -13,12 +13,12 @@ const testCase = {
 };
 
 // Create Baseurl
-const baseURL = "/api/v1/auth";
+const baseURL = "/api/v1/e/auth";
 
 // Export BearerToken
 export let bearerToken: string;
 
-describe("Auth Routes", () => {
+describe("eAuth Routes", () => {
   describe("Login", () => {
     test("Invalid request format", async () => {
       const res = await request(app).post(baseURL.concat("/login"));
@@ -34,12 +34,12 @@ describe("Auth Routes", () => {
         .send(testCase);
 
       // Get Candidate Created
-      const candidate = await CandidateModel.findOne(testCase);
-      bearerToken = `Bearer ${candidate.accessToken}`;
+      const employer = await EmployerModel.findOne(testCase);
+      bearerToken = `Bearer e ${employer.accessToken}`;
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");
-      expect(candidate.authID).toEqual(testCase.authID);
+      expect(employer.authID).toEqual(testCase.authID);
     });
   });
 

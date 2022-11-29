@@ -6,13 +6,14 @@ import cors from "cors";
 // Routes
 import {
   skillRoutes,
-  authRoutes,
+  cAuthRoutes,
   jobRoutes,
   companyRoutes,
   interviewRoutes,
   applicationRoutes,
   candidateRoutes,
   employerRoutes,
+  eAuthRoutes,
 } from "../Routes/Routes";
 
 // Middleware
@@ -36,12 +37,15 @@ const makeServer = (): Express => {
   app.use("/api/v1/candidate", candidateRoutes);
 
   app.use("/api/v1/skills", skillRoutes);
-  app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/job", jobRoutes);
   app.use("/api/v1/company", companyRoutes);
   app.use("/api/v1/interview", interviewRoutes);
   app.use("/api/v1/application", applicationRoutes);
   app.use("/api/v1/employer", employerRoutes);
+
+  app.use("/api/v1/c/auth", cAuthRoutes);
+
+  app.use("/api/v1/e/auth", eAuthRoutes);
 
   // Hello World
   app.get("/", (_: Request, res: Response) => {

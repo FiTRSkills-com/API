@@ -5,6 +5,7 @@ import { JobDocument } from "./JobDocument";
 export interface EmployerDocument {
   _id: string;
   dateCreated: Date;
+  authID: string;
   companyListing: JobDocument;
   jobs: JobDocument[];
   accessToken: string;
