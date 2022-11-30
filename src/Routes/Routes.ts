@@ -2,7 +2,7 @@ import skillRoutes from "./skillRoutes";
 import jobRoutes from "./jobRoutes";
 import companyRoutes from "./companyRoutes";
 import interviewRoutes from "./interviewRoutes";
-import applicationRoutes from "./applicationRoutes";
+import matchRoutes from "./matchRoutes";
 import candidateRoutes from "./candidateRoutes";
 import employerRoutes from "./employerRoutes";
 
@@ -16,7 +16,7 @@ export {
   jobRoutes,
   companyRoutes,
   interviewRoutes,
-  applicationRoutes,
+  matchRoutes,
   candidateRoutes,
   employerRoutes,
   eAuthRoutes,

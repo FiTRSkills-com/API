@@ -13,13 +13,11 @@ const testCase = {
   jobID: "",
 };
 
-let applicationID: string;
-
 // Create Baseurl
-const baseURL = "/api/v1/application";
+const baseURL = "/api/v1/match";
 
-describe("Application Routes", () => {
-  describe("GET / - Get all applications", () => {
+describe("match Routes", () => {
+  describe("GET / - Get all matches", () => {
     UnauthorizedReq({ applicationUrl: baseURL });
 
     test("Valid request", async () => {
@@ -32,12 +30,15 @@ describe("Application Routes", () => {
     });
   });
 
-  describe("POST / - Create an application", () => {
-    UnauthorizedReq({ applicationUrl: baseURL, method: "post" });
+  describe("POST / - Create an match", () => {
+    UnauthorizedReq({
+      applicationUrl: baseURL + "/createMatch",
+      method: "patch",
+    });
 
     test("Invalid request format - Job doesn't exist", async () => {
       const res = await request(app)
-        .post(baseURL)
+        .post(baseURL.concat("/createMatch"))
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(400);
@@ -46,7 +47,7 @@ describe("Application Routes", () => {
     });
 
     /**
-     * Valid Request and Application Exists tests
+     * Valid Request and match Exists tests
      * cannot be tested as they rely on the job to exist
      * which cannot be guarenteed do to the jest ordering
      */

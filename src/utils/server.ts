@@ -10,7 +10,7 @@ import {
   jobRoutes,
   companyRoutes,
   interviewRoutes,
-  applicationRoutes,
+  matchRoutes,
   candidateRoutes,
   employerRoutes,
   eAuthRoutes,
@@ -40,7 +40,7 @@ const makeServer = (): Express => {
   app.use("/api/v1/job", jobRoutes);
   app.use("/api/v1/company", companyRoutes);
   app.use("/api/v1/interview", interviewRoutes);
-  app.use("/api/v1/application", applicationRoutes);
+  app.use("/api/v1/match", matchRoutes);
   app.use("/api/v1/employer", employerRoutes);
 
   app.use("/api/v1/c/auth", cAuthRoutes);

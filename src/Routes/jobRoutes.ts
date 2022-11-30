@@ -36,6 +36,8 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
       .exec();
 
     if (!jobs) return res.status(200).send("No jobs exists");
+
+    console.log(jobs);
     return res.status(200).send(jobs);
   } catch (err) {
     return res.status(500).send(err);
