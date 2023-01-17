@@ -35,7 +35,7 @@ export const defaultCandidateMatchStatus: Status = {
 };
 
 export const defaultEmployerPendingStatus: Status = {
-  matchStatus: generalStatus.PENDING,
+  generalStatus: generalStatus.PENDING,
   dateModified: new Date(Date.now()),
   previousStatus: "",
 };
