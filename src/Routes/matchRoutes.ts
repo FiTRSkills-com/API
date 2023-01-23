@@ -7,9 +7,9 @@ import { verifyToken } from "../Middleware/Authorization";
 import MatchModel from "../Models/Match";
 import JobModel from "../Models/Job";
 import {
-  defaultCandidateMatchStatus,
-  defaultEmployerPendingStatus,
-  defaultMatchStatus,
+  createDefaultCandidateMatchStatus,
+  createDefaultEmployerPendingStatus,
+  createDefaultMatchStatus,
 } from "../Models/Status";
 
 // Instantiate the router
@@ -72,7 +72,7 @@ matchRoutes.get(
 );
 
 /**
- * Route for getting a user's applictions
+ * Route for getting a user's matches
  * @name GET /user
  * @function
  * @alias module:Routes/matchRoutes
@@ -138,15 +138,16 @@ matchRoutes.post(
       const newmatch = new MatchModel({
         job: jobID,
         candidate: candidateID,
-        matchStatus: defaultMatchStatus,
-        candidateStatus: defaultCandidateMatchStatus,
-        employerStatus: defaultEmployerPendingStatus,
+        matchStatus: await createDefaultMatchStatus(),
+        candidateStatus: await createDefaultCandidateMatchStatus(),
+        employerStatus: await createDefaultEmployerPendingStatus(),
         interviews: [],
       });
 
       await newmatch.save();
       return res.status(200).send("Match successfully created");
     } catch (err) {
+      console.log(err);
       return res.status(500).send(err);
     }
   }

@@ -19,26 +19,8 @@ interface Status {
   matchStatus?: String;
   generalStatus?: String;
   dateModified: Date;
-  previousStatus: String;
+  previousStatus?: String;
 }
-
-export const defaultMatchStatus: Status = {
-  matchStatus: matchStatus.PRE_MATCH,
-  dateModified: new Date(Date.now()),
-  previousStatus: "",
-};
-
-export const defaultCandidateMatchStatus: Status = {
-  generalStatus: generalStatus.INTERESTED,
-  dateModified: new Date(Date.now()),
-  previousStatus: "",
-};
-
-export const defaultEmployerPendingStatus: Status = {
-  generalStatus: generalStatus.PENDING,
-  dateModified: new Date(Date.now()),
-  previousStatus: "",
-};
 
 const StatusSchema: Schema = new Schema<Status>({
   matchStatus: {
@@ -56,8 +38,37 @@ const StatusSchema: Schema = new Schema<Status>({
   previousStatus: {
     type: Schema.Types.ObjectId,
     ref: "Status",
+    required: false,
   },
 });
 
 const StatusModel = model("Status", StatusSchema);
+
+export async function createDefaultMatchStatus() {
+  let status = new StatusModel({
+    matchStatus: matchStatus.PRE_MATCH,
+    dateModified: new Date(Date.now()),
+  });
+  await status.save();
+  return status;
+}
+
+export async function createDefaultCandidateMatchStatus() {
+  let status = new StatusModel({
+    generalStatus: generalStatus.INTERESTED,
+    dateModified: new Date(Date.now()),
+  });
+  await status.save();
+  return status;
+}
+
+export async function createDefaultEmployerPendingStatus() {
+  let status = new StatusModel({
+    generalStatus: generalStatus.PENDING,
+    dateModified: new Date(Date.now()),
+  });
+  await status.save();
+  return status;
+}
+
 export default StatusModel;
