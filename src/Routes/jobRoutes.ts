@@ -32,10 +32,11 @@ jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
     const jobs = await JobModel.find({}, { __v: 0 })
       .populate({ path: "jobSkills" })
-      .populate({ path: "employer", select: "-jobs -__v -_id" })
+      .populate({ path: "employer" })
       .exec();
 
     if (!jobs) return res.status(200).send("No jobs exists");
+
     return res.status(200).send(jobs);
   } catch (err) {
     return res.status(500).send(err);

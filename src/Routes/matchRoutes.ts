@@ -6,61 +6,65 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import MatchModel from "../Models/Match";
 import JobModel from "../Models/Job";
+import {
+  createDefaultCandidateMatchStatus,
+  createDefaultEmployerPendingStatus,
+  createDefaultMatchStatus,
+} from "../Models/Status";
 
 // Instantiate the router
-const applicationRoutes = Router();
+const matchRoutes = Router();
 
 // Use Middleware
-applicationRoutes.use(verifyToken);
+matchRoutes.use(verifyToken);
 
 /**
- * Route for getting all applications.
+ * Route for getting all matches.
  * @name GET /
  * @function
- * @alias module:Routes/applicationRoutes
+ * @alias module:Routes/matchRoutes
  * @property {Request} _ Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-applicationRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
+matchRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
-    const applications = await MatchModel.find({}, { __v: 0 })
+    const matches = await MatchModel.find({}, { __v: 0 })
       .populate({ path: "job", select: "_id title type location" })
       .populate({ path: "candidate", select: "-_id candidateID" })
       .exec();
 
-    if (!applications) return res.status(400).send("Failed to fetch data");
+    if (!matches) return res.status(400).send("Failed to fetch data");
 
-    return res.status(200).send(applications);
+    return res.status(200).send(matches);
   } catch (err) {
     return res.status(500).send(err);
   }
 });
 
 /**
- * Route for getting an application by ID
+ * Route for getting an match by ID
  * @name GET /:id
  * @function
- * @alias module:Routes/applicationRoutes
+ * @alias module:Routes/matchRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-applicationRoutes.get(
+matchRoutes.get(
   "/id/:id",
   async (req: Request, res: Response): Promise<any> => {
     const { id } = req.params;
 
     try {
-      const application = await MatchModel.findById(id, { __v: 0 })
+      const match = await MatchModel.findById(id, { __v: 0 })
         .populate({ path: "job", select: "_id title type location" })
         .populate({ path: "user", select: "-_id userID" })
         .exec();
 
-      if (!application)
-        return res.status(200).send("Application not found for ID");
+      if (!match) return res.status(200).send("match not found for ID");
 
-      return res.status(200).send(application);
+      return res.status(200).send(match);
     } catch (err) {
       return res.status(500).send(err);
     }
@@ -68,64 +72,60 @@ applicationRoutes.get(
 );
 
 /**
- * Route for getting a user's applictions
+ * Route for getting a user's matches
  * @name GET /user
  * @function
- * @alias module:Routes/applicationRoutes
+ * @alias module:Routes/matchRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-applicationRoutes.get(
-  "/user",
-  async (req: Request, res: Response): Promise<any> => {
-    const { _id: candidateID } = req.candidate;
+matchRoutes.get("/user", async (req: Request, res: Response): Promise<any> => {
+  const { _id: candidateID } = req.candidate;
 
-    try {
-      const applications = await MatchModel.find(
-        { candidate: candidateID },
-        { __v: 0 }
-      )
-        .populate({
-          path: "job",
-          select: "_id title location company",
-          populate: { path: "company", select: "-jobs -__v" },
-        })
-        .populate({ path: "user", select: "-_id userID" })
-        .exec();
+  try {
+    const matches = await MatchModel.find(
+      { candidate: candidateID },
+      { __v: 0 }
+    )
+      .populate({
+        path: "job",
+        select: "_id title location company",
+        populate: { path: "company", select: "-jobs -__v" },
+      })
+      .populate({ path: "user", select: "-_id userID" })
+      .exec();
 
-      if (!applications)
-        return res.status(200).send("You have no applications");
+    if (!matches) return res.status(200).send("You have no matches");
 
-      return res.status(200).send(applications);
-    } catch (err) {
-      return res.status(500).send(err);
-    }
+    return res.status(200).send(matches);
+  } catch (err) {
+    return res.status(500).send(err);
   }
-);
+});
 
 /**
- * Route for applying to a job
+ * Route for creating a new match for candidate
  * @name POST /
  * @function
- * @alias module:Routes/applicationRoutes
+ * @alias module:Routes/matchRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-applicationRoutes.post(
-  "/",
+matchRoutes.post(
+  "/createMatch",
   async (req: Request, res: Response): Promise<any> => {
     const { jobID } = req.body;
     const { _id: candidateID } = req.candidate;
 
     try {
-      const application = await MatchModel.findOne({
+      const match = await MatchModel.findOne({
         job: jobID,
         candidate: candidateID,
       });
 
-      if (application)
+      if (match)
         return res
           .status(400)
           .send("You've already applied to this job posting");
@@ -134,31 +134,35 @@ applicationRoutes.post(
       const job = await JobModel.findById(jobID).exec();
       if (!job) return res.status(400).send("Job posting does not exist");
 
-      // Create application
-      const newApplication = new MatchModel({
+      // Create match
+      const newmatch = new MatchModel({
         job: jobID,
         candidate: candidateID,
-        status: "Applied",
+        matchStatus: await createDefaultMatchStatus(),
+        candidateStatus: await createDefaultCandidateMatchStatus(),
+        employerStatus: await createDefaultEmployerPendingStatus(),
+        interviews: [],
       });
 
-      await newApplication.save();
-      return res.status(200).send("Application created");
+      await newmatch.save();
+      return res.status(200).send("Match successfully created");
     } catch (err) {
+      console.log(err);
       return res.status(500).send(err);
     }
   }
 );
 
 /**
- * Route for updating an application by id
+ * Route for updating an match by id
  * @name PATCH /:id
  * @function
- * @alias module:Routes/applicationRoutes
+ * @alias module:Routes/matchRoutes
  * @property {Request} req Express Request
  * @property {Response} res Express Response
  * @returns {any}
  */
-applicationRoutes.patch("/:id", (req: Request, res: Response): any => {
+matchRoutes.patch("/:id", (req: Request, res: Response): any => {
   const { id } = req.params;
   const { status, timeslots } = req.body;
 
@@ -179,4 +183,4 @@ applicationRoutes.patch("/:id", (req: Request, res: Response): any => {
   );
 });
 
-export default applicationRoutes;
+export default matchRoutes;
