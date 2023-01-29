@@ -19,30 +19,6 @@ const matchRoutes = Router();
 matchRoutes.use(verifyToken);
 
 /**
- * Route for getting all matches.
- * @name GET /
- * @function
- * @alias module:Routes/matchRoutes
- * @property {Request} _ Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
-matchRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
-  try {
-    const matches = await MatchModel.find({}, { __v: 0 })
-      .populate({ path: "job", select: "_id title type location" })
-      .populate({ path: "candidate", select: "-_id candidateID" })
-      .exec();
-
-    if (!matches) return res.status(400).send("Failed to fetch data");
-
-    return res.status(200).send(matches);
-  } catch (err) {
-    return res.status(500).send(err);
-  }
-});
-
-/**
  * Route for getting an match by ID
  * @name GET /:id
  * @function
@@ -72,7 +48,7 @@ matchRoutes.get(
 );
 
 /**
- * Route for getting a user's matches
+ * Route for getting a candidate's matches
  * @name GET /user
  * @function
  * @alias module:Routes/matchRoutes
@@ -80,29 +56,34 @@ matchRoutes.get(
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-matchRoutes.get("/user", async (req: Request, res: Response): Promise<any> => {
-  const { _id: candidateID } = req.candidate;
+matchRoutes.get(
+  "/candidate",
+  async (req: Request, res: Response): Promise<any> => {
+    const { _id: candidateID } = req.candidate;
+    console.log("starting....");
 
-  try {
-    const matches = await MatchModel.find(
-      { candidate: candidateID },
-      { __v: 0 }
-    )
-      .populate({
-        path: "job",
-        select: "_id title location company",
-        populate: { path: "company", select: "-jobs -__v" },
-      })
-      .populate({ path: "user", select: "-_id userID" })
-      .exec();
+    try {
+      const matches = await MatchModel.find(
+        { candidate: candidateID },
+        { candidate: 0 },
+        { __v: 0 }
+      )
+        .populate({
+          path: "job",
+          populate: { path: "employer", populate: "company jobSkills" },
+        })
+        .populate({ path: "candidateStatus matchStatus employerStatus" })
+        .exec();
+      console.log("matches", matches);
+      if (!matches) return res.status(200).send("You have no matches");
 
-    if (!matches) return res.status(200).send("You have no matches");
-
-    return res.status(200).send(matches);
-  } catch (err) {
-    return res.status(500).send(err);
+      return res.status(200).send(matches);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
   }
-});
+);
 
 /**
  * Route for creating a new match for candidate
