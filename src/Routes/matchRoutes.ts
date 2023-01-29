@@ -60,7 +60,6 @@ matchRoutes.get(
   "/candidate",
   async (req: Request, res: Response): Promise<any> => {
     const { _id: candidateID } = req.candidate;
-    console.log("starting....");
 
     try {
       const matches = await MatchModel.find(
@@ -70,11 +69,10 @@ matchRoutes.get(
       )
         .populate({
           path: "job",
-          populate: { path: "employer", populate: "company jobSkills" },
+          populate: { path: "employer jobSkills", populate: "company" },
         })
         .populate({ path: "candidateStatus matchStatus employerStatus" })
         .exec();
-      console.log("matches", matches);
       if (!matches) return res.status(200).send("You have no matches");
 
       return res.status(200).send(matches);

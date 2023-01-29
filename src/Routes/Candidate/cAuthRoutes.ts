@@ -35,7 +35,6 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
 
     if (candidate) {
       if (candidate.accessToken) {
-        console.log("Valid Login");
         return res.status(200).send({ accessToken: candidate.accessToken });
       } else {
         updateAccessToken(candidate, generateAccessToken(candidate), res);
