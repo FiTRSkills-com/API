@@ -23,7 +23,7 @@ skillRoutes.use(verifyToken);
  */
 skillRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
-    const skills = await SkillModel.find({}, { __v: 0 }).exec();
+    const skills = await SkillModel.find({}, { __v: 0 }).limit(100).exec();
 
     if (!skills) return res.status(200).send("No skills exist");
     return res.status(200).send(skills);
