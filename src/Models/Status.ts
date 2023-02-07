@@ -47,6 +47,7 @@ const StatusModel = model("Status", StatusSchema);
 export async function createDefaultMatchStatus() {
   let status = new StatusModel({
     matchStatus: matchStatus.PRE_MATCH,
+    generalStatus: "",
     dateModified: new Date(Date.now()),
   });
   await status.save();
@@ -55,6 +56,7 @@ export async function createDefaultMatchStatus() {
 
 export async function createDefaultCandidateMatchStatus() {
   let status = new StatusModel({
+    matchStatus: "",
     generalStatus: generalStatus.INTERESTED,
     dateModified: new Date(Date.now()),
   });
@@ -64,6 +66,7 @@ export async function createDefaultCandidateMatchStatus() {
 
 export async function createDefaultEmployerPendingStatus() {
   let status = new StatusModel({
+    matchStatus: "",
     generalStatus: generalStatus.PENDING,
     dateModified: new Date(Date.now()),
   });
