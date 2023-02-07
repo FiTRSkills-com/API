@@ -77,16 +77,16 @@ candidateRoutes.patch("/patchProfile", (req: Request, res: Response): any => {
  * @property {Response} res Express Response
  * @returns {any}
  */
-candidateRoutes.patch("/", (req: Request, res: Response): any => {
-  const { skills, bio } = req.body;
+candidateRoutes.patch("/patchSkills", (req: Request, res: Response): any => {
+  const { skills } = req.body;
 
-  if (!skills && bio === undefined) {
+  if (!skills) {
     return res.status(400).send("No skills provided");
   }
 
   return CandidateModel.updateOne(
     { _id: req.candidate._id },
-    { $set: { skills, bio } },
+    { $set: { skills } },
     (err: CallbackError): any => {
       if (err) {
         return res.status(500).send(err);
