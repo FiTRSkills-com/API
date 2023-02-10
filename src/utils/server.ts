@@ -14,6 +14,7 @@ import {
   candidateRoutes,
   employerRoutes,
   eAuthRoutes,
+  eJobRoutes,
 } from "../Routes/Routes";
 
 // Middleware
@@ -46,6 +47,7 @@ const makeServer = (): Express => {
   app.use("/api/v1/c/auth", cAuthRoutes);
 
   app.use("/api/v1/e/auth", eAuthRoutes);
+  app.use("/api/v1/e/job", eJobRoutes);
 
   // Hello World
   app.get("/", (_: Request, res: Response) => {
