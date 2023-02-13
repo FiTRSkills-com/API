@@ -31,7 +31,7 @@ jobRoutes.use(verifyToken);
 jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
     const jobs = await JobModel.find({}, { __v: 0 })
-      .populate({ path: "jobSkills" })
+      .populate({ path: "jobSkills.skills" })
       .populate({ path: "employer" })
       .exec();
 
@@ -111,7 +111,7 @@ jobRoutes.get("/:id", async (req: Request, res: Response): Promise<any> => {
 
   try {
     const job = await JobModel.findOne({ _id: id }, { __v: 0 })
-      .populate({ path: "jobSkills", select: "Skill -_id" })
+      .populate({ path: "jobSkills.skills" })
       .populate({ path: "employer", select: "-jobs -__v -_id" })
       .exec();
 
