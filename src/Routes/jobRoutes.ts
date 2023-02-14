@@ -315,4 +315,66 @@ jobRoutes.delete("/:id", (req: Request, res: Response): any => {
   );
 });
 
+/**
+ * Route for getting a list of matching jobs for a given candidate
+ * @name GET /matching-jobs
+ * @function
+ * @alias module:Routes/jobRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+jobRoutes.get(
+  "/matching-jobs",
+  async (req: Request, res: Response): Promise<any> => {
+    const { candidate, radius, limit, offset } = req.query;
+
+    try {
+      const candidateDoc = await CandidateModel.findById(candidate);
+      if (!candidateDoc) return res.status(404).send("Candidate not found");
+
+      const jobDocs = await JobModel.find(
+        {
+          location: {
+            $nearSphere: {
+              $geometry: candidateDoc.location.geoCoordinates,
+              $maxDistance: radius * 1000, // Convert to meters
+            },
+          },
+        },
+        { _id: 1, jobSkills: 1, companyId: 1 }
+      )
+        .skip(Number(offset))
+        .limit(Number(limit))
+        .lean()
+        .exec();
+
+      const candidateSkills = candidateDoc.skills.map((skill) =>
+        skill.toString()
+      );
+      const jobMatchPercentages = jobDocs.map((job) => {
+        const matchingSkills = job.jobSkills.filter((jobSkill) =>
+          candidateSkills.includes(jobSkill.skill.toString())
+        );
+        const totalPriority = job.jobSkills.reduce(
+          (acc, cur) => acc + cur.priority,
+          0
+        );
+        const matchPercentage =
+          (matchingSkills.reduce((acc, cur) => acc + cur.priority, 0) /
+            totalPriority) *
+          100;
+        return {
+          jobId: job._id,
+          matchPercentage,
+        };
+      });
+
+      return res.status(200).send(jobMatchPercentages);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
 export default jobRoutes;

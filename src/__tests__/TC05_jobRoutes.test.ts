@@ -189,4 +189,27 @@ describe("Job Routes", () => {
       expect(res.text).toBe("Job deleted");
     });
   });
+
+  describe("GET /matching-jobs - Get matching jobs for a candidate", () => {
+    UnauthorizedReq({ applicationUrl: `${baseURL}/matching-jobs` });
+
+    test("Valid request", async () => {
+      const candidate = "6372ae4aec2f8f9cad2ffe19";
+      const radius = 150;
+      const res = await request(app)
+        .get(`${baseURL}/matching-jobs?candidate=${candidate}&radius=${radius}`)
+        .set("Authorization", bearerToken);
+
+      expect(res.statusCode).toBe(200);
+      expect(res.type).toEqual("application/json");
+      expect(res.body).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            jobId: expect.any(String),
+            matchPercentage: expect.any(Number),
+          }),
+        ])
+      );
+    });
+  });
 });
