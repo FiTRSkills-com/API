@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { CallbackError } from "mongoose";
-
+import log from "../utils/log";
 // Middleware
 import { verifyToken } from "../Middleware/Authorization";
 
@@ -31,10 +31,9 @@ jobRoutes.use(verifyToken);
 jobRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
   try {
     const jobs = await JobModel.find({}, { __v: 0 })
-      .populate({ path: "jobSkills.skills" })
+      .populate({ path: "jobSkills.skill" })
       .populate({ path: "employer" })
       .exec();
-
     if (!jobs) return res.status(200).send("No jobs exists");
 
     return res.status(200).send(jobs);
