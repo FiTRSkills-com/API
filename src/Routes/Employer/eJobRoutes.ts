@@ -7,6 +7,7 @@ import { verifyToken } from "../../Middleware/Authorization";
 // Models
 import JobModel, { Job } from "../../Models/Job";
 import EmployerModel from "../../Models/Employer";
+import log from "../../utils/log";
 
 // Instantiate the router
 const eJobRoutes = Router();
@@ -51,6 +52,7 @@ eJobRoutes.get(
         .skip(Number(rpp) * Number(page))
         .populate({ path: "jobSkills.skill" })
         .exec();
+
       if (!jobs) return res.status(200).send("No Jobs Exist.");
       return res.status(200).send(jobs);
     } catch (err) {
@@ -77,29 +79,27 @@ eJobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
     matchThreshold,
     jobSkills,
     benefits,
-    matches,
   } = req.body;
+
+  log.info(req.body);
 
   if (
     !title ||
     !description ||
     isCompanyListing === undefined ||
     !employer ||
-    !type ||
+    type === undefined ||
     !location ||
     isRemote === undefined ||
     willSponsor === undefined ||
     !salary ||
     !matchThreshold ||
     !jobSkills ||
-    !benefits ||
-    !matches
+    !benefits
   ) {
+    log.info("Incorrect Feilds");
     return res.status(400).send("Missing required fields");
   }
-
-  const { employerId, rpp, page } = req.params;
-
   try {
     const job = await JobModel.findOne({
       title,
@@ -113,7 +113,6 @@ eJobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
       matchThreshold,
       jobSkills,
       benefits,
-      matches,
     }).exec();
 
     if (job) return res.status(409).send("Job posting already exists");
@@ -132,14 +131,16 @@ eJobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
       matchThreshold,
       jobSkills,
       benefits,
-      matches,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      matches: [],
     });
 
     await newJob.save();
 
     return res.status(201).send("Job posting created");
   } catch (err) {
-    console.log(err);
+    log.error(err);
     return res.status(500).send(err);
   }
 });
@@ -184,6 +185,8 @@ eJobRoutes.patch("/:id", (req: Request, res: Response): any => {
   ) {
     return res.status(400).send("Missing required fields");
   }
+
+  log.info(salary);
 
   return JobModel.findOneAndUpdate(
     { _id: id },
