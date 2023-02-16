@@ -120,7 +120,7 @@ matchRoutes.post(
         matchStatus: await createDefaultMatchStatus(),
         candidateStatus: await createDefaultCandidateMatchStatus(),
         employerStatus: await createDefaultEmployerPendingStatus(),
-        interviews: [],
+        interview: "",
       });
 
       await newmatch.save();

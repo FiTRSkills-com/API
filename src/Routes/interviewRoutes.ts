@@ -83,12 +83,12 @@ interviewRoutes.post(
     }
 
     try {
-      const interview = await InterviewModel.findOne({
-        match: id,
+      const match = await MatchModel.findOne({
+        _id: id,
       }).exec();
 
-      if (interview)
-        return res.status(200).send("Interview already exists with that ID");
+      if (match)
+        return res.status(200).send("Interview already exists for that match");
 
       const match = await MatchModel.findOne({ _id: id }, { __v: 0 })
         .populate({ path: "job", populate: { path: "company" } })
