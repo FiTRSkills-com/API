@@ -15,6 +15,7 @@ import {
   employerRoutes,
   eAuthRoutes,
   eJobRoutes,
+  eSkillRoutes,
 } from "../Routes/Routes";
 
 // Middleware
@@ -48,6 +49,7 @@ const makeServer = (): Express => {
 
   app.use("/api/v1/e/auth", eAuthRoutes);
   app.use("/api/v1/e/job", eJobRoutes);
+  app.use("/api/v1/e/skills", eSkillRoutes);
 
   // Hello World
   app.get("/", (_: Request, res: Response) => {
