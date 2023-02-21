@@ -40,6 +40,9 @@ matchRoutes.get(
 
       if (!match) return res.status(200).send("match not found for ID");
 
+      if (!match.interview) {
+        match.interview = "";
+      }
       return res.status(200).send(match);
     } catch (err) {
       return res.status(500).send(err);
@@ -75,7 +78,10 @@ matchRoutes.get(
         .exec();
       if (!matches) return res.status(200).send("You have no matches");
 
-      return res.status(200).send(matches);
+      const interviewMatches = matches.map((match) =>
+        match.interview ? match : { match, interview: "" }
+      );
+      return res.status(200).send(interviewMatches);
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
@@ -120,7 +126,6 @@ matchRoutes.post(
         matchStatus: await createDefaultMatchStatus(),
         candidateStatus: await createDefaultCandidateMatchStatus(),
         employerStatus: await createDefaultEmployerPendingStatus(),
-        interview: "",
       });
 
       await newmatch.save();
