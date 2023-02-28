@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 
 export interface Message {
   content: String;
-  employerSent: boolean;
+  whoSent: String;
   timeSent: Date;
 }
 
@@ -11,8 +11,8 @@ const MessageSchema: Schema = new Schema<Message>({
     type: String,
     required: true,
   },
-  employerSent: {
-    type: Boolean,
+  whoSent: {
+    type: String,
     required: true,
   },
   timeSent: {
@@ -21,7 +21,7 @@ const MessageSchema: Schema = new Schema<Message>({
   },
 });
 
-interface Chat {
+export interface Chat {
   match: String;
   messages: Message[];
   employerSilence: boolean;
