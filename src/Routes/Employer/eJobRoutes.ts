@@ -25,7 +25,7 @@ eJobRoutes.get(
 
     try {
       const jobs = await JobModel.find({ employer: employerId })
-        .sort("updatedAt")
+        .sort({ updatedAt: -1 })
         .limit(3)
         .populate({ path: "jobSkills.skill" })
         .exec();
@@ -47,7 +47,7 @@ eJobRoutes.get(
 
     try {
       const jobs = await JobModel.find({ employer: employerId })
-        .sort("updatedAt")
+        .sort({ updatedAt: -1 })
         .limit(Number(rpp))
         .skip(Number(rpp) * Number(page))
         .populate({ path: "jobSkills.skill" })
