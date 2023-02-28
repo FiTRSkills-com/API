@@ -11,6 +11,7 @@ import {
   createDefaultEmployerPendingStatus,
   createDefaultMatchStatus,
 } from "../Models/Status";
+import log from "../utils/log";
 
 // Instantiate the router
 const matchRoutes = Router();
@@ -67,14 +68,19 @@ matchRoutes.get(
     try {
       const matches = await MatchModel.find(
         { candidate: candidateID },
-        { candidate: 0 },
         { __v: 0 }
       )
         .populate({
           path: "job",
-          populate: { path: "employer jobSkills", populate: "company" },
+          populate: { path: "employer" },
         })
-        .populate({ path: "candidateStatus matchStatus employerStatus" })
+        .populate({
+          path: "job",
+          populate: { path: "jobSkills", populate: "skill" },
+        })
+        .populate({
+          path: "candidateStatus matchStatus employerStatus interview",
+        })
         .exec();
       if (!matches) return res.status(200).send("You have no matches");
 

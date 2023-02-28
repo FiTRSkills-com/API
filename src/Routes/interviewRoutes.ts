@@ -83,40 +83,29 @@ interviewRoutes.post(
     }
 
     try {
-      const match = await MatchModel.findOne({
-        _id: id,
-      }).exec();
-
-      if (match)
-        return res.status(200).send("Interview already exists for that match");
-
-      const match = await MatchModel.findOne({ _id: id }, { __v: 0 })
-        .populate({ path: "job", populate: { path: "company" } })
+      const match = await MatchModel.findOne({ _id: id })
+        .populate({ path: "interview" })
         .exec();
 
-      if (!match)
-        return res.status(200).send("No job applicaiton exists for ID");
-      if (match.status !== "Accepted")
-        return res
-          .status(200)
-          .send("Cannot create interview for this job posting");
+      if (!match) {
+        return res.status(200).send("No match exists with this id");
+      } else if (match.interview?.id != null) {
+        return res.status(200).send("Interview already requested");
+      }
 
       const newInterview = new InterviewModel({
         match: id,
-        interviewDetails: {
-          company: match.job.company._id,
-        },
-        interviewDate,
+        interviewDate: interviewDate,
+        twilloMeetingID: "",
       });
 
       await newInterview.save();
 
       // Update Match
-      match.interviewTimeSlots = [];
-      match.status = "Interview Scheduled";
+      match.interview = newInterview._id;
       await match.save();
 
-      return res.status(201).send("Interview Created");
+      return res.status(201).send(newInterview);
     } catch (err) {
       console.log(err);
       return res.status(500).send(err);
