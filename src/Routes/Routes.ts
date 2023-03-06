@@ -6,6 +6,7 @@ import matchRoutes from "./matchRoutes";
 import candidateRoutes from "./candidateRoutes";
 import employerRoutes from "./employerRoutes";
 import chatRoutes from "./chatRoutes";
+import locationRoutes from "./locationRoutes";
 
 import cAuthRoutes from "./Candidate/cAuthRoutes";
 
@@ -22,6 +23,7 @@ export {
   candidateRoutes,
   employerRoutes,
   chatRoutes,
+  locationRoutes,
   eAuthRoutes,
   eJobRoutes,
 };
