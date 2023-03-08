@@ -11,6 +11,7 @@ import cAuthRoutes from "./Candidate/cAuthRoutes";
 import eAuthRoutes from "./Employer/eAuthRoutes";
 import eJobRoutes from "./Employer/eJobRoutes";
 import eSkillRoutes from "./Employer/eSkillRoutes";
+import eCandidateRoutes from "./Employer/eCandidateRoutes";
 
 export {
   skillRoutes,
@@ -24,4 +25,5 @@ export {
   eAuthRoutes,
   eJobRoutes,
   eSkillRoutes,
+  eCandidateRoutes,
 };
