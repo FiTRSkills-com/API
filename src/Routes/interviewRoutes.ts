@@ -157,7 +157,7 @@ interviewRoutes.get(
         .then((room: any) => {
           InterviewModel.findOneAndUpdate(
             { _id: id },
-            { $set: { "interviewDetails.sid": room.sid } },
+            { $set: { twilloMeetingID: room.sid } },
             (err: Error): any => {
               if (err) {
                 return res.status(500).send(err);

@@ -30,6 +30,26 @@ export interface TimeSlot {
 }
 
 /**
+ * @typedef {Object} TimeSlotSchema<Job>
+ */
+const TimeSlotSchema: Schema = new Schema<TimeSlot>({
+  days: [
+    {
+      type: String,
+      required: false,
+    },
+  ],
+  start: {
+    type: Number,
+    required: false,
+  },
+  end: {
+    type: Number,
+    required: false,
+  },
+});
+
+/**
  * @typedef {Object} SkillSchema<Skill>
  * @property {string} Skill The name of the skill. (Required)
  * @property {Date} Date The date the skill was added. (Required)
@@ -63,16 +83,9 @@ const EmployerSchema: Schema = new Schema<Employer>({
   },
   interviewAvailability: [
     {
-      date: {
-        type: Date,
-        _id: false,
-      },
-      times: [
-        {
-          type: Date,
-          _id: false,
-        },
-      ],
+      type: TimeSlotSchema,
+      required: false,
+      _id: false,
     },
   ],
 });
