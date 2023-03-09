@@ -27,6 +27,8 @@ eCandidateRoutes.use(verifyToken);
 eCandidateRoutes.get(
   "/:jobId",
   async (req: Request, res: Response): Promise<any> => {
+    const { jobId } = req.params;
+
     try {
       const candidates = await CandidateModel.aggregate([
         {
@@ -76,10 +78,7 @@ eCandidateRoutes.get(
             $expr: {
               $and: [
                 {
-                  $eq: [
-                    "$matches.job",
-                    new mongoose.Types.ObjectId("63eaa83e358168988e342296"),
-                  ],
+                  $eq: ["$matches.job", new mongoose.Types.ObjectId(jobId)],
                 },
                 {
                   $eq: ["$matches.matchStatus.matchStatus", "Pre Match"],
