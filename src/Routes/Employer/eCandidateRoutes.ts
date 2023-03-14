@@ -25,7 +25,7 @@ eCandidateRoutes.use(verifyToken);
  * @returns {Promise<any>}
  */
 eCandidateRoutes.get(
-  "/:jobId",
+  "/interested/:jobId",
   async (req: Request, res: Response): Promise<any> => {
     const { jobId } = req.params;
 
@@ -95,7 +95,92 @@ eCandidateRoutes.get(
       if (!candidates)
         return res
           .status(200)
-          .send("No interesed candidates found for this jobId");
+          .send("No interested candidates found for this jobId");
+      return res.status(200).send(candidates);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+/**
+ * Route for getting candidates matched with a job of given id
+ * @name GET /
+ * @function
+ * @alias module:Routes/userRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+eCandidateRoutes.get(
+  "/matched/:jobId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { jobId } = req.params;
+
+    try {
+      const candidates = await CandidateModel.aggregate([
+        {
+          $lookup: {
+            from: "matches",
+            localField: "matches",
+            foreignField: "_id",
+            as: "matches",
+          },
+        },
+        {
+          $unwind: {
+            path: "$matches",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "status",
+            localField: "matches.matchStatus",
+            foreignField: "_id",
+            as: "matches.matchStatus",
+          },
+        },
+        {
+          $unwind: {
+            path: "$matches.matchStatus",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "status",
+            localField: "matches.candidateStatus",
+            foreignField: "_id",
+            as: "matches.candidateStatus",
+          },
+        },
+        {
+          $unwind: {
+            path: "$matches.candidateStatus",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $eq: ["$matches.job", new mongoose.Types.ObjectId(jobId)],
+                },
+                {
+                  $eq: ["$matches.matchStatus.matchStatus", "Match"],
+                },
+              ],
+            },
+          },
+        },
+      ]);
+
+      if (!candidates)
+        return res
+          .status(200)
+          .send("No interested candidates found for this jobId");
       return res.status(200).send(candidates);
     } catch (err) {
       return res.status(500).send(err);
