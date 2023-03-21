@@ -13,6 +13,7 @@ import {
   matchRoutes,
   candidateRoutes,
   employerRoutes,
+  statusRoutes,
   eAuthRoutes,
   eJobRoutes,
   eSkillRoutes,
@@ -45,6 +46,7 @@ const makeServer = (): Express => {
   app.use("/api/v1/interview", interviewRoutes);
   app.use("/api/v1/match", matchRoutes);
   app.use("/api/v1/employer", employerRoutes);
+  app.use("/api/v1/status", statusRoutes);
 
   app.use("/api/v1/c/auth", cAuthRoutes);
 

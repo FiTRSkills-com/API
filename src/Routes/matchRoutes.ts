@@ -132,7 +132,7 @@ matchRoutes.post(
   }
 );
 
-/**
+/** DEPRECATED
  * Route for updating an match by id
  * @name PATCH /:id
  * @function
