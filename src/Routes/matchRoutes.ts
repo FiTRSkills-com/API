@@ -11,6 +11,7 @@ import {
   createDefaultEmployerPendingStatus,
   createDefaultMatchStatus,
 } from "../Models/Status";
+import EmployerModel from "../Models/Employer";
 
 // Instantiate the router
 const matchRoutes = Router();
@@ -161,5 +162,123 @@ matchRoutes.patch("/:id", (req: Request, res: Response): any => {
     }
   );
 });
+
+// 1. Get API call to return candidates that have matched with the company
+matchRoutes.get(
+  "/matched/:companyId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { companyId } = req.params;
+
+    try {
+      const companyEmployer = await EmployerModel.findOne({
+        company: companyId,
+      });
+      if (!companyEmployer) {
+        return res.status(404).send("Company not found");
+      }
+
+      const matches = await MatchModel.find({
+        matchStatus: "Match",
+        candidateStatus: "Interested",
+        employerStatus: "Interested",
+        "job.employer": companyEmployer._id,
+      }).populate("candidate");
+      return res.status(200).send(matches);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+// 2. Get API call to return candidates that the company has reached out to
+matchRoutes.get(
+  "/waiting/:companyId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { companyId } = req.params;
+
+    try {
+      const companyEmployer = await EmployerModel.findOne({
+        company: companyId,
+      });
+      if (!companyEmployer) {
+        return res.status(404).send("Company not found");
+      }
+
+      const matches = await MatchModel.find({
+        matchStatus: "Pre Match",
+        candidateStatus: "Pending",
+        employerStatus: "Interested",
+        "job.employer": companyEmployer._id,
+      }).populate("candidate");
+      return res.status(200).send(matches);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+// 3. Update API call to accept a candidate from an employer or candidate perspective
+matchRoutes.put(
+  "/accept/:id",
+  async (req: Request, res: Response): Promise<any> => {
+    const { id } = req.params;
+    try {
+      const match = await MatchModel.findByIdAndUpdate(
+        id,
+        {
+          matchStatus: "Match",
+          candidateStatus: "Interested",
+          employerStatus: "Interested",
+        },
+        { new: true }
+      );
+      return res.status(200).send(match);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+// 4. Update call to reject a candidate as an employer
+matchRoutes.put(
+  "/reject/:id",
+  async (req: Request, res: Response): Promise<any> => {
+    const { id } = req.params;
+    try {
+      const match = await MatchModel.findByIdAndUpdate(
+        id,
+        {
+          matchStatus: "Uninterested",
+          employerStatus: "Uninterested",
+        },
+        { new: true }
+      );
+      return res.status(200).send(match);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+// 5. Update call for an employer to reject a candidate after the match has already occurred
+matchRoutes.put(
+  "/retract/:id",
+  async (req: Request, res: Response): Promise<any> => {
+    const { id } = req.params;
+    try {
+      const match = await MatchModel.findByIdAndUpdate(
+        id,
+        {
+          matchStatus: "Retracted",
+          employerStatus: "Retracted",
+        },
+        { new: true }
+      );
+      return res.status(200).send(match);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
 
 export default matchRoutes;

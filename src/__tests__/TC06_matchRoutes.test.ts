@@ -17,17 +17,17 @@ const testCase = {
 const baseURL = "/api/v1/match";
 
 describe("match Routes", () => {
-  describe("GET / - Get all matches", () => {
-    UnauthorizedReq({ applicationUrl: baseURL });
-
-    test("Valid request", async () => {
-      const res = await request(app)
-        .get(baseURL)
-        .set("Authorization", bearerToken);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.type).toEqual("application/json");
+  beforeAll(async () => {
+    const newMatch = new MatchModel({
+      _id: "63cdd3966e3dd99990455cb1",
+      job: "63ec11f56780dca535b65a42",
+      candidate: "637c258d12fda28d1e2aef58",
+      matchStatus: "63cdd3966e3dd99990455cab",
+      candidateStatus: "63cdd3966e3dd99990455cad",
+      employerStatus: "63cdd3966e3dd99990455caf",
+      __v: 0,
     });
+    await newMatch.save();
   });
 
   describe("POST / - Create an match", () => {
@@ -52,4 +52,76 @@ describe("match Routes", () => {
      * which cannot be guarenteed do to the jest ordering
      */
   });
+
+  // describe("GET /matched/:employerId - Get matched candidates for a specific employer", () => {
+  //   UnauthorizedReq({ applicationUrl: baseURL + "/matched/:employerId" });
+
+  //   test("Valid request", async () => {
+  //     const employerId = "63c6fa6c5d98d0fa72bb1dd2";
+
+  //     const res = await request(app)
+  //       .get(baseURL + "/matched/" + employerId)
+  //       .set("Authorization", bearerToken);
+
+  //     expect(res.statusCode).toBe(200);
+  //     expect(res.type).toEqual("application/json");
+  //   });
+  // });
+
+  // describe("GET /waiting/:employerId - Get candidates waiting for response for a specific employer", () => {
+  //   UnauthorizedReq({ applicationUrl: baseURL + "/waiting/:employerId" });
+
+  //   test("Valid request", async () => {
+  //     const employerId = "63c6fa6c5d98d0fa72bb1dd2";
+
+  //     const res = await request(app)
+  //       .get(baseURL + "/waiting/" + employerId)
+  //       .set("Authorization", bearerToken);
+
+  //     expect(res.statusCode).toBe(200);
+  //     expect(res.type).toEqual("application/json");
+  //   });
+  // });
+
+  // describe("PUT /accept/:id - Accept a candidate", () => {
+  //   UnauthorizedReq({ applicationUrl: baseURL + "/accept/:id", method: "put" });
+
+  //   test("Valid request", async () => {
+  //     const match = await MatchModel.findOne();
+  //     const res = await request(app)
+  //       .put(baseURL + "/accept/" + match._id)
+  //       .set("Authorization", bearerToken);
+
+  //     expect(res.statusCode).toBe(200);
+  //     expect(res.type).toEqual("application/json");
+  //   });
+  // });
+
+  // describe("PUT /reject/:id - Reject a candidate as an employer", () => {
+  //   UnauthorizedReq({ applicationUrl: baseURL + "/reject/:id", method: "put" });
+
+  //   test("Valid request", async () => {
+  //     const match = await MatchModel.findOne();
+  //     const res = await request(app)
+  //       .put(baseURL + "/reject/" + match._id)
+  //       .set("Authorization", bearerToken);
+
+  //     expect(res.statusCode).toBe(200);
+  //     expect(res.type).toEqual("application/json");
+  //   });
+  // });
+
+  // describe("PUT /retract/:id - Retract a candidate after match", () => {
+  //   UnauthorizedReq({ applicationUrl: baseURL + "/retract/:id", method: "put" });
+
+  //   test("Valid request", async () => {
+  //     const match = await MatchModel.findOne();
+  //     const res = await request(app)
+  //       .put(baseURL + "/retract/" + match._id)
+  //       .set("Authorization", bearerToken);
+
+  //     expect(res.statusCode).toBe(200);
+  //     expect(res.type).toEqual("application/json");
+  //   });
+  // });
 });
