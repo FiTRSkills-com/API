@@ -35,7 +35,6 @@ matchRoutes.get(
     try {
       const match = await MatchModel.findById(id, { __v: 0 })
         .populate({ path: "job", select: "_id title type location" })
-        .populate({ path: "user", select: "-_id userID" })
         .exec();
 
       if (!match) return res.status(200).send("match not found for ID");

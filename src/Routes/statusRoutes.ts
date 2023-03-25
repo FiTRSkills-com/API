@@ -59,7 +59,7 @@ statusRoutes.patch(
       const status = await StatusModel.findById(id);
 
       if (!status) {
-        return res.status(404).json({ message: "Document not found" });
+        return res.status(400).json({ message: "Document not found" });
       }
 
       if (matchStatus) {
@@ -70,7 +70,8 @@ statusRoutes.patch(
         status.generalStatus = generalStatus;
       }
 
-      const updatedStatus = await status.save();
+      status.save();
+      return res.status(200).send("Status updated successfully");
     } catch (err) {
       res.status(500).json({ message: "Internal server error" });
     }
