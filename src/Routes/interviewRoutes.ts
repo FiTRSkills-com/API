@@ -4,6 +4,8 @@ import { CallbackError } from "mongoose";
 import twilio from "twilio";
 import AccessToken, { VideoGrant } from "twilio/lib/jwt/AccessToken";
 
+import log from "../utils/log";
+
 // Middleware
 import { verifyToken } from "../Middleware/Authorization";
 
@@ -130,19 +132,15 @@ interviewRoutes.get(
     try {
       // Verify Interview ID exists
       const interview = await InterviewModel.findById(id)
-        .populate({
-          path: "match",
-          select: "candidate -_id",
-          populate: { path: "candidate", select: "candidateID -_id" },
-        })
+        .select("twilloMeetingID")
         .exec();
 
       if (!interview) return res.status(200).send("Interview not found for ID");
 
-      if (interview.match.candidate._id !== req.candidate._id)
-        return res
-          .status(403)
-          .send("Candidate not authorized to access this interview");
+      console.log(interview.twilloMeetingID);
+      if (interview.twilloMeetingID != "") {
+        return res.status(200).send(interview.twilloMeetingID);
+      }
 
       // Create Interview Room
       return client.video.rooms
@@ -159,16 +157,17 @@ interviewRoutes.get(
             { _id: id },
             { $set: { twilloMeetingID: room.sid } },
             (err: Error): any => {
+              log.info(room);
               if (err) {
-                return res.status(500).send(err);
+                throw err;
               }
 
-              return res.status(200).send({ id: room.sid });
+              return res.status(200).send(room.sid);
             }
           );
-        })
-        .catch((err: any) => res.status(500).send(err));
+        });
     } catch (err) {
+      console.error(err);
       return res.status(500).send(err);
     }
   }
@@ -216,9 +215,7 @@ interviewRoutes.get(
 
     token.addGrant(videoGrant);
 
-    return res.status(200).send({
-      token: token.toJwt(),
-    });
+    return res.status(200).send(token.toJwt());
   }
 );
 
