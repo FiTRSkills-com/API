@@ -5,6 +5,8 @@ import interviewRoutes from "./interviewRoutes";
 import matchRoutes from "./matchRoutes";
 import candidateRoutes from "./candidateRoutes";
 import employerRoutes from "./employerRoutes";
+import chatRoutes from "./chatRoutes";
+import locationRoutes from "./locationRoutes";
 import statusRoutes from "./statusRoutes";
 
 import cAuthRoutes from "./Candidate/cAuthRoutes";
@@ -23,6 +25,8 @@ export {
   matchRoutes,
   candidateRoutes,
   employerRoutes,
+  chatRoutes,
+  locationRoutes,
   statusRoutes,
   eAuthRoutes,
   eJobRoutes,
