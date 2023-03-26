@@ -131,34 +131,4 @@ matchRoutes.post(
   }
 );
 
-/** DEPRECATED
- * Route for updating an match by id
- * @name PATCH /:id
- * @function
- * @alias module:Routes/matchRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {any}
- */
-matchRoutes.patch("/:id", (req: Request, res: Response): any => {
-  const { id } = req.params;
-  const { status, timeslots } = req.body;
-
-  if (!status || !timeslots) {
-    return res.status(400).send("Missing required fields");
-  }
-
-  return MatchModel.findOneAndUpdate(
-    { _id: id },
-    { $set: { status, interviewTimeSlots: timeslots } },
-    (err: Error): any => {
-      if (err) {
-        return res.status(500).send(err);
-      }
-
-      return res.status(200).send("Interview Updated");
-    }
-  );
-});
-
 export default matchRoutes;
