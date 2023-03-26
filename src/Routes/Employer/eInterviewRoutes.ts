@@ -7,7 +7,7 @@ import log from "../../utils/log";
 const eInterviewRoutes = Router();
 
 eInterviewRoutes.get(
-  "/:employerID",
+  "/jobs/:employerID",
   async (req: Request, res: Response): Promise<any> => {
     const { employerID } = req.params;
 
@@ -20,7 +20,7 @@ eInterviewRoutes.get(
         .sort({ updatedAt: -1 })
         .exec();
 
-      if (!jobs) return res.status(200).send("No Skills Exist.");
+      if (!jobs) return res.status(200).send("No Jobs Exist.");
       return res.status(200).send(jobs);
     } catch (err) {
       log.error(err);
