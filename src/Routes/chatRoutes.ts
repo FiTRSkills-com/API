@@ -16,6 +16,35 @@ const chatRoutes = Router();
 chatRoutes.use(verifyToken);
 
 /**
+ * Route for getting messages in a chat with pagination.
+ * @name GET /chats/:chatId/messages
+ * @function
+ * @alias module:Routes/chatRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+chatRoutes.get(
+  "/:matchId",
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const matchId = req.params.matchId;
+
+      // Find the chat
+      const chat = await ChatModel.findOne({ match: matchId });
+
+      // Check if chat exists
+      if (!chat) return res.status(404).send("Chat not found");
+
+      return res.status(200).send(chat);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
+
+/**
  * Route for creating a new chat for a match.
  * @name POST /chats
  * @function
