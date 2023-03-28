@@ -40,6 +40,9 @@ matchRoutes.get(
 
       if (!match) return res.status(200).send("match not found for ID");
 
+      if (!match.interview) {
+        match.interview = "";
+      }
       return res.status(200).send(match);
     } catch (err) {
       return res.status(500).send(err);
@@ -64,18 +67,26 @@ matchRoutes.get(
     try {
       const matches = await MatchModel.find(
         { candidate: candidateID },
-        { candidate: 0 },
         { __v: 0 }
       )
         .populate({
           path: "job",
-          populate: { path: "employer jobSkills", populate: "company" },
+          populate: { path: "employer" },
         })
-        .populate({ path: "candidateStatus matchStatus employerStatus" })
+        .populate({
+          path: "job",
+          populate: { path: "jobSkills", populate: "skill" },
+        })
+        .populate({
+          path: "candidateStatus matchStatus employerStatus interview",
+        })
         .exec();
       if (!matches) return res.status(200).send("You have no matches");
 
-      return res.status(200).send(matches);
+      const interviewMatches = matches.map((match) =>
+        match.interview ? match : { match, interview: "" }
+      );
+      return res.status(200).send(interviewMatches);
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
@@ -120,10 +131,15 @@ matchRoutes.post(
         matchStatus: await createDefaultMatchStatus(),
         candidateStatus: await createDefaultCandidateMatchStatus(),
         employerStatus: await createDefaultEmployerPendingStatus(),
-        interviews: [],
       });
 
       await newmatch.save();
+
+      await JobModel.updateOne(
+        { _id: jobID },
+        { $push: { matches: newmatch._id } }
+      );
+
       return res.status(200).send("Match successfully created");
     } catch (err) {
       console.log(err);
