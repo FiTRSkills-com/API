@@ -3,7 +3,6 @@ import { Router, Request, Response } from "express";
 import { CallbackError } from "mongoose";
 import twilio from "twilio";
 import AccessToken, { VideoGrant } from "twilio/lib/jwt/AccessToken";
-
 import log from "../utils/log";
 
 // Middleware
@@ -167,6 +166,29 @@ interviewRoutes.get(
         });
     } catch (err) {
       console.error(err);
+      return res.status(500).send(err);
+    }
+  }
+);
+
+interviewRoutes.get(
+  "/test/test/test",
+  async (_: Request, res: Response): Promise<any> => {
+    try {
+      return client.video.rooms
+        .create({
+          emptyRoomTimeout: 5,
+          maxParticipantDuration: 600,
+          maxParticipants: 2,
+          type: "go",
+          uniqueName: Math.random().toString(36).substr(2, 11),
+          unusedRoomTimeout: 5,
+        })
+        .then((room: any) => {
+          return res.status(200).send({ id: room.sid, name: room.unique_name });
+        });
+    } catch (err) {
+      log.info(err);
       return res.status(500).send(err);
     }
   }

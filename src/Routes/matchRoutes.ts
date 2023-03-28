@@ -84,7 +84,10 @@ matchRoutes.get(
         .exec();
       if (!matches) return res.status(200).send("You have no matches");
 
-      return res.status(200).send(matches);
+      const interviewMatches = matches.map((match) =>
+        match.interview ? match : { match, interview: "" }
+      );
+      return res.status(200).send(interviewMatches);
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
@@ -132,6 +135,12 @@ matchRoutes.post(
       });
 
       await newmatch.save();
+
+      await JobModel.updateOne(
+        { _id: jobID },
+        { $push: { matches: newmatch._id } }
+      );
+
       return res.status(200).send("Match successfully created");
     } catch (err) {
       console.log(err);

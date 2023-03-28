@@ -7,6 +7,7 @@ import { EmployerDocument } from "../../Types/EmployerDocument";
 
 // Models
 import EmployerModel from "../../Models/Employer";
+import log from "../../utils/log";
 
 // Instantiate the router
 const eAuthRoutes = Router();
@@ -36,6 +37,7 @@ eAuthRoutes.post(
 
       if (employer) {
         if (employer.accessToken) {
+          log.info(employer.accessToken);
           return res.status(200).send(employer);
         } else {
           updateAccessToken(employer, generateAccessToken(employer), res);
@@ -115,6 +117,7 @@ const updateAccessToken = (
         return res.status(500).send(err);
       } else {
         employerObject.accessToken = token;
+        log.info(token);
         return res.status(200).send(employerObject);
       }
     }

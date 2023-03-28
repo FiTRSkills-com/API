@@ -17,6 +17,8 @@ import {
   locationRoutes,
   eAuthRoutes,
   eJobRoutes,
+  eSkillRoutes,
+  eInterviewRoutes,
 } from "../Routes/Routes";
 
 // Middleware
@@ -52,6 +54,8 @@ const makeServer = (): Express => {
 
   app.use("/api/v1/e/auth", eAuthRoutes);
   app.use("/api/v1/e/job", eJobRoutes);
+  app.use("/api/v1/e/skills", eSkillRoutes);
+  app.use("/api/v1/e/interviews", eInterviewRoutes);
 
   // Hello World
   app.get("/", (_: Request, res: Response) => {

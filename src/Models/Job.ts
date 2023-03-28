@@ -107,7 +107,7 @@ export const JobSchema: Schema = new Schema<Job>({
   },
   type: {
     type: String,
-    required: true,
+    required: false,
   },
   length: {
     length: {
