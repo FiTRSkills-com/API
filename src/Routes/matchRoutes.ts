@@ -84,10 +84,7 @@ matchRoutes.get(
         .exec();
       if (!matches) return res.status(200).send("You have no matches");
 
-      const interviewMatches = matches.map((match) =>
-        match.interview ? match : { match, interview: "" }
-      );
-      return res.status(200).send(interviewMatches);
+      return res.status(200).send(matches);
     } catch (err) {
       console.error(err);
       return res.status(500).send(err);
