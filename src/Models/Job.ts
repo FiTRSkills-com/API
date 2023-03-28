@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { Skill } from "./Skill";
 import { Location, LocationSchema } from "./Location";
 
 /**
@@ -27,7 +28,7 @@ export interface TimeSlot {
  * @property {number} priority the priority for the skill (int 1-5)
  */
 export interface JobSkill {
-  skill: string;
+  skill: string; //should this be a Skill type?
   priority: number;
 }
 

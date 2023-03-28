@@ -6,7 +6,7 @@ import { Schema, model } from "mongoose";
  * @property {Date} Date The date the skill was added.
  * @example { Skill: "JavaScript", Date: "2020-01-01T00:00:00.000Z" }
  */
-interface Skill {
+export interface Skill {
   skill: string;
   category: string;
   similarSkills: string[];

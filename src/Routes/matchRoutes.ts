@@ -6,6 +6,8 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import MatchModel from "../Models/Match";
 import JobModel from "../Models/Job";
+import { Skill } from "../Models/Skill";
+import { JobSkill } from "../Models/Job";
 import {
   createDefaultCandidateMatchStatus,
   createDefaultEmployerPendingStatus,
@@ -126,6 +128,45 @@ matchRoutes.post(
       return res.status(200).send("Match successfully created");
     } catch (err) {
       console.log(err);
+      return res.status(500).send(err);
+    }
+  }
+);
+
+matchRoutes.get(
+  "/shared-skills/:matchId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { matchId } = req.params;
+
+    try {
+      const match = await MatchModel.findById(matchId).populate([
+        { path: "job", populate: { path: "jobSkills.skill" } },
+        { path: "candidate", populate: { path: "skills" } },
+      ]);
+
+      if (!match) {
+        return res.status(404).send("Match not found");
+      }
+
+      const jobSkills: string[] = match.job.jobSkills.map(
+        (jobSkillObj: JobSkill) => jobSkillObj.skill
+      );
+      const candidateSkills: string[] = match.candidate.skills.map(
+        (skillObj: Skill) => skillObj.skill
+      );
+
+      const sharedSkills = candidateSkills.filter((skill) =>
+        jobSkills.includes(skill)
+      );
+
+      // Calculate the percentage of shared skills
+      const percentageMatching = (sharedSkills.length / jobSkills.length) * 100;
+
+      return res.status(200).send({
+        sharedSkills,
+        percentageMatching,
+      });
+    } catch (err) {
       return res.status(500).send(err);
     }
   }
