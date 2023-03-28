@@ -137,7 +137,6 @@ interviewRoutes.get(
 
       if (!interview) return res.status(200).send("Interview not found for ID");
 
-      console.log(interview.twilloMeetingID);
       if (interview.twilloMeetingID != "") {
         return res.status(200).send(interview.twilloMeetingID);
       }
