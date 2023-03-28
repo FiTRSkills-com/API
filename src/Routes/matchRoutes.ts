@@ -180,7 +180,7 @@ matchRoutes.get(
       }
 
       const jobSkills: string[] = match.job.jobSkills.map(
-        (jobSkillObj: JobSkill) => jobSkillObj.skill.skill
+        (jobSkillObj: JobSkill) => jobSkillObj.skill
       );
       const candidateSkills: string[] = match.candidate.skills.map(
         (skillObj: Skill) => skillObj.skill
