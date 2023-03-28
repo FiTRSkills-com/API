@@ -29,7 +29,7 @@ const InterviewSchema: Schema = new Schema<Interview>({
   },
   twilloMeetingID: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 

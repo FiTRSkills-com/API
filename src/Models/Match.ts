@@ -5,7 +5,6 @@ import { Schema, model } from "mongoose";
  * @property {string} job Job posting's unique ID
  * @property {string} user User's unique ID
  * @property {string} status Status of Application
- * @property {Timeslot[]} interviewTimeSlots Array of potential timeslots
  */
 export interface Match {
   job: string;
@@ -21,7 +20,6 @@ export interface Match {
  * @property {string} job Job's unique ID (Required)
  * @property {string} user User's unique ID (Required)
  * @property {string} status Status of application
- * @property {Object[]} interviewTimeSlots Array of interview time slots
  */
 const MatchSchema: Schema = new Schema<Match>({
   job: {

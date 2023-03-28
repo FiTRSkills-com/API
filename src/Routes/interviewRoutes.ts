@@ -4,6 +4,8 @@ import { CallbackError } from "mongoose";
 import twilio from "twilio";
 import AccessToken, { VideoGrant } from "twilio/lib/jwt/AccessToken";
 
+import log from "../utils/log";
+
 // Middleware
 import { verifyToken } from "../Middleware/Authorization";
 
@@ -83,40 +85,29 @@ interviewRoutes.post(
     }
 
     try {
-      const interview = await InterviewModel.findOne({
-        match: id,
-      }).exec();
-
-      if (interview)
-        return res.status(200).send("Interview already exists with that ID");
-
-      const match = await MatchModel.findOne({ _id: id }, { __v: 0 })
-        .populate({ path: "job", populate: { path: "company" } })
+      const match = await MatchModel.findOne({ _id: id })
+        .populate({ path: "interview" })
         .exec();
 
-      if (!match)
-        return res.status(200).send("No job applicaiton exists for ID");
-      if (match.status !== "Accepted")
-        return res
-          .status(200)
-          .send("Cannot create interview for this job posting");
+      if (!match) {
+        return res.status(200).send("No match exists with this id");
+      } else if (match.interview?.id != null) {
+        return res.status(200).send("Interview already requested");
+      }
 
       const newInterview = new InterviewModel({
         match: id,
-        interviewDetails: {
-          company: match.job.company._id,
-        },
-        interviewDate,
+        interviewDate: interviewDate,
+        twilloMeetingID: "",
       });
 
       await newInterview.save();
 
       // Update Match
-      match.interviewTimeSlots = [];
-      match.status = "Interview Scheduled";
+      match.interview = newInterview._id;
       await match.save();
 
-      return res.status(201).send("Interview Created");
+      return res.status(201).send(newInterview);
     } catch (err) {
       console.log(err);
       return res.status(500).send(err);
@@ -141,19 +132,14 @@ interviewRoutes.get(
     try {
       // Verify Interview ID exists
       const interview = await InterviewModel.findById(id)
-        .populate({
-          path: "match",
-          select: "candidate -_id",
-          populate: { path: "candidate", select: "candidateID -_id" },
-        })
+        .select("twilloMeetingID")
         .exec();
 
       if (!interview) return res.status(200).send("Interview not found for ID");
 
-      if (interview.match.candidate._id !== req.candidate._id)
-        return res
-          .status(403)
-          .send("Candidate not authorized to access this interview");
+      if (interview.twilloMeetingID != "") {
+        return res.status(200).send(interview.twilloMeetingID);
+      }
 
       // Create Interview Room
       return client.video.rooms
@@ -168,18 +154,19 @@ interviewRoutes.get(
         .then((room: any) => {
           InterviewModel.findOneAndUpdate(
             { _id: id },
-            { $set: { "interviewDetails.sid": room.sid } },
+            { $set: { twilloMeetingID: room.sid } },
             (err: Error): any => {
+              log.info(room);
               if (err) {
-                return res.status(500).send(err);
+                throw err;
               }
 
-              return res.status(200).send({ id: room.sid });
+              return res.status(200).send(room.sid);
             }
           );
-        })
-        .catch((err: any) => res.status(500).send(err));
+        });
     } catch (err) {
+      console.error(err);
       return res.status(500).send(err);
     }
   }
@@ -227,9 +214,7 @@ interviewRoutes.get(
 
     token.addGrant(videoGrant);
 
-    return res.status(200).send({
-      token: token.toJwt(),
-    });
+    return res.status(200).send(token.toJwt());
   }
 );
 

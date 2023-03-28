@@ -12,16 +12,6 @@ export interface JobLength {
 }
 
 /**
- * @typedef {Object} TimeSlot
- * @property {Date} date Date of timeslot
- * @property {Date[]} times Date array of times
- */
-export interface TimeSlot {
-  date: Date;
-  times: Date[];
-}
-
-/**
  * @typedef {Object} JobSkill
  * @property {string} skill a skill for the job
  * @property {number} priority the priority for the skill (int 1-5)
@@ -79,7 +69,6 @@ export interface Job {
   updatedAt: Date;
   matchThreshold: number;
   matches: String[];
-  interviewAvailability: TimeSlot[];
 }
 
 /**
@@ -180,20 +169,6 @@ export const JobSchema: Schema = new Schema<Job>({
       type: Schema.Types.ObjectId,
       ref: "Match",
       required: true,
-    },
-  ],
-  interviewAvailability: [
-    {
-      date: {
-        type: Date,
-        _id: false,
-      },
-      times: [
-        {
-          type: Date,
-          _id: false,
-        },
-      ],
     },
   ],
 });
