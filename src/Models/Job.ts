@@ -28,7 +28,7 @@ export interface TimeSlot {
  * @property {number} priority the priority for the skill (int 1-5)
  */
 export interface JobSkill {
-  skill: string; //should this be a Skill type?
+  skill: Skill; //should this be a Skill type?
   priority: number;
 }
 

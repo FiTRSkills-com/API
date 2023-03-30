@@ -148,16 +148,15 @@ matchRoutes.get(
         return res.status(404).send("Match not found");
       }
 
-      const jobSkills: string[] = match.job.jobSkills.map(
+      const jobSkills: Skill[] = match.job.jobSkills.map(
         (jobSkillObj: JobSkill) => jobSkillObj.skill
       );
-      const candidateSkills: string[] = match.candidate.skills.map(
-        (skillObj: Skill) => skillObj.skill
-      );
 
-      const sharedSkills = candidateSkills.filter((skill) =>
-        jobSkills.includes(skill)
-      );
+      const candidateSkills: Skill[] = match.candidate.skills;
+
+      const sharedSkills = candidateSkills.filter((skill: Skill) => {
+        return skillArrContains(jobSkills, skill);
+      });
 
       // Calculate the percentage of shared skills
       const percentageMatching = (sharedSkills.length / jobSkills.length) * 100;
@@ -171,5 +170,16 @@ matchRoutes.get(
     }
   }
 );
+
+//helper function for skill object comparison, 'includes' arr method
+//will only check if two object have same ref in memory
+function skillArrContains(skillArr: Skill[], skill: Skill) {
+  for (let i = 0; i < skillArr.length; i++) {
+    if (JSON.stringify(skill) === JSON.stringify(skillArr[0])) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export default matchRoutes;
