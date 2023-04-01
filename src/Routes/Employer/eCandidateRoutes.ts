@@ -8,6 +8,8 @@ import { verifyToken } from "../../Middleware/Authorization";
 
 // Models
 import CandidateModel, { Candidate } from "../../Models/Candidate";
+import { Skill } from "../../Models/Skill";
+import { JobSkill } from "../../Models/Job";
 
 // Instantiate the router
 const eCandidateRoutes = Router();
@@ -90,12 +92,48 @@ eCandidateRoutes.get(
             },
           },
         },
+        {
+          $lookup: {
+            from: "jobs",
+            localField: "matches.job",
+            foreignField: "_id",
+            as: "matches.job",
+          },
+        },
+        {
+          $unwind: {
+            path: "$matches.job",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "skills",
+            localField: "matches.job.jobSkills.skill",
+            foreignField: "_id",
+            as: "matches.job.jobSkills.skill",
+          },
+        },
+        {
+          $lookup: {
+            from: "skills",
+            localField: "skills",
+            foreignField: "_id",
+            as: "skills",
+          },
+        },
       ]);
 
       if (!candidates)
         return res
           .status(200)
           .send("No interested candidates found for this jobId");
+      candidates.forEach((candidate) => {
+        candidate.matches.matchPercentage = getMatchPercentage(
+          candidate.skills,
+          candidate.matches.job.jobSkills.skill
+        ); //TODO document future improvement
+      });
       return res.status(200).send(candidates);
     } catch (err) {
       return res.status(500).send(err);
@@ -175,17 +213,75 @@ eCandidateRoutes.get(
             },
           },
         },
+        {
+          $lookup: {
+            from: "jobs",
+            localField: "matches.job",
+            foreignField: "_id",
+            as: "matches.job",
+          },
+        },
+        {
+          $unwind: {
+            path: "$matches.job",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "skills",
+            localField: "matches.job.jobSkills.skill",
+            foreignField: "_id",
+            as: "matches.job.jobSkills.skill",
+          },
+        },
+        {
+          $lookup: {
+            from: "skills",
+            localField: "skills",
+            foreignField: "_id",
+            as: "skills",
+          },
+        },
       ]);
 
       if (!candidates)
         return res
           .status(200)
           .send("No interested candidates found for this jobId");
+      candidates.forEach((candidate) => {
+        candidate.matches.matchPercentage = getMatchPercentage(
+          candidate.skills,
+          candidate.matches.job.jobSkills.skill
+        ); //TODO document future improvement
+      });
       return res.status(200).send(candidates);
     } catch (err) {
       return res.status(500).send(err);
     }
   }
 );
+
+// helper method to add calculated match percentage to returned candidate result
+function getMatchPercentage(candidateSkills: Skill[], jobSkills: Skill[]) {
+  const sharedSkills = candidateSkills.filter((skill: Skill) => {
+    return skillArrContains(jobSkills, skill);
+  });
+
+  // Calculate the percentage of shared skills
+  const percentageMatching = (sharedSkills.length / jobSkills.length) * 100;
+  return percentageMatching;
+}
+
+//helper function for skill object comparison, 'includes' arr method
+//will only check if two object have same ref in memory
+function skillArrContains(skillArr: Skill[], skill: Skill) {
+  for (let i = 0; i < skillArr.length; i++) {
+    if (JSON.stringify(skill) === JSON.stringify(skillArr[i])) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export default eCandidateRoutes;

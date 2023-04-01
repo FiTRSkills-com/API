@@ -162,7 +162,6 @@ matchRoutes.get(
       const percentageMatching = (sharedSkills.length / jobSkills.length) * 100;
 
       return res.status(200).send({
-        sharedSkills,
         percentageMatching,
       });
     } catch (err) {

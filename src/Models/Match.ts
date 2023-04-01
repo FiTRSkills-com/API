@@ -14,6 +14,7 @@ export interface Match {
   candidateStatus: string;
   employerStatus: string;
   interview: string;
+  matchPercentage: number;
 }
 
 /**
@@ -53,6 +54,11 @@ const MatchSchema: Schema = new Schema<Match>({
     type: Schema.Types.ObjectId,
     ref: "Interview",
     required: false,
+  },
+  matchPercentage: {
+    type: Number,
+    required: false,
+    default: 0,
   },
 });
 
