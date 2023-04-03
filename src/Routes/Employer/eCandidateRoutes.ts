@@ -8,6 +8,7 @@ import { verifyToken } from "../../Middleware/Authorization";
 
 // Models
 import CandidateModel, { Candidate } from "../../Models/Candidate";
+import JobModel from "../../Models/Job";
 import { Skill } from "../../Models/Skill";
 import { JobSkill } from "../../Models/Job";
 
@@ -248,7 +249,7 @@ eCandidateRoutes.get(
       if (!candidates)
         return res
           .status(200)
-          .send("No interested candidates found for this jobId");
+          .send("No matched candidates found for this jobId");
       candidates.forEach((candidate) => {
         candidate.matches.matchPercentage = getMatchPercentage(
           candidate.skills,
@@ -256,6 +257,82 @@ eCandidateRoutes.get(
         ); //TODO document future improvement
       });
       return res.status(200).send(candidates);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+eCandidateRoutes.get(
+  "/meetSkillThresh/:jobId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { jobId } = req.params;
+
+    //get candidates that dont have a match with this job
+    try {
+      const candidates = await CandidateModel.aggregate([
+        {
+          $lookup: {
+            from: "matches",
+            localField: "matches",
+            foreignField: "_id",
+            as: "matches",
+          },
+        },
+        {
+          $match: {
+            matches: {
+              $not: {
+                $elemMatch: {
+                  job: new mongoose.Types.ObjectId(jobId),
+                },
+              },
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: "skills",
+            localField: "skills",
+            foreignField: "_id",
+            as: "skills",
+          },
+        },
+      ]);
+
+      //get job for calculating matchPercentage
+      const job = await JobModel.findById(jobId).populate([
+        { path: "jobSkills.skill" },
+      ]);
+
+      if (!job) {
+        return res.status(200).send("couldn't find job");
+      }
+
+      if (!candidates) {
+        return res
+          .status(200)
+          .send("No interested candidates found for this jobId");
+      }
+
+      // calculate and attach match percentages to candidates
+      candidates.forEach((candidate) => {
+        candidate.matches = { matchPercentage: 0 }; //TODO document future improvement
+        const jobSkills: Skill[] = job.jobSkills.map(
+          (jobSkillObj: JobSkill) => jobSkillObj.skill
+        );
+        candidate.matches.matchPercentage = getMatchPercentage(
+          candidate.skills,
+          jobSkills
+        );
+      });
+
+      //filter for candidates that match job's match threshold
+      let filteredCandidates = candidates.filter((candidate) => {
+        return candidate.matches.matchPercentage >= job.matchThreshold;
+      });
+
+      return res.status(200).send(filteredCandidates);
     } catch (err) {
       return res.status(500).send(err);
     }
