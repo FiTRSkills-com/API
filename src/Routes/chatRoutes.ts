@@ -16,7 +16,7 @@ const chatRoutes = Router();
 chatRoutes.use(verifyToken);
 
 /**
- * Route for getting messages in a chat with pagination.
+ * Route for getting chat
  * @name GET /chats/:chatId/messages
  * @function
  * @alias module:Routes/chatRoutes
@@ -123,12 +123,12 @@ chatRoutes.delete(
  * @returns {Promise<any>}
  */
 chatRoutes.get(
-  "/:chatId/messages",
+  "/:chatId/:page/:limit/messages",
   async (req: Request, res: Response): Promise<any> => {
     try {
       const chatId = req.params.chatId;
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const page = parseInt(req.params.page) || 1;
+      const limit = parseInt(req.params.limit) || 10;
 
       // Find the chat
       const chat = await ChatModel.findById(chatId);
@@ -162,12 +162,12 @@ chatRoutes.post(
   "/:chatId/messages",
   async (req: Request, res: Response): Promise<any> => {
     try {
-      const { content, whoSent } = req.body;
+      const { content, employerSent } = req.body;
       const chatId = req.params.chatId;
 
       // Validate input
       if (!content) return res.status(400).send("Message content is required");
-      if (!whoSent)
+      if (employerSent === undefined)
         return res.status(400).send("Sender information is required");
 
       // Find the chat
@@ -187,7 +187,7 @@ chatRoutes.post(
       // Create new message
       const newMessage: Message = {
         content,
-        whoSent,
+        employerSent,
         timeSent: new Date(),
       };
 
@@ -195,7 +195,7 @@ chatRoutes.post(
       chat.messages.push(newMessage);
       await chat.save();
 
-      return res.status(200).send(newMessage);
+      return res.status(201).send(newMessage);
     } catch (err) {
       console.error(err);
       return res.status(500).send("Internal server error");
@@ -221,7 +221,7 @@ chatRoutes.patch(
       const chatId = req.params.chatId;
 
       // Validate input
-      if (!employerSilence && !candidateSilence) {
+      if (employerSilence === undefined && candidateSilence === undefined) {
         return res
           .status(400)
           .send("At least one silence parameter is required");

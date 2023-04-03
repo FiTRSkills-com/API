@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 
 export interface Message {
   content: String;
-  whoSent: String;
+  employerSent: boolean;
   timeSent: Date;
 }
 
@@ -11,8 +11,8 @@ const MessageSchema: Schema = new Schema<Message>({
     type: String,
     required: true,
   },
-  whoSent: {
-    type: String,
+  employerSent: {
+    type: Boolean,
     required: true,
   },
   timeSent: {
