@@ -130,8 +130,23 @@ matchRoutes.get(
           },
         },
         {
+          $lookup: {
+            from: "status",
+            localField: "matchStatus",
+            foreignField: "_id",
+            as: "matchStatus",
+          },
+        },
+        {
+          $unwind: {
+            path: "$matchStatus",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
           $match: {
             "job.employer._id": new mongoose.Types.ObjectId(employerId),
+            "matchStatus.matchStatus": "Match",
           },
         },
         {
