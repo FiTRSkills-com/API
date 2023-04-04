@@ -13,6 +13,7 @@ import {
   createDefaultEmployerPendingStatus,
   createDefaultMatchStatus,
 } from "../Models/Status";
+import mongoose from "mongoose";
 
 // Instantiate the router
 const matchRoutes = Router();
@@ -74,6 +75,81 @@ matchRoutes.get(
         })
         .populate({ path: "candidateStatus matchStatus employerStatus" })
         .exec();
+      if (!matches) return res.status(200).send("You have no matches");
+
+      return res.status(200).send(matches);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+  }
+);
+
+/**
+ * Route for getting every match with a given employer
+ * @name GET /user
+ * @function
+ * @alias module:Routes/matchRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+matchRoutes.get(
+  "/employerMatches/:employerId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { employerId } = req.params;
+
+    try {
+      const matches = await MatchModel.aggregate([
+        {
+          $lookup: {
+            from: "jobs",
+            localField: "job",
+            foreignField: "_id",
+            as: "job",
+          },
+        },
+        {
+          $unwind: {
+            path: "$job",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "employers",
+            localField: "job.employer",
+            foreignField: "_id",
+            as: "job.employer",
+          },
+        },
+        {
+          $unwind: {
+            path: "$job.employer",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $match: {
+            "job.employer._id": new mongoose.Types.ObjectId(employerId),
+          },
+        },
+        {
+          $lookup: {
+            from: "candidates",
+            localField: "candidate",
+            foreignField: "_id",
+            as: "candidate",
+          },
+        },
+        {
+          $unwind: {
+            path: "$candidate",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+      ]);
+
       if (!matches) return res.status(200).send("You have no matches");
 
       return res.status(200).send(matches);
