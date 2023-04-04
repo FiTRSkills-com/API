@@ -21,16 +21,32 @@ skillRoutes.use(verifyToken);
  * @property {Response} res Express Response
  * @returns {Promise<any>}
  */
-skillRoutes.get("/", async (_: Request, res: Response): Promise<any> => {
-  try {
-    const skills = await SkillModel.find({}, { __v: 0 }).limit(100).exec();
+skillRoutes.get(
+  "/:searchBy/:searchTerm/:page",
+  async (req: Request, res: Response): Promise<any> => {
+    const { searchBy, searchTerm, page } = req.params;
+    const limit = 50;
+    try {
+      let filter;
+      if (searchTerm != "nil" && searchBy == "skill") {
+        filter = { skill: { $regex: searchTerm, $options: "i" }, __v: 0 };
+      } else if (searchTerm != "nil" && searchBy == "category") {
+        filter = { category: { $regex: searchTerm, $options: "i" }, __v: 0 };
+      } else {
+        filter = { __v: 0 };
+      }
+      const skills = await SkillModel.find(filter)
+        .skip(limit * Number(page))
+        .limit(limit)
+        .exec();
 
-    if (!skills) return res.status(200).send("No skills exist");
-    return res.status(200).send(skills);
-  } catch (err) {
-    return res.status(500).send(err);
+      if (!skills) return res.status(200).send("No skills exist");
+      return res.status(200).send(skills);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
   }
-});
+);
 
 /**
  * Route for getting a single skill by name
