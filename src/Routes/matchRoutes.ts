@@ -264,11 +264,10 @@ matchRoutes.get(
       });
 
       // Calculate the percentage of shared skills
-      const percentageMatching = (sharedSkills.length / jobSkills.length) * 100;
+      const percent = (sharedSkills.length / jobSkills.length) * 100;
+      const percentageMatching = percent.toString(); // have to return as string to avoid invalid status error
 
-      return res.status(200).send({
-        percentageMatching,
-      });
+      return res.status(200).send(percentageMatching);
     } catch (err) {
       return res.status(500).send(err);
     }
