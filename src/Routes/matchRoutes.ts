@@ -263,11 +263,21 @@ matchRoutes.get(
         return skillArrContains(jobSkills, skill);
       });
 
+      const missingSkills = jobSkills.filter((skill: Skill) => {
+        return !skillArrContains(candidateSkills, skill);
+      });
+
+      const otherSkills = candidateSkills.filter((skill: Skill) => {
+        return !skillArrContains(jobSkills, skill);
+      });
+
       // Calculate the percentage of shared skills
       const percent = (sharedSkills.length / jobSkills.length) * 100;
-      const percentageMatching = percent.toString(); // have to return as string to avoid invalid status error
+      const percentageMatching = percent.toString(); // have to return as string to avoid incorrect status error
 
-      return res.status(200).send(percentageMatching);
+      return res
+        .status(200)
+        .send({ sharedSkills, missingSkills, otherSkills, percentageMatching });
     } catch (err) {
       return res.status(500).send(err);
     }
