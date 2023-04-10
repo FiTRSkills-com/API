@@ -5,6 +5,7 @@ import { verifyToken } from "../Middleware/Authorization";
 
 // Models
 import SkillModel from "../Models/Skill";
+import JobModel from "../Models/Job";
 
 // Instantiate the router
 const skillRoutes = Router();
@@ -107,5 +108,103 @@ skillRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
     return res.status(500).send(err);
   }
 });
+
+/**
+ * Route for getting a list of in-demand skills
+ * @name GET /in-demand-skills
+ * @function
+ * @alias module:Routes/skillRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+skillRoutes.get(
+  "/in-demand-skills",
+  async (req: Request, res: Response): Promise<any> => {
+    const { page = 1, limit = 10, candidate, radius } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+    };
+
+    try {
+      const jobs = await JobModel.find({
+        "location.geoCoordinates": {
+          $near: {
+            $geometry: {
+              type: "Point",
+              coordinates: [
+                candidate.location.geoCoordinates.longitude,
+                candidate.location.geoCoordinates.latitude,
+              ],
+            },
+            $maxDistance: radius,
+          },
+        },
+      })
+        .populate("jobSkills.skill", "skill")
+        .select("jobSkills")
+        .exec();
+
+      const skillCounts = {};
+      for (const job of jobs) {
+        for (const jobSkill of job.jobSkills) {
+          const { skill, priority } = jobSkill;
+          const skillName = skill.skill;
+          if (!skillCounts[skillName]) {
+            skillCounts[skillName] = { count: 0, prioritySum: 0 };
+          }
+          skillCounts[skillName].count += 1;
+          skillCounts[skillName].prioritySum += priority;
+        }
+      }
+
+      const sortedSkills = Object.entries(skillCounts).sort(
+        (a, b) => b[1].count - a[1].count || b[1].prioritySum - a[1].prioritySum
+      );
+
+      const paginatedSkills = sortedSkills.slice(
+        (options.page - 1) * options.limit,
+        options.page * options.limit
+      );
+
+      const result = paginatedSkills.map(([skill, { count, prioritySum }]) => ({
+        skill,
+        count,
+        prioritySum,
+      }));
+
+      return res.status(200).send(result);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+
+    describe("Skill Routes", () => {
+      describe("GET /in-demand-skills - Get all in demand skills", () => {
+        UnauthorizedReq({ applicationUrl: baseURL });
+
+        test("Valid request", async () => {
+          const res = await request(app)
+            .get(`${baseURL}/in-demand-skills`)
+            .set("Authorization", bearerToken)
+            .query({
+              candidate: "60e7f03ccaa63f1b82e9d2a2",
+              radius: 10,
+              limit: 10,
+              page: 1,
+            });
+
+          expect(res.statusCode).toBe(200);
+          expect(res.type).toEqual("application/json");
+          expect(res.body).toHaveLength(10);
+          expect(res.body[0]).toHaveProperty("skill");
+          expect(res.body[0]).toHaveProperty("count");
+          expect(res.body[0]).toHaveProperty("priority");
+        });
+      });
+    });
+  }
+);
 
 export default skillRoutes;
