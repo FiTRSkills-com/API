@@ -179,31 +179,6 @@ skillRoutes.get(
     } catch (err) {
       return res.status(500).send(err);
     }
-
-    describe("Skill Routes", () => {
-      describe("GET /in-demand-skills - Get all in demand skills", () => {
-        UnauthorizedReq({ applicationUrl: baseURL });
-
-        test("Valid request", async () => {
-          const res = await request(app)
-            .get(`${baseURL}/in-demand-skills`)
-            .set("Authorization", bearerToken)
-            .query({
-              candidate: "60e7f03ccaa63f1b82e9d2a2",
-              radius: 10,
-              limit: 10,
-              page: 1,
-            });
-
-          expect(res.statusCode).toBe(200);
-          expect(res.type).toEqual("application/json");
-          expect(res.body).toHaveLength(10);
-          expect(res.body[0]).toHaveProperty("skill");
-          expect(res.body[0]).toHaveProperty("count");
-          expect(res.body[0]).toHaveProperty("priority");
-        });
-      });
-    });
   }
 );
 
