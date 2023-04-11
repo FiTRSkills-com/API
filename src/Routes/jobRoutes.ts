@@ -29,9 +29,9 @@ jobRoutes.get("/:page", async (req: Request, res: Response): Promise<any> => {
   const filters = req.query;
   const limit = 20;
   try {
-    const skill = filters.skill;
-    const threshold = filters.matchThreshold;
-    const isRemote = filters.isRemote;
+    const skill = filters.skill as string;
+    const threshold = filters.threshold as string;
+    const isRemote = filters.remote as string;
 
     let jobs;
     if (skill != "" || threshold || isRemote) {
@@ -44,11 +44,19 @@ jobRoutes.get("/:page", async (req: Request, res: Response): Promise<any> => {
           return qSkill._id;
         });
       }
-      const craftedFilters = [
-        skill != "" ? { "jobSkills.skill": { $in: skillIds } } : {},
-        { matchThreshold: { $gt: threshold } },
-        { isRemote: isRemote },
-      ];
+      const craftedFilters = [];
+      if (skill != "") {
+        craftedFilters.push({ "jobSkills.skill": { $in: skillIds } });
+      }
+      if (threshold) {
+        craftedFilters.push({ matchThreshold: { $gt: parseInt(threshold) } });
+      }
+      if (isRemote) {
+        craftedFilters.push({ isRemote: isRemote });
+      }
+      if (craftedFilters.length == 0) {
+        jobs = [];
+      }
       jobs = await JobModel.find(
         {
           $or: craftedFilters,

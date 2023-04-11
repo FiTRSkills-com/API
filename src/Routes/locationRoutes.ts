@@ -45,11 +45,16 @@ locationRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
 
     const { center } = response.data.features[0];
     const [longitude, latitude] = center;
+    const location = {
+      longitude: {
+        $numberDecimal: longitude.toString(),
+      },
+      latitude: {
+        $numberDecimal: latitude.toString(),
+      },
+    };
 
-    return res.status(200).json({
-      latitude,
-      longitude,
-    });
+    return res.status(200).send(location);
   } catch (err: any) {
     if (err.response && err.response.data && err.response.data.message) {
       return res.status(400).send(err.response.data.message);
