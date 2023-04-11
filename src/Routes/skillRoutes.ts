@@ -5,6 +5,9 @@ import { verifyToken } from "../Middleware/Authorization";
 
 // Models
 import SkillModel from "../Models/Skill";
+import JobModel from "../Models/Job";
+import Skill from "../Types/Skills";
+import { JobSkill } from "../Models/Job";
 
 // Instantiate the router
 const skillRoutes = Router();
@@ -107,5 +110,74 @@ skillRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
     return res.status(500).send(err);
   }
 });
+
+skillRoutes.get(
+  "/in-demand-skills",
+  async (req: Request, res: Response): Promise<any> => {
+    const location = req.query.location as string;
+    const radius = parseFloat(req.query.radius as string) || 10;
+    const page = parseInt(req.query.page as string);
+    const limit = parseInt(req.query.limit as string);
+
+    if (!location || !radius || !page || !limit) {
+      return res.status(400).send("Missing required parameters");
+    }
+
+    try {
+      // Fetch job postings within the specified location and radius
+      const jobPostings = await JobModel.aggregate([
+        {
+          $geoNear: {
+            near: {
+              type: "Point",
+              coordinates: JSON.parse(location),
+            },
+            distanceField: "dist.calculated",
+            maxDistance: radius * 1000,
+            spherical: true,
+          },
+        },
+      ]).exec();
+
+      // Calculate the in-demand skills from the job postings
+      const skillCounts: { [key: string]: number } = {};
+      jobPostings.forEach((job: any) => {
+        job.skills.forEach((skill: string) => {
+          if (skillCounts[skill]) {
+            skillCounts[skill]++;
+          } else {
+            skillCounts[skill] = 1;
+          }
+        });
+      });
+
+      // Fetch full skill objects
+      const skillObjects: { [key: string]: any } = {};
+      for (const skillId in skillCounts) {
+        const skill = await SkillModel.findById(skillId).exec();
+        if (skill) {
+          skillObjects[skillId] = skill.toObject();
+          skillObjects[skillId].count = skillCounts[skillId];
+        }
+      }
+
+      // Sort skills by count and priority
+      const sortedSkills = Object.values(skillObjects).sort(
+        (a: any, b: any) => b.count * b.priority - a.count * a.priority
+      );
+
+      // Apply pagination
+      const paginatedSkills = sortedSkills.slice(
+        (page - 1) * limit,
+        page * limit
+      );
+
+      return res.status(200).json(paginatedSkills);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
 
 export default skillRoutes;
