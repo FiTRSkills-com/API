@@ -16,6 +16,7 @@ import {
 
 import EmployerModel from "../Models/Employer";
 import log from "../utils/log";
+import mongoose from "mongoose";
 
 // Instantiate the router
 const matchRoutes = Router();
@@ -40,7 +41,6 @@ matchRoutes.get(
     try {
       const match = await MatchModel.findById(id, { __v: 0 })
         .populate({ path: "job", select: "_id title type location" })
-        .populate({ path: "user", select: "-_id userID" })
         .exec();
 
       if (!match) return res.status(200).send("match not found for ID");
@@ -86,6 +86,96 @@ matchRoutes.get(
           path: "candidateStatus matchStatus employerStatus interview",
         })
         .exec();
+      if (!matches) return res.status(200).send("You have no matches");
+
+      return res.status(200).send(matches);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+  }
+);
+
+/**
+ * Route for getting every match with a given employer
+ * @name GET /user
+ * @function
+ * @alias module:Routes/matchRoutes
+ * @property {Request} req Express Request
+ * @property {Response} res Express Response
+ * @returns {Promise<any>}
+ */
+matchRoutes.get(
+  "/employerMatches/:employerId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { employerId } = req.params;
+
+    try {
+      const matches = await MatchModel.aggregate([
+        {
+          $lookup: {
+            from: "jobs",
+            localField: "job",
+            foreignField: "_id",
+            as: "job",
+          },
+        },
+        {
+          $unwind: {
+            path: "$job",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "employers",
+            localField: "job.employer",
+            foreignField: "_id",
+            as: "job.employer",
+          },
+        },
+        {
+          $unwind: {
+            path: "$job.employer",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "status",
+            localField: "matchStatus",
+            foreignField: "_id",
+            as: "matchStatus",
+          },
+        },
+        {
+          $unwind: {
+            path: "$matchStatus",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+        {
+          $match: {
+            "job.employer._id": new mongoose.Types.ObjectId(employerId),
+            "matchStatus.matchStatus": "Match",
+          },
+        },
+        {
+          $lookup: {
+            from: "candidates",
+            localField: "candidate",
+            foreignField: "_id",
+            as: "candidate",
+          },
+        },
+        {
+          $unwind: {
+            path: "$candidate",
+            preserveNullAndEmptyArrays: false,
+          },
+        },
+      ]);
+
       if (!matches) return res.status(200).send("You have no matches");
 
       return res.status(200).send(matches);
@@ -150,35 +240,52 @@ matchRoutes.post(
   }
 );
 
-/**
- * Route for updating an match by id
- * @name PATCH /:id
- * @function
- * @alias module:Routes/matchRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {any}
- */
-matchRoutes.patch("/:id", (req: Request, res: Response): any => {
-  const { id } = req.params;
-  const { status, timeslots } = req.body;
+matchRoutes.get(
+  "/shared-skills/:matchId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { matchId } = req.params;
 
-  if (!status || !timeslots) {
-    return res.status(400).send("Missing required fields");
-  }
+    try {
+      const match = await MatchModel.findById(matchId).populate([
+        { path: "job", populate: { path: "jobSkills.skill" } },
+        { path: "candidate", populate: { path: "skills" } },
+      ]);
 
-  return MatchModel.findOneAndUpdate(
-    { _id: id },
-    { $set: { status, interviewTimeSlots: timeslots } },
-    (err: Error): any => {
-      if (err) {
-        return res.status(500).send(err);
+      if (!match) {
+        return res.status(404).send("Match not found");
       }
 
-      return res.status(200).send("Interview Updated");
+      const jobSkills: Skill[] = match.job.jobSkills.map(
+        (jobSkillObj: JobSkill) => jobSkillObj.skill
+      );
+
+      const candidateSkills: Skill[] = match.candidate.skills;
+
+      const sharedSkills = candidateSkills.filter((skill: Skill) => {
+        return skillArrContains(jobSkills, skill);
+      });
+
+      // Calculate the percentage of shared skills
+      const percent = (sharedSkills.length / jobSkills.length) * 100;
+      const percentageMatching = percent.toString(); // have to return as string to avoid invalid status error
+
+      return res.status(200).send(percentageMatching);
+    } catch (err) {
+      return res.status(500).send(err);
     }
-  );
-});
+  }
+);
+
+//helper function for skill object comparison, 'includes' arr method
+//will only check if two object have same ref in memory
+function skillArrContains(skillArr: Skill[], skill: Skill) {
+  for (let i = 0; i < skillArr.length; i++) {
+    if (JSON.stringify(skill) === JSON.stringify(skillArr[0])) {
+      return true;
+    }
+  }
+  return false;
+}
 
 // 1. Get API call to return candidates that have matched with the company
 matchRoutes.get(

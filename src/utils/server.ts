@@ -15,9 +15,11 @@ import {
   employerRoutes,
   chatRoutes,
   locationRoutes,
+  statusRoutes,
   eAuthRoutes,
   eJobRoutes,
   eSkillRoutes,
+  eCandidateRoutes,
   eInterviewRoutes,
 } from "../Routes/Routes";
 
@@ -49,12 +51,14 @@ const makeServer = (): Express => {
   app.use("/api/v1/employer", employerRoutes);
   app.use("/api/v1/chat", chatRoutes);
   app.use("/api/v1/location", locationRoutes);
+  app.use("/api/v1/status", statusRoutes);
 
   app.use("/api/v1/c/auth", cAuthRoutes);
 
   app.use("/api/v1/e/auth", eAuthRoutes);
   app.use("/api/v1/e/job", eJobRoutes);
   app.use("/api/v1/e/skills", eSkillRoutes);
+  app.use("/api/v1/e/candidate", eCandidateRoutes);
   app.use("/api/v1/e/interviews", eInterviewRoutes);
 
   // Hello World

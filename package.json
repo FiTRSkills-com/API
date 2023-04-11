@@ -24,7 +24,8 @@
     "pino": "^7.11.0",
     "pino-pretty": "^7.6.1",
     "ts-node": "^10.8.1",
-    "twilio": "^3.77.3"
+    "twilio": "^3.77.3",
+    "yarn": "^1.22.19"
   },
   "devDependencies": {
     "@jest/test-sequencer": "^28.1.1",
