@@ -3,7 +3,7 @@ import crypto from "crypto";
 
 // Bring in exports
 import { app, UnauthorizedReq } from "./TC01_index.test";
-import { bearerToken } from "./TC02_cAuthRoutes.test";
+import { bearerToken, employerId } from "./TC03_eAuthRoutes.test";
 
 // Models
 import JobModel from "../Models/Job";
@@ -39,15 +39,15 @@ export let jobID: string;
 const randomID = crypto.randomBytes(12).toString("hex");
 
 // Create Baseurl
-const baseURL = "/api/v1/job";
+const baseURL = "/api/v1/e/job";
 
-describe("Job Routes", () => {
-  describe("GET / - Get all jobs", () => {
+describe("Home Job Routes", () => {
+  describe("GET /homeJobs/:employerId - Get 3 home jobs", () => {
     UnauthorizedReq({ applicationUrl: baseURL });
 
     test("Valid request", async () => {
       const res = await request(app)
-        .get(baseURL)
+        .get(baseURL + `/homeJobs/${employerId}`)
         .set("Authorization", bearerToken);
 
       expect(res.statusCode).toBe(200);
@@ -187,29 +187,6 @@ describe("Job Routes", () => {
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("text/html");
       expect(res.text).toBe("Job deleted");
-    });
-  });
-
-  describe("GET /matching-jobs - Get matching jobs for a candidate", () => {
-    UnauthorizedReq({ applicationUrl: `${baseURL}/matching-jobs` });
-
-    test("Valid request", async () => {
-      const candidate = "6372ae4aec2f8f9cad2ffe19";
-      const radius = 150;
-      const res = await request(app)
-        .get(`${baseURL}/matching-jobs?candidate=${candidate}&radius=${radius}`)
-        .set("Authorization", bearerToken);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.type).toEqual("application/json");
-      expect(res.body).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            jobId: expect.any(String),
-            matchPercentage: expect.any(Number),
-          }),
-        ])
-      );
     });
   });
 });

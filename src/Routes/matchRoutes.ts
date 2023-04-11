@@ -6,12 +6,16 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import MatchModel from "../Models/Match";
 import JobModel from "../Models/Job";
+import { Skill } from "../Models/Skill";
+import { JobSkill } from "../Models/Job";
 import {
   createDefaultCandidateMatchStatus,
   createDefaultEmployerPendingStatus,
   createDefaultMatchStatus,
 } from "../Models/Status";
+
 import EmployerModel from "../Models/Employer";
+import log from "../utils/log";
 
 // Instantiate the router
 const matchRoutes = Router();
@@ -41,6 +45,9 @@ matchRoutes.get(
 
       if (!match) return res.status(200).send("match not found for ID");
 
+      if (!match.interview) {
+        match.interview = "";
+      }
       return res.status(200).send(match);
     } catch (err) {
       return res.status(500).send(err);
@@ -65,14 +72,19 @@ matchRoutes.get(
     try {
       const matches = await MatchModel.find(
         { candidate: candidateID },
-        { candidate: 0 },
         { __v: 0 }
       )
         .populate({
           path: "job",
-          populate: { path: "employer jobSkills", populate: "company" },
+          populate: { path: "employer" },
         })
-        .populate({ path: "candidateStatus matchStatus employerStatus" })
+        .populate({
+          path: "job",
+          populate: { path: "jobSkills", populate: "skill" },
+        })
+        .populate({
+          path: "candidateStatus matchStatus employerStatus interview",
+        })
         .exec();
       if (!matches) return res.status(200).send("You have no matches");
 
@@ -121,10 +133,15 @@ matchRoutes.post(
         matchStatus: await createDefaultMatchStatus(),
         candidateStatus: await createDefaultCandidateMatchStatus(),
         employerStatus: await createDefaultEmployerPendingStatus(),
-        interviews: [],
       });
 
       await newmatch.save();
+
+      await JobModel.updateOne(
+        { _id: jobID },
+        { $push: { matches: newmatch._id } }
+      );
+
       return res.status(200).send("Match successfully created");
     } catch (err) {
       console.log(err);
@@ -275,6 +292,45 @@ matchRoutes.put(
         { new: true }
       );
       return res.status(200).send(match);
+    } catch (err) {
+      return res.status(500).send(err);
+    }
+  }
+);
+
+matchRoutes.get(
+  "/shared-skills/:matchId",
+  async (req: Request, res: Response): Promise<any> => {
+    const { matchId } = req.params;
+
+    try {
+      const match = await MatchModel.findById(matchId).populate([
+        { path: "job", populate: { path: "jobSkills.skill" } },
+        { path: "candidate", populate: { path: "skills" } },
+      ]);
+
+      if (!match) {
+        return res.status(404).send("Match not found");
+      }
+
+      const jobSkills: string[] = match.job.jobSkills.map(
+        (jobSkillObj: JobSkill) => jobSkillObj.skill
+      );
+      const candidateSkills: string[] = match.candidate.skills.map(
+        (skillObj: Skill) => skillObj.skill
+      );
+
+      const sharedSkills = candidateSkills.filter((skill) =>
+        jobSkills.includes(skill)
+      );
+
+      // Calculate the percentage of shared skills
+      const percentageMatching = (sharedSkills.length / jobSkills.length) * 100;
+
+      return res.status(200).send({
+        sharedSkills,
+        percentageMatching,
+      });
     } catch (err) {
       return res.status(500).send(err);
     }

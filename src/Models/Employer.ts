@@ -12,11 +12,42 @@ interface Employer {
   authID: string;
   dateCreated: Date;
   companyListing: string;
-  jobs: string[];
   accessToken: string;
   company: Company;
   profile: Profile;
+  interviewAvailability: TimeSlot[];
 }
+
+/**
+ * @typedef {Object} TimeSlot
+ * @property {Date} date Date of timeslot
+ * @property {Date[]} times Date array of times
+ */
+export interface TimeSlot {
+  days: String[];
+  start: number;
+  end: number;
+}
+
+/**
+ * @typedef {Object} TimeSlotSchema<Job>
+ */
+const TimeSlotSchema: Schema = new Schema<TimeSlot>({
+  days: [
+    {
+      type: String,
+      required: false,
+    },
+  ],
+  start: {
+    type: Number,
+    required: false,
+  },
+  end: {
+    type: Number,
+    required: false,
+  },
+});
 
 /**
  * @typedef {Object} SkillSchema<Skill>
@@ -36,13 +67,6 @@ const EmployerSchema: Schema = new Schema<Employer>({
     type: Schema.Types.ObjectId,
     required: false,
   },
-  jobs: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Job",
-      required: true,
-    },
-  ],
   accessToken: {
     type: String,
     required: false,
@@ -57,6 +81,13 @@ const EmployerSchema: Schema = new Schema<Employer>({
     required: false,
     _id: false,
   },
+  interviewAvailability: [
+    {
+      type: TimeSlotSchema,
+      required: false,
+      _id: false,
+    },
+  ],
 });
 
 const EmployerModel = model("Employer", EmployerSchema);
