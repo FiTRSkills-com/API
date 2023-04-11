@@ -6,6 +6,8 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import SkillModel from "../Models/Skill";
 import JobModel from "../Models/Job";
+import Skill from "../Types/Skills";
+import { JobSkill } from "../Models/Job";
 
 // Instantiate the router
 const skillRoutes = Router();
@@ -109,101 +111,72 @@ skillRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
   }
 });
 
-/**
- * Route for getting a list of in-demand skills
- * @name GET /in-demand-skills
- * @function
- * @alias module:Routes/skillRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
 skillRoutes.get(
   "/in-demand-skills",
   async (req: Request, res: Response): Promise<any> => {
-    const { page = 1, limit = 10, candidate, radius } = req.query;
+    const location = req.query.location as string;
+    const radius = parseFloat(req.query.radius as string) || 10;
+    const page = parseInt(req.query.page as string);
+    const limit = parseInt(req.query.limit as string);
 
-    const options = {
-      page: parseInt(page),
-      limit: parseInt(limit),
-    };
+    if (!location || !radius || !page || !limit) {
+      return res.status(400).send("Missing required parameters");
+    }
 
     try {
-      const jobs = await JobModel.find({
-        "location.geoCoordinates": {
-          $near: {
-            $geometry: {
+      // Fetch job postings within the specified location and radius
+      const jobPostings = await JobModel.aggregate([
+        {
+          $geoNear: {
+            near: {
               type: "Point",
-              coordinates: [
-                candidate.location.geoCoordinates.longitude,
-                candidate.location.geoCoordinates.latitude,
-              ],
+              coordinates: JSON.parse(location),
             },
-            $maxDistance: radius,
+            distanceField: "dist.calculated",
+            maxDistance: radius * 1000,
+            spherical: true,
           },
         },
-      })
-        .populate("jobSkills.skill", "skill")
-        .select("jobSkills")
-        .exec();
+      ]).exec();
 
-      const skillCounts = {};
-      for (const job of jobs) {
-        for (const jobSkill of job.jobSkills) {
-          const { skill, priority } = jobSkill;
-          const skillName = skill.skill;
-          if (!skillCounts[skillName]) {
-            skillCounts[skillName] = { count: 0, prioritySum: 0 };
+      // Calculate the in-demand skills from the job postings
+      const skillCounts: { [key: string]: number } = {};
+      jobPostings.forEach((job: any) => {
+        job.skills.forEach((skill: string) => {
+          if (skillCounts[skill]) {
+            skillCounts[skill]++;
+          } else {
+            skillCounts[skill] = 1;
           }
-          skillCounts[skillName].count += 1;
-          skillCounts[skillName].prioritySum += priority;
+        });
+      });
+
+      // Fetch full skill objects
+      const skillObjects: { [key: string]: any } = {};
+      for (const skillId in skillCounts) {
+        const skill = await SkillModel.findById(skillId).exec();
+        if (skill) {
+          skillObjects[skillId] = skill.toObject();
+          skillObjects[skillId].count = skillCounts[skillId];
         }
       }
 
-      const sortedSkills = Object.entries(skillCounts).sort(
-        (a, b) => b[1].count - a[1].count || b[1].prioritySum - a[1].prioritySum
+      // Sort skills by count and priority
+      const sortedSkills = Object.values(skillObjects).sort(
+        (a: any, b: any) => b.count * b.priority - a.count * a.priority
       );
 
+      // Apply pagination
       const paginatedSkills = sortedSkills.slice(
-        (options.page - 1) * options.limit,
-        options.page * options.limit
+        (page - 1) * limit,
+        page * limit
       );
 
-      const result = paginatedSkills.map(([skill, { count, prioritySum }]) => ({
-        skill,
-        count,
-        prioritySum,
-      }));
-
-      return res.status(200).send(result);
+      return res.status(200).json(paginatedSkills);
     } catch (err) {
-      return res.status(500).send(err);
+      console.error(err);
+      return res.status(500).send("Internal server error");
     }
-
-    describe("Skill Routes", () => {
-      describe("GET /in-demand-skills - Get all in demand skills", () => {
-        UnauthorizedReq({ applicationUrl: baseURL });
-
-        test("Valid request", async () => {
-          const res = await request(app)
-            .get(`${baseURL}/in-demand-skills`)
-            .set("Authorization", bearerToken)
-            .query({
-              candidate: "60e7f03ccaa63f1b82e9d2a2",
-              radius: 10,
-              limit: 10,
-              page: 1,
-            });
-
-          expect(res.statusCode).toBe(200);
-          expect(res.type).toEqual("application/json");
-          expect(res.body).toHaveLength(10);
-          expect(res.body[0]).toHaveProperty("skill");
-          expect(res.body[0]).toHaveProperty("count");
-          expect(res.body[0]).toHaveProperty("priority");
-        });
-      });
-    });
   }
 );
 
