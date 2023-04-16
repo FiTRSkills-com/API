@@ -235,7 +235,6 @@ interviewRoutes.get(
     });
 
     token.addGrant(videoGrant);
-
     return res.status(200).send(token.toJwt());
   }
 );

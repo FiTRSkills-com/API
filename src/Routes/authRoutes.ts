@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import mongoose, { CallbackError } from "mongoose";
+import log from "../utils/log"; // Import the logger
 
 // Types
 import { CandidateDocument } from "../Types/CandidateDocument";
@@ -24,9 +25,11 @@ const authRoutes = Router();
  */
 authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
   const { authID } = req.body;
+  log.info(`Login request received for authID: ${authID}`); // Log the login request
 
   try {
     if (!authID) {
+      log.warn("Request not formatted correctly"); // Log the improperly formatted request
       return res.status(400).send("Request not formatted correctly");
     }
 
@@ -36,6 +39,9 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
 
     if (candidate) {
       if (candidate.accessToken) {
+        log.info(
+          `Candidate found with access token, returning candidate: ${candidate._id}`
+        ); // Log successful login
         return res.status(200).send(candidate);
       } else {
         updateAccessToken(candidate, generateAccessToken(candidate), res);
@@ -50,7 +56,7 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
       updateAccessToken(newCandidate, generateAccessToken(newCandidate), res);
     }
   } catch (err) {
-    console.log(err);
+    log.error(`Login error: ${err}`); // Log the error
     return res.status(500).send(err);
   }
 });
@@ -66,8 +72,10 @@ authRoutes.post("/login", async (req: Request, res: Response): Promise<any> => {
  */
 authRoutes.delete("/logout", (req: Request, res: Response): any => {
   const { authID } = req.body;
+  log.info(`Logout request received for authID: ${authID}`); // Log the logout request
 
   if (!authID) {
+    log.warn("Request not formatted correctly"); // Log the improperly formatted request
     return res.status(400).send("Request not formatted correctly");
   }
 
@@ -76,9 +84,11 @@ authRoutes.delete("/logout", (req: Request, res: Response): any => {
     { $set: { accessToken: "" } },
     (err: CallbackError): any => {
       if (err) {
+        log.error(`Logout error: ${err}`); // Log the error
         return res.status(500).send(err);
       }
 
+      log.info(`Successfully logged out authID: ${authID}`); // Log successful logout
       return res.status(200).send("Logged out");
     }
   );
@@ -94,13 +104,13 @@ const generateAccessToken = (candidate: CandidateDocument): string => {
 };
 
 /**
- * Helper function for updating a candidate's access token
- *
- * @param {CandidateDocument} candidate The candidate that needs the token updated
- * @param {string} token The current token that is replacing the old token
- * @param {Response} res The express Response
- * @return {any} An express response type
- */
+
+Helper function for updating a candidate's access token
+@param {CandidateDocument} candidate The candidate that needs the token updated
+@param {string} token The current token that is replacing the old token
+@param {Response} res The express Response
+@return {any} An express response type
+*/
 const updateAccessToken = (
   candidate: CandidateDocument,
   token: string,
@@ -111,13 +121,14 @@ const updateAccessToken = (
     { $set: { accessToken: token } },
     (err: CallbackError, candidateObject: CandidateDocument): any => {
       if (err) {
+        log.error(`Error updating access token: ${err}`); // Log the error
         return res.status(500).send(err);
       } else {
+        log.info(`Access token updated for candidate: ${candidate._id}`); // Log successful token update
         candidateObject.accessToken = token;
         return res.status(200).send(candidateObject);
       }
     }
   );
 };
-
 export default authRoutes;

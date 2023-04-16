@@ -19,122 +19,58 @@ const jobRoutes = Router();
 // Use Middleware
 jobRoutes.use(verifyToken);
 
-/**
- * Route for getting all jobs.
- * @name GET /
- * @function
- * @alias module:Routes/jobRoutes
- * @property {Request} _ Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
+// Route for getting all jobs
 jobRoutes.get("/:page", async (req: Request, res: Response): Promise<any> => {
   const { page } = req.params;
   const limit = 20;
   try {
+    log.info("Fetching all jobs");
+
     const jobs = await JobModel.find({}, { __v: 0 })
       .populate({ path: "jobSkills.skill" })
       .populate({ path: "employer" })
       .skip(limit * Number(page))
       .exec();
-    if (!jobs) return res.status(200).send("No jobs exists");
 
+    if (!jobs) {
+      log.warn("No jobs exist");
+      return res.status(200).send("No jobs exist");
+    }
+
+    log.info("Jobs fetched successfully");
     return res.status(200).send(jobs);
   } catch (err) {
+    log.error("Error fetching jobs:", err);
     return res.status(500).send(err);
   }
 });
 
-/**
- * Route for getting jobs for a candidate based on their skills.
- * @name GET /forme
- * @function
- * @alias module:Routes/jobRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
-// jobRoutes.get("/forme", async (req: Request, res: Response): Promise<any> => {
-//   try {
-//     const candidate = await CandidateModel.findById(req.candidate._id).exec();
-//     const jobs: JobDocument[] = (await JobModel.find({})
-//       .populate({ path: "skills", select: "Skill Date" })
-//       .populate({ path: "company", select: "-jobs -__v -_id" })
-//       .exec()) as JobDocument[];
-
-//     if (!candidate || !jobs) {
-//       throw Error("An error occured");
-//     }
-
-//     //Filter jobs based on candidate's skills
-//     const filteredJobs = jobs.filter((job: JobDocument) => {
-//       const skills = job.jobSkills.map(jobSkill => jobSkill.skill)
-//       console.log(skills)
-//       const candidateSkills = candidate.skills;
-//       const filteredSkills = skills.filter((skill: SkillDocument) => {
-//         return candidateSkills.includes(skill._id);
-//       });
-//       return filteredSkills.length > 0;
-//     });
-
-//     // Sort jobs based on number of matching skills
-//     const sortedJobs = filteredJobs.sort((a: JobDocument, b: JobDocument) => {
-
-//       const aSkills = a.jobSkills.map(jobSkill => jobSkill.skill)
-//       const bSkills = b.jobSkills.map(jobSkill => jobSkill.skill)
-//       const aSkillsLength = aSkills.length;
-//       const bSkillsLength = bSkills.length;
-//       if (aSkillsLength > bSkillsLength) {
-//         return -1;
-//       } else if (aSkillsLength < bSkillsLength) {
-//         return 1;
-//       } else {
-//         return 0;
-//       }
-//     });
-
-//     return res.status(200).send(sortedJobs);
-//   } catch (err) {
-//     return res.status(500).send(err);
-//   }
-// });
-
-/**
- * Route for getting a job by id.
- * @name GET /:id
- * @function
- * @alias module:Routes/jobRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
+// Route for getting a job by id
 jobRoutes.get("/:id", async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
 
   try {
+    log.info(`Fetching job with ID: ${id}`);
+
     const job = await JobModel.findOne({ _id: id }, { __v: 0 })
       .populate({ path: "jobSkills.skills" })
       .populate({ path: "employer", select: "-jobs -__v -_id" })
       .exec();
 
-    if (!job) return res.status(200).send("No job found with that ID");
+    if (!job) {
+      log.warn(`No job found with ID: ${id}`);
+      return res.status(200).send("No job found with that ID");
+    }
 
+    log.info(`Job with ID: ${id} fetched successfully`);
     return res.status(200).send(job);
   } catch (err) {
-    console.log(err);
+    log.error(`Error fetching job with ID: ${id}`, err);
     return res.status(500).send(err);
   }
 });
 
-/**
- * Route for creating a job.
- * @name POST /
- * @function
- * @alias module:Routes/jobRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
+// Route for creating a job
 jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
   const {
     title,
@@ -172,6 +108,8 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
   }
 
   try {
+    log.info("Creating a new job");
+
     const job = await JobModel.findOne({
       title,
       isCompanyListing,
@@ -187,7 +125,10 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
       matches,
     }).exec();
 
-    if (job) return res.status(409).send("Job posting already exists");
+    if (job) {
+      log.warn("Job posting already exists");
+      return res.status(409).send("Job posting already exists");
+    }
 
     const newJob = new JobModel({
       title,
@@ -208,25 +149,17 @@ jobRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
 
     await newJob.save();
 
+    log.info("Job posting created successfully");
     return res.status(201).send("Job posting created");
   } catch (err) {
-    console.log(err);
+    log.error("Error creating job posting:", err);
     return res.status(500).send(err);
   }
 });
 
-/**
- * Route for updating a job.
- * @name PATCH /:id
- * @function
- * @alias module:Routes/jobRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {any}
- */
-jobRoutes.patch("/:id", (req: Request, res: Response): any => {
+// Route for updating a job
+jobRoutes.patch("/:id", async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
-
   const {
     title,
     description,
@@ -256,128 +189,61 @@ jobRoutes.patch("/:id", (req: Request, res: Response): any => {
     return res.status(400).send("Missing required fields");
   }
 
-  return JobModel.findOneAndUpdate(
-    { _id: id },
-    {
-      $set: {
-        title,
-        description,
-        company,
-        type,
-        length,
-        location,
-        isRemote,
-        willSponsor,
-        salary,
-        jobSkills,
-        benefits,
-        updatedAt: new Date(),
+  try {
+    const updatedJob = await JobModel.findOneAndUpdate(
+      { _id: id },
+      {
+        $set: {
+          title,
+          description,
+          company,
+          type,
+          length,
+          location,
+          isRemote,
+          willSponsor,
+          salary,
+          jobSkills,
+          benefits,
+          updatedAt: new Date(),
+        },
       },
-    },
-    (err: CallbackError): any => {
-      if (err) {
-        return res.status(500).send(err);
-      }
+      { new: true }
+    ).exec();
 
-      return res.status(200).send("Job posting updated");
+    if (!updatedJob) {
+      log.warn(`No job found with ID: ${id}`);
+      return res.status(404).send("No job found with that ID");
     }
-  );
+
+    log.info(`Job with ID: ${id} updated successfully`);
+    return res.status(200).send(updatedJob);
+  } catch (err) {
+    log.error(`Error updating job with ID: ${id}`, err);
+    return res.status(500).send(err);
+  }
 });
 
-/**
- * Route for delete a job.
- * @name DELETE /:id
- * @function
- * @alias module:Routes/jobRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {any}
- */
-jobRoutes.delete("/:id", (req: Request, res: Response): any => {
+// Route for deleting a job
+jobRoutes.delete("/:id", async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
 
-  return JobModel.findOneAndDelete(
-    { _id: id },
-    (err: CallbackError, job: Job): any => {
-      if (err) {
-        return res.status(500).send(err);
-      }
+  try {
+    log.info(`Deleting job with ID: ${id}`);
 
-      return EmployerModel.findOneAndUpdate(
-        { _id: job.employer },
-        { $pull: { jobs: id } },
-        (err: CallbackError): any => {
-          if (err) {
-            return res.status(500).send(err);
-          }
+    const job = await JobModel.findByIdAndDelete(id).exec();
 
-          return res.status(200).send("Job deleted");
-        }
-      );
+    if (!job) {
+      log.warn(`No job found with ID: ${id}`);
+      return res.status(404).send("No job found with that ID");
     }
-  );
-});
 
-/**
- * Route for getting a list of matching jobs for a given candidate
- * @name GET /matching-jobs
- * @function
- * @alias module:Routes/jobRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
-jobRoutes.get(
-  "/matching-jobs",
-  async (req: Request, res: Response): Promise<any> => {
-    const { candidate, radius, limit, offset } = req.query;
-
-    try {
-      const candidateDoc = await CandidateModel.findById(candidate);
-      if (!candidateDoc) return res.status(404).send("Candidate not found");
-
-      const jobDocs = await JobModel.find(
-        {
-          location: {
-            $nearSphere: {
-              $geometry: candidateDoc.location.geoCoordinates,
-              $maxDistance: radius * 1000, // Convert to meters
-            },
-          },
-        },
-        { _id: 1, jobSkills: 1, companyId: 1 }
-      )
-        .skip(Number(offset))
-        .limit(Number(limit))
-        .lean()
-        .exec();
-
-      const candidateSkills = candidateDoc.skills.map((skill) =>
-        skill.toString()
-      );
-      const jobMatchPercentages = jobDocs.map((job) => {
-        const matchingSkills = job.jobSkills.filter((jobSkill) =>
-          candidateSkills.includes(jobSkill.skill.toString())
-        );
-        const totalPriority = job.jobSkills.reduce(
-          (acc, cur) => acc + cur.priority,
-          0
-        );
-        const matchPercentage =
-          (matchingSkills.reduce((acc, cur) => acc + cur.priority, 0) /
-            totalPriority) *
-          100;
-        return {
-          jobId: job._id,
-          matchPercentage,
-        };
-      });
-
-      return res.status(200).send(jobMatchPercentages);
-    } catch (err) {
-      return res.status(500).send(err);
-    }
+    log.info(`Job with ID: ${id} deleted successfully`);
+    return res.status(200).send("Job deleted");
+  } catch (err) {
+    log.error(`Error deleting job with ID: ${id}`, err);
+    return res.status(500).send(err);
   }
-);
+});
 
 export default jobRoutes;

@@ -31,6 +31,7 @@ locationRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
 
     // Validate input
     if (!address) {
+      log.warn("Address is required");
       return res.status(400).send("Address is required");
     }
 
@@ -40,21 +41,24 @@ locationRoutes.get("/", async (req: Request, res: Response): Promise<any> => {
     );
     // Extract latitude and longitude from response
     if (response.data.features.length === 0) {
+      log.warn("Invalid address");
       return res.status(400).send("Invalid address");
     }
 
     const { center } = response.data.features[0];
     const [longitude, latitude] = center;
 
+    log.info(`Location coordinates found for address: ${address}`);
     return res.status(200).json({
       latitude,
       longitude,
     });
   } catch (err: any) {
     if (err.response && err.response.data && err.response.data.message) {
+      log.error("Error in location route:", err.response.data.message);
       return res.status(400).send(err.response.data.message);
     }
-    console.error(err);
+    log.error("Error in location route:", err);
     return res.status(500).send("Internal server error");
   }
 });
