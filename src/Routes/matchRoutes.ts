@@ -5,6 +5,7 @@ import { verifyToken } from "../Middleware/Authorization";
 
 // Models
 import MatchModel from "../Models/Match";
+import CandidateModel from "../Models/Candidate";
 import JobModel from "../Models/Job";
 import { Skill } from "../Models/Skill";
 import { JobSkill } from "../Models/Job";
@@ -229,6 +230,11 @@ matchRoutes.post(
 
       await JobModel.updateOne(
         { _id: jobID },
+        { $push: { matches: newmatch._id } }
+      );
+
+      await CandidateModel.updateOne(
+        { _id: candidateID },
         { $push: { matches: newmatch._id } }
       );
 

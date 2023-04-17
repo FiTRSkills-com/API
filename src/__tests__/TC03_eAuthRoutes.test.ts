@@ -18,6 +18,8 @@ const baseURL = "/api/v1/e/auth";
 // Export BearerToken
 export let bearerToken: string;
 
+export let employerId: string;
+
 describe("eAuth Routes", () => {
   describe("Login", () => {
     test("Invalid request format", async () => {
@@ -36,6 +38,7 @@ describe("eAuth Routes", () => {
       // Get Candidate Created
       const employer = await EmployerModel.findOne(testCase);
       bearerToken = `Bearer e ${employer.accessToken}`;
+      employerId = employer._id;
 
       expect(res.statusCode).toBe(200);
       expect(res.type).toEqual("application/json");
