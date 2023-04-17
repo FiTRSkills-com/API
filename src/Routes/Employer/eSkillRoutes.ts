@@ -105,4 +105,33 @@ eSkillRoutes.get(
   }
 );
 
+eSkillRoutes.post(
+  "/addSkill/",
+  async (req: Request, res: Response): Promise<any> => {
+    const { skillName, employerId } = req.body;
+
+    try {
+      const skill = await SkillModel.findOne({
+        skill: skillName,
+      }).exec();
+
+      if (skill) return res.status(409).send("Skill already exists");
+      const newSkill = new SkillModel({
+        skill: skillName,
+        category: "",
+        addedBy: employerId,
+        similarSkills: [],
+        dateAdded: new Date(),
+      });
+
+      await newSkill.save();
+
+      return res.status(201).send("Job posting created");
+    } catch (err) {
+      log.error(err);
+      return res.status(500).send(err);
+    }
+  }
+);
+
 export default eSkillRoutes;

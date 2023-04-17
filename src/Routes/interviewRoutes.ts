@@ -225,17 +225,22 @@ interviewRoutes.get(
 
     let uniqueName;
 
-    await axios
-      .get<VideoInterview>(`https://video.twilio.com/v1/Rooms/${sid}`, {
-        auth: {
-          username: ACCOUNT_SID!,
-          password: AUTH_TOKEN!,
-        },
-      })
-      .then((response) => (uniqueName = response.data.unique_name))
-      .catch((err) => {
-        return res.status(500).send(err);
-      });
+    try {
+      const response = await axios.get<VideoInterview>(
+        `https://video.twilio.com/v1/Rooms/${sid}`,
+        {
+          auth: {
+            username: ACCOUNT_SID!,
+            password: AUTH_TOKEN!,
+          },
+        }
+      );
+
+      uniqueName = response.data.unique_name;
+    } catch (err) {
+      console.error(err);
+      return res.status(500).send("Error fetching interview");
+    }
 
     if (!uniqueName) {
       return res.status(500).send("Interview does not exist");

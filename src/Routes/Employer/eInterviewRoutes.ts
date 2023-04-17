@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 
 import JobModel from "../../Models/Job";
-import MatchModel from "../../Models/Match";
+import MatchModel, { Match } from "../../Models/Match";
 import log from "../../utils/log";
 
 const eInterviewRoutes = Router();
@@ -21,6 +21,48 @@ eInterviewRoutes.get(
         .exec();
 
       if (!jobs) return res.status(200).send("No Jobs Exist.");
+
+      jobs.forEach((job) => {
+        job.matches.sort((a: any, b: any) => {
+          if (!a.interview && !b.interview) {
+            return 0;
+          } else if (a.interview && !b.interview) {
+            return -1;
+          } else if (!a.interview && b.interview) {
+            return 1;
+          }
+          const dateA = new Date(a.interview.interviewDate);
+          const dateB = new Date(b.interview.interviewDate);
+
+          let currentDate = new Date();
+
+          // Subtract 20 minutes from the current date and time
+          currentDate.setMinutes(currentDate.getMinutes() - 20);
+          if (
+            dateA.valueOf() >= currentDate.valueOf() &&
+            dateB.valueOf() >= currentDate.valueOf()
+          ) {
+            if (dateA < dateB) return -1;
+            if (dateA > dateB) return 1;
+            return 0;
+          } else if (
+            dateA.valueOf() < currentDate.valueOf() &&
+            dateB.valueOf() >= currentDate.valueOf()
+          ) {
+            return 1;
+          } else if (
+            dateA.valueOf() >= currentDate.valueOf() &&
+            dateB.valueOf() < currentDate.valueOf()
+          ) {
+            return -1;
+          } else {
+            if (dateA < dateB) return 1;
+            if (dateA > dateB) return -1;
+            return 0;
+          }
+        });
+      });
+
       return res.status(200).send(jobs);
     } catch (err) {
       log.error(err);
