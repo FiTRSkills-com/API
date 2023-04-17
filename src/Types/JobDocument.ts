@@ -1,4 +1,4 @@
-import { JobLength, TimeSlot, JobSkill } from "../Models/Job";
+import { JobLength, JobSkill } from "../Models/Job";
 import { Location } from "../Models/Location";
 import { EmployerDocument } from "./EmployerDocument";
 import { SkillDocument } from "./SkillDocument";
@@ -21,6 +21,5 @@ export interface JobDocument {
   updatedAt: Date;
   matchThreshold: number;
   matches: String[];
-  interviewAvailability: TimeSlot[];
   __v: number;
 }

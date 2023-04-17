@@ -29,7 +29,7 @@ export interface Candidate {
  * @property {string} userID The unique id for the user. (Required)
  * @property {string} bio The user's bio. (Optional)
  * @property {string} accessToken The user's access token. (Optional)
- * @property {ObjectId[]} skills The user's skills. (Optional)
+ * @property {string[]} skills The user's skills. (Optional)
  */
 const CandidateSchema: Schema = new Schema<Candidate>({
   authID: {

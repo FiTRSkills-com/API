@@ -4,6 +4,7 @@ export enum matchStatus {
   PRE_MATCH = "Pre Match",
   MATCH = "Match",
   RETRACTED = "Retracted",
+  REJECTED = "Rejected",
   INTERVIEW_SCHEDULED = "Interview Scheduled",
   POST_INTERVIEW = "Post Interview",
 }

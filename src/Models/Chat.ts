@@ -21,7 +21,7 @@ const MessageSchema: Schema = new Schema<Message>({
   },
 });
 
-interface Chat {
+export interface Chat {
   match: String;
   messages: Message[];
   employerSilence: boolean;
