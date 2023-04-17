@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import log from "../utils/log";
 
 // Middleware
 import { verifyToken } from "../Middleware/Authorization";
@@ -6,8 +7,6 @@ import { verifyToken } from "../Middleware/Authorization";
 // Models
 import SkillModel from "../Models/Skill";
 import JobModel from "../Models/Job";
-import Skill from "../Types/Skills";
-import { JobSkill } from "../Models/Job";
 
 // Instantiate the router
 const skillRoutes = Router();
@@ -25,7 +24,7 @@ skillRoutes.use(verifyToken);
  * @returns {Promise<any>}
  */
 skillRoutes.get(
-  "/:searchBy/:searchTerm/:page",
+  "/grab/:searchBy/:searchTerm/:page",
   async (req: Request, res: Response): Promise<any> => {
     const { searchBy, searchTerm, page } = req.params;
     const limit = 50;
@@ -50,33 +49,6 @@ skillRoutes.get(
     }
   }
 );
-
-/**
- * Route for getting a single skill by name
- * @name GET /:name
- * @function
- * @alias module:Routes/skillRoutes
- * @property {Request} req Express Request
- * @property {Response} res Express Response
- * @returns {Promise<any>}
- */
-skillRoutes.get("/:name", async (req: Request, res: Response): Promise<any> => {
-  const { name } = req.params;
-
-  try {
-    const skill = await SkillModel.findOne(
-      { skill: new RegExp("^" + name + "$", "i") },
-      { __v: 0 }
-    ).exec();
-
-    if (!skill)
-      return res.status(200).send("No skill found matching that name");
-
-    return res.status(200).send(skill);
-  } catch (err) {
-    return res.status(500).send(err);
-  }
-});
 
 /**
  * Route for creating new skill.
@@ -114,12 +86,13 @@ skillRoutes.post("/", async (req: Request, res: Response): Promise<any> => {
 skillRoutes.get(
   "/in-demand-skills",
   async (req: Request, res: Response): Promise<any> => {
+    // [latitude, longitude]
     const location = req.query.location as string;
     const radius = parseFloat(req.query.radius as string) || 10;
-    const page = parseInt(req.query.page as string);
+    const page = parseInt((req.query.page as string) ?? "0");
     const limit = parseInt(req.query.limit as string);
 
-    if (!location || !radius || !page || !limit) {
+    if (location == null || location == "") {
       return res.status(400).send("Missing required parameters");
     }
 
@@ -171,6 +144,7 @@ skillRoutes.get(
         (page - 1) * limit,
         page * limit
       );
+      log.info(paginatedSkills);
 
       return res.status(200).json(paginatedSkills);
     } catch (err) {
