@@ -75,19 +75,12 @@ eSkillRoutes.get(
 );
 
 eSkillRoutes.get(
-  "/searchBy/:rpp/:page/:sort/:jobID/:search",
+  "/searchBy/:rpp/:page/:sort/:search",
   async (req: Request, res: Response): Promise<any> => {
-    const { rpp, page, sort, jobID, search } = req.params;
+    const { rpp, page, sort, search } = req.params;
 
     try {
-      const jobs = await JobModel.findOne({ _id: jobID })
-        .select("jobSkills.skill")
-        .exec();
-      const excludedSkillIDs = jobs.jobSkills.map((js: JobSkill) => js.skill);
-      log.info(excludedSkillIDs);
-
       const skills = await SkillModel.find({
-        _id: { $nin: excludedSkillIDs },
         skill: { $regex: new RegExp(search, "i") },
       })
         .sort(sort)
